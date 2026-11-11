@@ -62,6 +62,13 @@ def t1_environment():
     except ImportError:
         record("T1c", "FAIL", "pip install playwright"); ok = False
 
+    try:
+        import curl_cffi  # noqa: F401
+        record("T1e", "PASS", "curl_cffi installed — no-browser fetch can use Chrome TLS")
+    except ImportError:
+        record("T1e", "INFO", "curl_cffi missing (optional) — pip install curl_cffi "
+                              "lets the fetch skip the browser more often")
+
     if os.path.isdir(fn.PROFILE):
         size = sum(os.path.getsize(os.path.join(dp, f))
                    for dp, _, fs in os.walk(fn.PROFILE) for f in fs
@@ -92,6 +99,20 @@ def t3_page_state():
         "real listing": ('<html><body><table><tr><td>26101</td><td>Seat plan notice for the exam</td>'
                          '<td><a href="https://erecruitment.bb.org.bd/career/20261108_bscs_357_1.pdf">PDF</a>'
                          ' (196 KB)</td></tr></table>' + "x" * 200 + "</body></html>", "ok"),
+        # THE REGRESSION: the real listing still carries F5's injected TSPD
+        # script after the challenge clears. Classifying on the marker made
+        # every successful fetch look like a block.
+        "real listing + F5 TSPD script": (
+            '<html><head><script type="text/javascript" src="/TSPD/08f4a2b1c3'
+            '00005a?type=12"></script></head><body><table><tr><td>303</td>'
+            '<td>Circular regarding Preliminary Test Result and Schedule</td>'
+            '<td><a href="https://erecruitment.bb.org.bd/career/20261111_bb_303_1.pdf">'
+            'Download PDF</a> (600 KB)</td></tr></table>' + "x" * 200
+            + '</body></html>', "ok"),
+        "bobcmn JS challenge, no rows": (
+            '<html><head><script>window["bobcmn"]="11201111";</script></head>'
+            '<body><noscript>Please enable JavaScript</noscript>' + "x" * 300
+            + '</body></html>', "challenge"),
         "css-only .pdf": ("<html><style>.pdf button, .x {color:red}</style><body>" + "x" * 300
                           + "</body></html>", "empty"),
         "F5 captcha": ('<html><head><script>window["bobcmn"]="1011111010";</script></head>'

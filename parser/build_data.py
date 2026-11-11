@@ -106,6 +106,22 @@ def _exam_date(parsed: dict, row: dict, kind: str):
     return None
 
 
+def _iso(d):
+    """'13/11/2026' -> '2026-11-13'. Returns None for anything unparseable.
+
+    The client cannot compare DD/MM/YYYY strings, so every date that drives a
+    countdown, a status badge or the archive split ships in ISO form as well.
+    The human-readable DD/MM/YYYY field is kept untouched for display.
+    """
+    if not d:
+        return None
+    m = re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{4})", str(d).strip())
+    if not m:
+        return None
+    dd, mm, yy = m.groups()
+    return f"{yy}-{int(mm):02d}-{int(dd):02d}"
+
+
 def _merge_listing_cache(listing: list[dict], root: str) -> dict:
     """
     Accumulate listing rows across runs instead of trusting one snapshot.
@@ -159,7 +175,7 @@ def build(html_path: str, pdf_dir: str, out_path: str) -> dict:
         notice = {
             "id": fn.replace(".pdf", ""),
             "noticeNo": parsed["noticeNo"],
-            "kind": kind_label(row, parsed),
+            "kind": "selected" if row.get("groups") or row.get("rolls") else kind_label(row, parsed),
             "jobId": row.get("jobId"),
             "category": row.get("category"),
             "title": row.get("title") or f"Notice {parsed['noticeNo']}",
@@ -175,6 +191,9 @@ def build(html_path: str, pdf_dir: str, out_path: str) -> dict:
             "venue": row.get("venue"),
             "venueMapQuery": row.get("venueMapQuery"),
         }
+        notice["publishedISO"] = _iso(row.get("published"))
+        notice["closingISO"]   = _iso(row.get("closing"))
+        notice["examDateISO"]  = _iso(notice["examDate"])
 
         if parsed["centres"]:
             # human-verified names win over the mojibake the legacy font produces
@@ -231,7 +250,23 @@ def build(html_path: str, pdf_dir: str, out_path: str) -> dict:
         if parsed["kind"] == "list":
             notice["rolls"] = sorted(parsed["rolls"])
 
-        notice["rollCount"] = parsed["rollCount"] if parsed["kind"] != "centre" else None
+        # Hand-transcribed rolls for notices the parser cannot read (image-only
+        # scans). These override whatever the PDF yielded, and are flagged so the
+        # UI can tell the user the numbers were typed in, not machine-extracted.
+        if row.get("groups") or row.get("rolls"):
+            groups = row.get("groups") or [{"post": None, "rolls": row["rolls"]}]
+            allr = sorted({int(r) for g in groups for r in g["rolls"]})
+            notice["rolls"] = allr
+            notice["groups"] = [{"post": g.get("post"),
+                                 "rolls": sorted(int(r) for r in g["rolls"])}
+                                for g in groups]
+            notice["rollSource"] = row.get("rollSource", "manual")
+            notice["verified"] = row.get("verified")
+
+        if notice.get("rollSource") == "manual":
+            notice["rollCount"] = len(notice["rolls"])
+        else:
+            notice["rollCount"] = parsed["rollCount"] if parsed["kind"] != "centre" else None
         notices.append(notice)
 
     # newest first

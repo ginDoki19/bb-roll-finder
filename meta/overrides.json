@@ -1,5 +1,5 @@
 {
-  "_note": "Titles for notices whose PDF is not in the saved listing page yet. The scraper fills these automatically from jobopportunity.php; this file only covers backfill.",
+  "_note": "Backfill for notices the parser cannot fully read. 'groups'/'rolls' are HAND-TYPED from image-only scans and must be eyeballed against the PDF before committing; set 'verified' to the date you checked them.",
   "20261109_bb_85_1794223946.pdf": {
     "title": "Written Result & Schedule of Viva Voce — Assistant Director (Job ID-302)",
     "category": "VIVA",
@@ -45,5 +45,110 @@
     ],
     "published": "10/11/2026",
     "closing": "13/11/2026"
+  },
+  "20261102_bb_83_1793613569.pdf": {
+    "title": "Offer Letter issued — Assistant Director (Engineering-Electrical), Job ID 269",
+    "category": "Offer Letter",
+    "jobId": "269",
+    "published": "02/11/2026",
+    "closing": "30/11/2026",
+    "rollSource": "manual",
+    "verified": "2026-11-11",
+    "groups": [
+      {
+        "post": "সহকারী পরিচালক (প্রকৌশল-তড়িৎ)",
+        "rolls": [
+          501991,
+          504052,
+          500419,
+          503936,
+          502883,
+          502546,
+          501443,
+          504105,
+          503387,
+          500004,
+          500904
+        ]
+      }
+    ]
+  },
+  "20261029_bb_372_1793248807.pdf": {
+    "title": "Primarily selected candidates (2nd & 3rd Phase) — 10 category posts, SPCBL",
+    "category": "Selected Candidate",
+    "jobId": "280, 282, 289, 294, 295, 296, 299, 300",
+    "published": "25/10/2026",
+    "closing": "30/11/2026",
+    "rollSource": "manual",
+    "verified": "2026-11-11",
+    "groups": [
+      {
+        "post": "সহকারী ব্যবস্থাপক (উৎপাদন)",
+        "rolls": [
+          3104
+        ]
+      },
+      {
+        "post": "সহকারী ব্যবস্থাপক (জেনারেল)",
+        "rolls": [
+          104171
+        ]
+      },
+      {
+        "post": "টেকনিশিয়ান (মেকানিক্যাল)",
+        "rolls": [
+          479
+        ]
+      },
+      {
+        "post": "জুনিয়র টেকনিশিয়ান (অরিজিনেশন)",
+        "rolls": [
+          801
+        ]
+      },
+      {
+        "post": "জুনিয়র টেকনিশিয়ান (উৎপাদন)",
+        "rolls": [
+          1354,
+          1833
+        ]
+      },
+      {
+        "post": "জুনিয়র টেকনিশিয়ান (গবেষণা ও মান নিয়ন্ত্রণ)",
+        "rolls": [
+          924
+        ]
+      },
+      {
+        "post": "জুনিয়র টেকনিশিয়ান (মেকানিক্যাল)",
+        "rolls": [
+          3067
+        ]
+      },
+      {
+        "post": "জুনিয়র কেয়ারটেকার (পিয়ন)",
+        "rolls": [
+          8339
+        ]
+      },
+      {
+        "post": "জুনিয়র কেয়ারটেকার (ক্লিনার)",
+        "rolls": [
+          9721,
+          9702,
+          9422,
+          8861,
+          8348,
+          8076
+        ]
+      },
+      {
+        "post": "জুনিয়র কেয়ারটেকার (মালি)",
+        "rolls": [
+          9552,
+          9274
+        ]
+      }
+    ]
   }
 }

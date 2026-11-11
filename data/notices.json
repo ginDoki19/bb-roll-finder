@@ -1,7 +1,30 @@
 {
- "generated": "2026-11-11T05:16:50Z",
+ "generated": "2026-11-11T23:04:52Z",
  "source": "https://erecruitment.bb.org.bd/career/jobopportunity.php",
  "notices": [
+  {
+   "id": "20261111_bb_87_1794395117",
+   "noticeNo": null,
+   "kind": "scanned",
+   "jobId": "303",
+   "category": "Written",
+   "title": "Circular regarding Preliminary Test Result and Schedule of Written Exam for the post of \"Assistant Manager (G)\" of SPCBL (Job ID: 303)",
+   "pdf": "notices/20261111_bb_87_1794395117.pdf",
+   "pdfUrl": "https://erecruitment.bb.org.bd/career/20261111_bb_87_1794395117.pdf",
+   "sizeKB": 600,
+   "published": "11/11/2026",
+   "closing": "20/11/2026",
+   "examDate": null,
+   "examWindow": null,
+   "pages": 1,
+   "seats": null,
+   "venue": null,
+   "venueMapQuery": null,
+   "publishedISO": "2026-11-11",
+   "closingISO": "2026-11-20",
+   "examDateISO": null,
+   "rollCount": 0
+  },
   {
    "id": "20261110_bb_86_1794286537",
    "noticeNo": "86/2026",
@@ -23,6 +46,9 @@
    "seats": 16596,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-11-10",
+   "closingISO": "2026-11-13",
+   "examDateISO": "2026-11-13",
    "centres": [
     {
      "sl": 1,
@@ -90,6 +116,9 @@
    "seats": null,
    "venue": "বাংলাদেশ ব্যাংক প্রধান কার্যালয়, মূল ভবন (৪র্থ তল), মতিঝিল, ঢাকা",
    "venueMapQuery": "Bangladesh Bank Head Office, Motijheel, Dhaka",
+   "publishedISO": "2026-11-09",
+   "closingISO": "2026-11-28",
+   "examDateISO": "2026-11-16",
    "sittings": [
     {
      "sl": "01",
@@ -868,6 +897,29 @@
    "rollCount": 677
   },
   {
+   "id": "20261109_bb_419_1794210128",
+   "noticeNo": null,
+   "kind": "scanned",
+   "jobId": "285",
+   "category": "Selected Candidate",
+   "title": "Primarily selected candidates (2nd Phase) for the post of Officer (General) in SPCBL (Circular No :45/2024). (Job Id -285)",
+   "pdf": "notices/20261109_bb_419_1794210128.pdf",
+   "pdfUrl": "https://erecruitment.bb.org.bd/career/20261109_bb_419_1794210128.pdf",
+   "sizeKB": 385,
+   "published": "09/11/2026",
+   "closing": "09/12/2026",
+   "examDate": null,
+   "examWindow": null,
+   "pages": 1,
+   "seats": null,
+   "venue": null,
+   "venueMapQuery": null,
+   "publishedISO": "2026-11-09",
+   "closingISO": "2026-12-09",
+   "examDateISO": null,
+   "rollCount": 0
+  },
+  {
    "id": "20261108_bscs_357_1794134950",
    "noticeNo": "357/2026",
    "kind": "seat",
@@ -888,6 +940,9 @@
    "seats": 120529,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-11-08",
+   "closingISO": "2026-11-13",
+   "examDateISO": "2026-11-13",
    "centres": [
     {
      "sl": 1,
@@ -1163,12 +1218,15 @@
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-11-05",
+   "closingISO": "2026-11-14",
+   "examDateISO": null,
    "rollCount": 0
   },
   {
    "id": "20261102_bb_83_1793613569",
    "noticeNo": null,
-   "kind": "scanned",
+   "kind": "selected",
    "jobId": "269",
    "category": "Offer Letter",
    "title": "Circular regarding issuance of Offer Letter for the post of Assistant Director (Eng. Electrical) of Bangladesh Bank",
@@ -1183,7 +1241,43 @@
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
-   "rollCount": 0
+   "publishedISO": "2026-11-02",
+   "closingISO": "2026-11-30",
+   "examDateISO": null,
+   "rolls": [
+    500004,
+    500419,
+    500904,
+    501443,
+    501991,
+    502546,
+    502883,
+    503387,
+    503936,
+    504052,
+    504105
+   ],
+   "groups": [
+    {
+     "post": "সহকারী পরিচালক (প্রকৌশল-তড়িৎ)",
+     "rolls": [
+      500004,
+      500419,
+      500904,
+      501443,
+      501991,
+      502546,
+      502883,
+      503387,
+      503936,
+      504052,
+      504105
+     ]
+    }
+   ],
+   "rollSource": "manual",
+   "verified": "2026-11-11",
+   "rollCount": 11
   },
   {
    "id": "20261027_bscs_350_1793099853",
@@ -1206,6 +1300,9 @@
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-10-27",
+   "closingISO": "2026-11-21",
+   "examDateISO": "2026-11-05",
    "sittings": [
     {
      "sl": "01",
@@ -3609,9 +3706,35 @@
    "rollCount": 2126
   },
   {
+   "id": "20261027_bscs_348_1793084047",
+   "noticeNo": "348/2026",
+   "kind": "circular",
+   "jobId": "26101",
+   "category": "MCQ",
+   "title": "Schedule of MCQ Test and Exam Content with Mark Distribution for the Post of Senior Officer (General) (Grade-9) (Job ID: 26101) of 09 Banks & 2 FIs",
+   "pdf": "notices/20261027_bscs_348_1793084047.pdf",
+   "pdfUrl": "https://erecruitment.bb.org.bd/career/20261027_bscs_348_1793084047.pdf",
+   "sizeKB": 93,
+   "published": "27/10/2026",
+   "closing": "13/11/2026",
+   "examDate": null,
+   "examWindow": [
+    "3:00 PM",
+    "12:25 PM"
+   ],
+   "pages": 1,
+   "seats": null,
+   "venue": null,
+   "venueMapQuery": null,
+   "publishedISO": "2026-10-27",
+   "closingISO": "2026-11-13",
+   "examDateISO": null,
+   "rollCount": 0
+  },
+  {
    "id": "20261029_bb_372_1793248807",
    "noticeNo": null,
-   "kind": "scanned",
+   "kind": "selected",
    "jobId": "280, 282, 289, 294, 295, 296",
    "category": "Selected Candidate",
    "title": "Primarily selected candidates (2nd and 3rd Phase) for 10 category posts of SPCBL (Circular No :45/2024). (Job Id -280, 282, 289, 294, 295, 296, 299 & 300)",
@@ -3626,6 +3749,125 @@
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-10-25",
+   "closingISO": "2026-11-30",
+   "examDateISO": null,
+   "rolls": [
+    479,
+    801,
+    924,
+    1354,
+    1833,
+    3067,
+    3104,
+    8076,
+    8339,
+    8348,
+    8861,
+    9274,
+    9422,
+    9552,
+    9702,
+    9721,
+    104171
+   ],
+   "groups": [
+    {
+     "post": "সহকারী ব্যবস্থাপক (উৎপাদন)",
+     "rolls": [
+      3104
+     ]
+    },
+    {
+     "post": "সহকারী ব্যবস্থাপক (জেনারেল)",
+     "rolls": [
+      104171
+     ]
+    },
+    {
+     "post": "টেকনিশিয়ান (মেকানিক্যাল)",
+     "rolls": [
+      479
+     ]
+    },
+    {
+     "post": "জুনিয়র টেকনিশিয়ান (অরিজিনেশন)",
+     "rolls": [
+      801
+     ]
+    },
+    {
+     "post": "জুনিয়র টেকনিশিয়ান (উৎপাদন)",
+     "rolls": [
+      1354,
+      1833
+     ]
+    },
+    {
+     "post": "জুনিয়র টেকনিশিয়ান (গবেষণা ও মান নিয়ন্ত্রণ)",
+     "rolls": [
+      924
+     ]
+    },
+    {
+     "post": "জুনিয়র টেকনিশিয়ান (মেকানিক্যাল)",
+     "rolls": [
+      3067
+     ]
+    },
+    {
+     "post": "জুনিয়র কেয়ারটেকার (পিয়ন)",
+     "rolls": [
+      8339
+     ]
+    },
+    {
+     "post": "জুনিয়র কেয়ারটেকার (ক্লিনার)",
+     "rolls": [
+      8076,
+      8348,
+      8861,
+      9422,
+      9702,
+      9721
+     ]
+    },
+    {
+     "post": "জুনিয়র কেয়ারটেকার (মালি)",
+     "rolls": [
+      9274,
+      9552
+     ]
+    }
+   ],
+   "rollSource": "manual",
+   "verified": "2026-11-11",
+   "rollCount": 17
+  },
+  {
+   "id": "20261017_bb_81_1792222495",
+   "noticeNo": "81/2026",
+   "kind": "circular",
+   "jobId": "307",
+   "category": "MCQ",
+   "title": "Circular regarding schedule of Preliminary Test for the post of 'Officer (General)' of SPCBL (Job ID:307)",
+   "pdf": "notices/20261017_bb_81_1792222495.pdf",
+   "pdfUrl": "https://erecruitment.bb.org.bd/career/20261017_bb_81_1792222495.pdf",
+   "sizeKB": 721,
+   "published": "17/10/2026",
+   "closing": "13/11/2026",
+   "examDate": null,
+   "examWindow": [
+    "10:00 AM",
+    "11:00 AM"
+   ],
+   "pages": 1,
+   "seats": null,
+   "venue": null,
+   "venueMapQuery": null,
+   "publishedISO": "2026-10-17",
+   "closingISO": "2026-11-13",
+   "examDateISO": null,
    "rollCount": 0
   },
   {
@@ -3646,6 +3888,9 @@
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-09-29",
+   "closingISO": "2026-11-29",
+   "examDateISO": null,
    "rolls": [
     100307,
     100402,
@@ -4708,6 +4953,9 @@
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-05-04",
+   "closingISO": "2027-05-31",
+   "examDateISO": null,
    "rollCount": 0
   }
  ]

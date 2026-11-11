@@ -19,8 +19,9 @@ EVERY FEW DAYS
   Double-click  check.bat -> verifies everything still works.
 
 DOCS
-  SETUP.md    install Python + dependencies            <- start here
-  DEPLOY.md   put it online free (Cloudflare Pages)
+  HOSTING.md  put it on the internet (ginDoki19 version) <- START HERE
+  SETUP.md    install Python + dependencies
+  DEPLOY.md   short version of HOSTING.md for reference
   TESTING.md  what to test, expected output, fixes
   PLAN.md     how it works and why
   README.md   command reference

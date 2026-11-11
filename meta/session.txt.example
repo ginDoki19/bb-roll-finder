@@ -1,0 +1,38 @@
+# ── How to hand the fetcher your already-solved session ───────────────────
+#
+# The script drives Brave with its OWN profile, which is a different cookie
+# jar from the Brave you browse in. That is why solving the CAPTCHA in your
+# normal window does not help it. Paste your solved session here instead.
+#
+# STEPS
+#   1. In normal Brave, open:
+#        https://erecruitment.bb.org.bd/career/jobopportunity.php
+#      Solve the CAPTCHA if one appears, until you SEE the notice table.
+#   2. Press F12  →  Network tab  →  press F5 to reload.
+#   3. Click the FIRST row (jobopportunity.php).
+#   4. Right-click it → Copy → "Copy as cURL (bash)".
+#   5. Paste the whole thing below, save this file as  session.txt
+#      (remove the .example from the filename).
+#   6. Run run.bat as usual.
+#
+# ANY of these Copy-as formats work — pick whichever you clicked:
+#      Copy as cURL (bash)      Copy as cURL (cmd)
+#      Copy as fetch            Copy as fetch (Node.js)
+#      Copy as PowerShell
+# Modern Brave/Chrome write the cookie as   -b $'PHPSESSID=...; TSPD_101=...'
+# rather than a cookie: header; both are understood, and the \u0021 escapes
+# bash adds are decoded back to ! before the cookie is used.
+# Or write the cookie line yourself:
+#      cookie: TSPD_101=...; bb_cookie=...; TS01cf43c8=...
+#
+# TO CHECK IT WORKED, before running a full fetch:
+#      session-check.bat
+# It prints the cookie NAMES only (never the values), so the output is safe
+# to share. You want TSPD_101 in that list.
+#
+# ⚠  This file is a LIVE LOGIN. .gitignore already excludes session.txt, so it
+#    will not reach GitHub — but never paste its contents into a chat or issue.
+#    It expires on its own, usually within hours to a few days; when the fetch
+#    starts failing again, just repeat the steps above.
+# ──────────────────────────────────────────────────────────────────────────
+

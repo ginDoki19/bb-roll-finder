@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .DS_Store
 logs/
+
+# live browser session pasted from DevTools - NEVER commit this
+meta/session.txt
+meta/session*.txt

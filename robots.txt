@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /parser/
+Disallow: /tools/
+
+Sitemap: https://bb-roll-finder.pages.dev/sitemap.xml

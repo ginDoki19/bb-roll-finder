@@ -128,13 +128,17 @@ def main() -> int:
     # --- regressions found on 2026-11-11, after the first live fetch ---------
     print("\n— live-fetch regressions —")
 
-    # 1. scanned notices must be flagged, never silently empty
+    # 1. no notice may be a silent dead end: anything still flagged "scanned"
+    #    must say so, and anything claiming to be searchable must carry rolls.
     scans = [n for n in data["notices"] if n["kind"] == "scanned"]
-    if len(scans) != 2:
+    hollow = [n["id"] for n in data["notices"]
+              if n["kind"] in ("selected", "viva", "result", "seat")
+              and not (n.get("rolls") or n.get("sittings") or n.get("centres"))]
+    if hollow:
         fails += 1
-        print(f"  FAIL expected 2 scanned notices (83, 372), got {len(scans)}")
+        print(f"  FAIL notice(s) marked searchable but carrying no rolls: {hollow}")
     else:
-        print(f"  ok  {len(scans)} scanned notices flagged, not shown as searchable")
+        print(f"  ok  no hollow notices; {len(scans)} still image-only and flagged as such")
 
     # 2. titles must survive a career.html that only covers one of the two
     #    listing pages — the merge cache backfills the rest
@@ -162,6 +166,60 @@ def main() -> int:
         if c["from"] <= 105432 <= c["to"] and "মোল্লা" not in c["name"]:
             fails += 1
             print(f"  FAIL roll 105432 resolved to {c['name']!r}")
+
+    # 4. ISO dates must exist and agree with their DD/MM/YYYY twin, because the
+    #    status badges, the archive split and the countdown all key off them.
+    import re as _re
+    bad_iso = []
+    for n in data["notices"]:
+        for human, iso in (("published", "publishedISO"),
+                           ("closing", "closingISO"),
+                           ("examDate", "examDateISO")):
+            h, i = n.get(human), n.get(iso)
+            if h and not i:
+                bad_iso.append(f"{n['id']}.{iso} missing (from {h!r})")
+            elif i:
+                if not _re.fullmatch(r"\d{4}-\d{2}-\d{2}", i):
+                    bad_iso.append(f"{n['id']}.{iso} malformed: {i!r}")
+                elif h:
+                    dd, mm, yy = h.split("/")
+                    if i != f"{yy}-{int(mm):02d}-{int(dd):02d}":
+                        bad_iso.append(f"{n['id']}: {h!r} != {i!r}")
+    if bad_iso:
+        fails += 1
+        for b in bad_iso[:6]:
+            print(f"  FAIL {b}")
+    else:
+        print("  ok  ISO dates present and consistent on every notice")
+
+    # 5. hand-transcribed roll lists must match the totals printed on the notice
+    MANUAL = {"20261102_bb_83_1793613569": 11, "20261029_bb_372_1793248807": 17}
+    for nid, want in MANUAL.items():
+        n = next((x for x in data["notices"] if x["id"] == nid), None)
+        if not n:
+            fails += 1
+            print(f"  FAIL manual notice {nid} missing from the build")
+            continue
+        got = len(n.get("rolls") or [])
+        grouped = sum(len(g["rolls"]) for g in n.get("groups") or [])
+        if got != want or grouped != want:
+            fails += 1
+            print(f"  FAIL {nid}: {got} rolls / {grouped} grouped, notice states {want}")
+        elif n.get("rollSource") != "manual":
+            fails += 1
+            print(f"  FAIL {nid}: rollSource = {n.get('rollSource')!r}, expected 'manual'")
+        elif sorted(set(n["rolls"])) != n["rolls"]:
+            fails += 1
+            print(f"  FAIL {nid}: roll list has duplicates or is unsorted")
+    print("  ok  hand-typed roll lists match the totals printed on both scans")
+
+    # 6. the two scans must no longer be dead ends
+    still_scanned = [n["id"] for n in data["notices"] if n.get("kind") == "scanned"]
+    if set(still_scanned) & set(MANUAL):
+        fails += 1
+        print(f"  FAIL transcribed notice still marked scanned: {still_scanned}")
+    else:
+        print(f"  ok  both transcribed notices are searchable ({len(still_scanned)} left unreadable)")
 
     print("\n" + ("ALL PASS" if not fails else f"{fails} FAILURE(S)"))
     return 1 if fails else 0

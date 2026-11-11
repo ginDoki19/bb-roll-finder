@@ -74,6 +74,24 @@
     background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.28);color:#fcd34d}
   .scanwarn a{color:#fde68a;font-weight:600}
   .badge.sm{background:rgba(255,255,255,.05);color:var(--dim2);border:1px solid var(--line);font-weight:600}
+  .s-today{background:rgba(248,113,113,.18);color:#fca5a5;border:1px solid rgba(248,113,113,.45)}
+  .s-soon{background:rgba(251,191,36,.15);color:var(--warn);border:1px solid rgba(251,191,36,.38)}
+  .s-up{background:rgba(52,211,153,.12);color:var(--ok);border:1px solid rgba(52,211,153,.3)}
+  .s-past{background:rgba(107,124,156,.12);color:var(--dim2);border:1px solid var(--line)}
+  .ncard.past{opacity:.55}
+  .cd{margin:0 0 14px;padding:12px 14px;border-radius:11px;line-height:1.5}
+  .cd b{display:block;font-size:17px;margin-bottom:2px}
+  .cd span{font-size:13px;opacity:.92}
+  .cd-today{background:rgba(248,113,113,.14);border:1px solid rgba(248,113,113,.42);color:#fecaca}
+  .cd-soon{background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.36);color:#fde68a}
+  .cd-past{background:rgba(107,124,156,.1);border:1px solid var(--line);color:var(--dim)}
+  .manual{margin-top:10px;padding:9px 12px;border-radius:9px;font-size:12.5px;line-height:1.55;
+    background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);color:#c7d2fe}
+  .manual a{color:#e0e7ff;font-weight:600}
+  .arch{margin-top:26px}
+  .arch summary{cursor:pointer;color:var(--dim2);font-size:13px;letter-spacing:.06em;
+    text-transform:uppercase;padding:8px 0}
+  .arch summary:hover{color:var(--dim)}
   .ttl{font-size:clamp(18px,2.6vw,22px);font-weight:700;margin:0 0 3px;line-height:1.34}
   .meta{color:var(--dim);font-size:14px;margin-bottom:16px}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:11px}
@@ -168,9 +186,32 @@
 /* data is inlined at build time by parser/build_site.py so the page works
    from file://, from a phone with no signal, and inside sandboxed previews */
 const DATA = {
- "generated": "2026-11-11T05:16:50Z",
+ "generated": "2026-11-11T23:04:52Z",
  "source": "https://erecruitment.bb.org.bd/career/jobopportunity.php",
  "notices": [
+  {
+   "id": "20261111_bb_87_1794395117",
+   "noticeNo": null,
+   "kind": "scanned",
+   "jobId": "303",
+   "category": "Written",
+   "title": "Circular regarding Preliminary Test Result and Schedule of Written Exam for the post of \"Assistant Manager (G)\" of SPCBL (Job ID: 303)",
+   "pdf": "notices/20261111_bb_87_1794395117.pdf",
+   "pdfUrl": "https://erecruitment.bb.org.bd/career/20261111_bb_87_1794395117.pdf",
+   "sizeKB": 600,
+   "published": "11/11/2026",
+   "closing": "20/11/2026",
+   "examDate": null,
+   "examWindow": null,
+   "pages": 1,
+   "seats": null,
+   "venue": null,
+   "venueMapQuery": null,
+   "publishedISO": "2026-11-11",
+   "closingISO": "2026-11-20",
+   "examDateISO": null,
+   "rollCount": 0
+  },
   {
    "id": "20261110_bb_86_1794286537",
    "noticeNo": "86/2026",
@@ -192,6 +233,9 @@ const DATA = {
    "seats": 16596,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-11-10",
+   "closingISO": "2026-11-13",
+   "examDateISO": "2026-11-13",
    "centres": [
     {
      "sl": 1,
@@ -259,6 +303,9 @@ const DATA = {
    "seats": null,
    "venue": "বাংলাদেশ ব্যাংক প্রধান কার্যালয়, মূল ভবন (৪র্থ তল), মতিঝিল, ঢাকা",
    "venueMapQuery": "Bangladesh Bank Head Office, Motijheel, Dhaka",
+   "publishedISO": "2026-11-09",
+   "closingISO": "2026-11-28",
+   "examDateISO": "2026-11-16",
    "sittings": [
     {
      "sl": "01",
@@ -1037,6 +1084,29 @@ const DATA = {
    "rollCount": 677
   },
   {
+   "id": "20261109_bb_419_1794210128",
+   "noticeNo": null,
+   "kind": "scanned",
+   "jobId": "285",
+   "category": "Selected Candidate",
+   "title": "Primarily selected candidates (2nd Phase) for the post of Officer (General) in SPCBL (Circular No :45/2024). (Job Id -285)",
+   "pdf": "notices/20261109_bb_419_1794210128.pdf",
+   "pdfUrl": "https://erecruitment.bb.org.bd/career/20261109_bb_419_1794210128.pdf",
+   "sizeKB": 385,
+   "published": "09/11/2026",
+   "closing": "09/12/2026",
+   "examDate": null,
+   "examWindow": null,
+   "pages": 1,
+   "seats": null,
+   "venue": null,
+   "venueMapQuery": null,
+   "publishedISO": "2026-11-09",
+   "closingISO": "2026-12-09",
+   "examDateISO": null,
+   "rollCount": 0
+  },
+  {
    "id": "20261108_bscs_357_1794134950",
    "noticeNo": "357/2026",
    "kind": "seat",
@@ -1057,6 +1127,9 @@ const DATA = {
    "seats": 120529,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-11-08",
+   "closingISO": "2026-11-13",
+   "examDateISO": "2026-11-13",
    "centres": [
     {
      "sl": 1,
@@ -1332,12 +1405,15 @@ const DATA = {
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-11-05",
+   "closingISO": "2026-11-14",
+   "examDateISO": null,
    "rollCount": 0
   },
   {
    "id": "20261102_bb_83_1793613569",
    "noticeNo": null,
-   "kind": "scanned",
+   "kind": "selected",
    "jobId": "269",
    "category": "Offer Letter",
    "title": "Circular regarding issuance of Offer Letter for the post of Assistant Director (Eng. Electrical) of Bangladesh Bank",
@@ -1352,7 +1428,43 @@ const DATA = {
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
-   "rollCount": 0
+   "publishedISO": "2026-11-02",
+   "closingISO": "2026-11-30",
+   "examDateISO": null,
+   "rolls": [
+    500004,
+    500419,
+    500904,
+    501443,
+    501991,
+    502546,
+    502883,
+    503387,
+    503936,
+    504052,
+    504105
+   ],
+   "groups": [
+    {
+     "post": "সহকারী পরিচালক (প্রকৌশল-তড়িৎ)",
+     "rolls": [
+      500004,
+      500419,
+      500904,
+      501443,
+      501991,
+      502546,
+      502883,
+      503387,
+      503936,
+      504052,
+      504105
+     ]
+    }
+   ],
+   "rollSource": "manual",
+   "verified": "2026-11-11",
+   "rollCount": 11
   },
   {
    "id": "20261027_bscs_350_1793099853",
@@ -1375,6 +1487,9 @@ const DATA = {
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-10-27",
+   "closingISO": "2026-11-21",
+   "examDateISO": "2026-11-05",
    "sittings": [
     {
      "sl": "01",
@@ -3778,9 +3893,35 @@ const DATA = {
    "rollCount": 2126
   },
   {
+   "id": "20261027_bscs_348_1793084047",
+   "noticeNo": "348/2026",
+   "kind": "circular",
+   "jobId": "26101",
+   "category": "MCQ",
+   "title": "Schedule of MCQ Test and Exam Content with Mark Distribution for the Post of Senior Officer (General) (Grade-9) (Job ID: 26101) of 09 Banks & 2 FIs",
+   "pdf": "notices/20261027_bscs_348_1793084047.pdf",
+   "pdfUrl": "https://erecruitment.bb.org.bd/career/20261027_bscs_348_1793084047.pdf",
+   "sizeKB": 93,
+   "published": "27/10/2026",
+   "closing": "13/11/2026",
+   "examDate": null,
+   "examWindow": [
+    "3:00 PM",
+    "12:25 PM"
+   ],
+   "pages": 1,
+   "seats": null,
+   "venue": null,
+   "venueMapQuery": null,
+   "publishedISO": "2026-10-27",
+   "closingISO": "2026-11-13",
+   "examDateISO": null,
+   "rollCount": 0
+  },
+  {
    "id": "20261029_bb_372_1793248807",
    "noticeNo": null,
-   "kind": "scanned",
+   "kind": "selected",
    "jobId": "280, 282, 289, 294, 295, 296",
    "category": "Selected Candidate",
    "title": "Primarily selected candidates (2nd and 3rd Phase) for 10 category posts of SPCBL (Circular No :45/2024). (Job Id -280, 282, 289, 294, 295, 296, 299 & 300)",
@@ -3795,6 +3936,125 @@ const DATA = {
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-10-25",
+   "closingISO": "2026-11-30",
+   "examDateISO": null,
+   "rolls": [
+    479,
+    801,
+    924,
+    1354,
+    1833,
+    3067,
+    3104,
+    8076,
+    8339,
+    8348,
+    8861,
+    9274,
+    9422,
+    9552,
+    9702,
+    9721,
+    104171
+   ],
+   "groups": [
+    {
+     "post": "সহকারী ব্যবস্থাপক (উৎপাদন)",
+     "rolls": [
+      3104
+     ]
+    },
+    {
+     "post": "সহকারী ব্যবস্থাপক (জেনারেল)",
+     "rolls": [
+      104171
+     ]
+    },
+    {
+     "post": "টেকনিশিয়ান (মেকানিক্যাল)",
+     "rolls": [
+      479
+     ]
+    },
+    {
+     "post": "জুনিয়র টেকনিশিয়ান (অরিজিনেশন)",
+     "rolls": [
+      801
+     ]
+    },
+    {
+     "post": "জুনিয়র টেকনিশিয়ান (উৎপাদন)",
+     "rolls": [
+      1354,
+      1833
+     ]
+    },
+    {
+     "post": "জুনিয়র টেকনিশিয়ান (গবেষণা ও মান নিয়ন্ত্রণ)",
+     "rolls": [
+      924
+     ]
+    },
+    {
+     "post": "জুনিয়র টেকনিশিয়ান (মেকানিক্যাল)",
+     "rolls": [
+      3067
+     ]
+    },
+    {
+     "post": "জুনিয়র কেয়ারটেকার (পিয়ন)",
+     "rolls": [
+      8339
+     ]
+    },
+    {
+     "post": "জুনিয়র কেয়ারটেকার (ক্লিনার)",
+     "rolls": [
+      8076,
+      8348,
+      8861,
+      9422,
+      9702,
+      9721
+     ]
+    },
+    {
+     "post": "জুনিয়র কেয়ারটেকার (মালি)",
+     "rolls": [
+      9274,
+      9552
+     ]
+    }
+   ],
+   "rollSource": "manual",
+   "verified": "2026-11-11",
+   "rollCount": 17
+  },
+  {
+   "id": "20261017_bb_81_1792222495",
+   "noticeNo": "81/2026",
+   "kind": "circular",
+   "jobId": "307",
+   "category": "MCQ",
+   "title": "Circular regarding schedule of Preliminary Test for the post of 'Officer (General)' of SPCBL (Job ID:307)",
+   "pdf": "notices/20261017_bb_81_1792222495.pdf",
+   "pdfUrl": "https://erecruitment.bb.org.bd/career/20261017_bb_81_1792222495.pdf",
+   "sizeKB": 721,
+   "published": "17/10/2026",
+   "closing": "13/11/2026",
+   "examDate": null,
+   "examWindow": [
+    "10:00 AM",
+    "11:00 AM"
+   ],
+   "pages": 1,
+   "seats": null,
+   "venue": null,
+   "venueMapQuery": null,
+   "publishedISO": "2026-10-17",
+   "closingISO": "2026-11-13",
+   "examDateISO": null,
    "rollCount": 0
   },
   {
@@ -3815,6 +4075,9 @@ const DATA = {
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-09-29",
+   "closingISO": "2026-11-29",
+   "examDateISO": null,
    "rolls": [
     100307,
     100402,
@@ -4877,6 +5140,9 @@ const DATA = {
    "seats": null,
    "venue": null,
    "venueMapQuery": null,
+   "publishedISO": "2026-05-04",
+   "closingISO": "2027-05-31",
+   "examDateISO": null,
    "rollCount": 0
   }
  ]
@@ -4884,6 +5150,54 @@ const DATA = {
 
 const $ = s => document.querySelector(s);
 const BN = s => String(s).replace(/[0-9]/g, d => "০১২৩৪৫৬৭৮৯"[d]);
+
+/* Bengali (and Arabic-Indic) numerals -> ASCII. The UI prints every number in
+   Bengali and the source PDFs do too, so a candidate copying their roll off
+   this page or off the notice types ০-৯. Without this the \D strip below wipes
+   the whole string and the search silently returns nothing. */
+const AS = s => String(s)
+  .replace(/[\u09E6-\u09EF]/g, d => d.charCodeAt(0) - 0x09E6)   // ০-৯
+  .replace(/[\u0660-\u0669]/g, d => d.charCodeAt(0) - 0x0660)   // ٠-٩
+  .replace(/[\uFF10-\uFF19]/g, d => d.charCodeAt(0) - 0xFF10);  // full-width
+
+/* Status is derived from the device clock at load, so the list re-sorts itself
+   every day with no rebuild, no fetch and no deploy. */
+const TODAY = (() => { const d = new Date(); d.setHours(0,0,0,0); return d; })();
+const toISO = s => {
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(s ?? "").trim());
+  return m ? `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}` : null;
+};
+function dayDiff(iso){
+  if (!iso) return null;
+  const [y,m,d] = iso.split("-").map(Number);
+  const t = new Date(y, m-1, d); t.setHours(0,0,0,0);
+  return Math.round((t - TODAY) / 86400000);
+}
+function statusOf(n){
+  const e = dayDiff(n.examDateISO), c = dayDiff(n.closingISO);
+  if (e === 0)                 return { k:"today", cls:"s-today", lbl:"আজ পরীক্ষা" };
+  if (e !== null && e > 0 && e <= 7) return { k:"soon", cls:"s-soon", lbl:`${BN(e)} দিন বাকি` };
+  if (e !== null && e > 7)     return { k:"up",    cls:"s-up",    lbl:"আসন্ন" };
+  if (c !== null && c < 0)     return { k:"past",  cls:"s-past",  lbl:"সম্পন্ন" };
+  if (e !== null && e < 0)     return { k:"past",  cls:"s-past",  lbl:"সম্পন্ন" };
+  return { k:"open", cls:"s-up", lbl:"চলমান" };
+}
+
+/* The banner a candidate actually came for: when, and am I late? */
+function countdown(iso, timeLabel, reportBy){
+  const d = dayDiff(iso);
+  if (d === null) return "";
+  let head, cls;
+  if (d === 0)                { head = "আপনার পরীক্ষা আজ";              cls = "cd-today"; }
+  else if (d === 1)           { head = "আপনার পরীক্ষা আগামীকাল";         cls = "cd-soon";  }
+  else if (d > 1 && d <= 21)  { head = `আপনার পরীক্ষা ${BN(d)} দিন পরে`;  cls = "cd-soon";  }
+  else if (d < 0)             { head = `এটি ${BN(-d)} দিন আগে হয়ে গেছে`;  cls = "cd-past";  }
+  else return "";
+  const bits = [];
+  if (timeLabel) bits.push(timeLabel);
+  if (reportBy)  bits.push(`কেন্দ্রে পৌঁছান ${reportBy}-এর মধ্যে`);
+  return `<div class="cd ${cls}"><b>${head}</b><span>${esc(bits.join(" · "))}</span></div>`;
+}
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const KIND = {
   seat:     { label: "SEAT PLAN",  cls: "b-seat",     en: "Centre & seat allocation" },
@@ -4957,6 +5271,7 @@ function seatCard(n, c, roll){
     </div>
     <p class="ttl">${esc(c.name)}</p>
     <div class="meta">${esc(c.address || "")}${c.address ? " · " : ""}seat range ${BN(c.from)}–${BN(c.to)}</div>
+    ${countdown(n.examDateISO, from ? `${from} – ${to}` : null, rep)}
     <div class="grid">
       <div class="cell"><div class="k">Exam date</div><div class="v">${esc(n.examDate || "see PDF")}</div></div>
       <div class="cell"><div class="k">Time</div><div class="v acc">${esc(from ? `${from} – ${to}` : "see PDF")}</div></div>
@@ -4984,6 +5299,7 @@ function sittingCard(n, info, roll){
     </div>
     <p class="ttl">${esc(n.title)}</p>
     <div class="meta">${esc(n.venue || "Venue as stated in the notice.")}</div>
+    ${countdown(toISO(info.d), info.t, null)}
     <div class="grid">
       <div class="cell"><div class="k">Date</div><div class="v">${esc(info.d || "—")}</div></div>
       <div class="cell"><div class="k">Reporting time</div><div class="v acc">${esc(info.t || "—")}</div></div>
@@ -4997,6 +5313,7 @@ function sittingCard(n, info, roll){
 }
 
 function selectedCard(n, roll){
+  const post = (n.groups || []).find(g => g.rolls.includes(roll))?.post || null;
   return `<div class="card">
     <div class="kicker">
       <span class="badge ${KIND.selected.cls}">${KIND.selected.label}</span>
@@ -5004,19 +5321,25 @@ function selectedCard(n, roll){
       ${n.jobId ? `<span class="badge sm">Job ${esc(n.jobId)}</span>` : ""}
     </div>
     <p class="ttl">You are on the primarily selected list</p>
-    <div class="meta">Roll ${esc(roll)} appears in this notice's ${BN(n.rolls.length)} candidate list. Follow the PDF for document verification instructions.</div>
+    <div class="meta">Roll ${esc(roll)} appears in this notice's ${BN(n.rolls.length)} candidate list.${
+      post ? ` Post: <b style="color:var(--txt)">${esc(post)}</b>.` : ""
+    } Follow the PDF for document verification instructions.</div>
+    ${n.rollSource === "manual" ? `<div class="manual"><b>Typed by hand from a scanned notice.</b>
+      This PDF is an image, so the numbers were transcribed manually and double-checked against
+      the total the notice states. Always confirm on the
+      <a href="${esc(n.pdf)}" target="_blank" rel="noopener">official PDF</a> before acting.</div>` : ""}
     <div class="actions"><a class="btn primary" href="${esc(n.pdf)}" target="_blank" rel="noopener">Open official PDF</a></div>
   </div>`;
 }
 
 function renderResult(){
-  const raw = $("#roll").value.replace(/\D/g, "");
+  const raw = AS($("#roll").value).replace(/\D/g, "");
   const box = $("#result");
   if (!raw){ box.innerHTML = ""; return; }
 
-  if (raw.length < 6){
+  if (raw.length < 3){
     box.innerHTML = `<div class="card bad"><div class="meta" style="margin:0">
-      Roll numbers here are 6 digits — <b>${esc(raw)}</b> is too short.</div></div>`;
+      Keep typing — <b>${esc(raw)}</b> is too short to match anything.</div></div>`;
     return;
   }
   const roll = parseInt(raw, 10);
@@ -5075,7 +5398,13 @@ function renderNotices(){
     return `<button class="chip${k === filter ? " on" : ""}" data-f="${k}">${esc(lbl)}</button>`;
   }).join("");
 
-  $("#notices").innerHTML = notices.filter(n => filter === "all" || n.kind === filter).map(n => {
+  const shown = notices.filter(n => filter === "all" || n.kind === filter);
+  const live = shown.filter(n => statusOf(n).k !== "past");
+  const past = shown.filter(n => statusOf(n).k === "past");
+  const order = { today: 0, soon: 1, up: 2, open: 3 };
+  live.sort((a, b) => order[statusOf(a).k] - order[statusOf(b).k]);
+
+  const card = n => {
     const k = KIND[n.kind] || KIND.circular;
     let detail = "";
     if (n.centres){
@@ -5096,14 +5425,27 @@ function renderNotices(){
         cannot be read automatically, so searching will not find them here.
         <a href="${esc(n.pdf)}" target="_blank" rel="noopener">Open the official PDF</a> and
         check it by eye.</div>`;
+    } else if (n.groups){
+      detail = `<details><summary>${BN(n.rolls.length)} roll numbers in ${BN(n.groups.length)} post${n.groups.length > 1 ? "s" : ""}</summary>
+        <table><thead><tr><th>Post</th><th>Rolls</th></tr></thead><tbody>
+        ${n.groups.map(g => `<tr><td>${esc(g.post || "—")}</td>
+          <td class="num">${g.rolls.map(BN).join(", ")}</td></tr>`).join("")}
+        </tbody></table>
+        ${n.rollSource === "manual" ? `<div class="manual">Transcribed by hand from the scanned
+          PDF${n.verified ? ` and verified ${esc(n.verified)}` : ""}; the count matches the total
+          printed on the notice. Confirm on the
+          <a href="${esc(n.pdf)}" target="_blank" rel="noopener">official PDF</a>.</div>` : ""}
+        </details>`;
     } else if (n.rolls){
       detail = `<details><summary>${BN(n.rolls.length)} roll numbers</summary>
         <div style="color:var(--dim);font-size:12.5px;margin-top:8px;line-height:1.9;font-variant-numeric:tabular-nums">
         ${n.rolls.slice(0, 60).map(BN).join(", ")}${n.rolls.length > 60 ? " …" : ""}</div></details>`;
     }
-    return `<div class="ncard">
+    const st = statusOf(n);
+    return `<div class="ncard${st.k === "past" ? " past" : ""}">
       <div class="nhead">
         <span class="badge ${k.cls}">${k.label}</span>
+        <span class="badge ${st.cls}">${st.lbl}</span>
         <span class="ntitle">${esc(n.title)}</span>
       </div>
       <div class="nmeta">
@@ -5116,7 +5458,14 @@ function renderNotices(){
       </div>
       ${detail}
     </div>`;
-  }).join("");
+  };
+
+  /* Archived notices stay fully searchable — they are only collapsed out of the
+     way. People look backwards during appeals and document checks. */
+  $("#notices").innerHTML = live.map(card).join("")
+    + (past.length ? `<details class="arch"><summary>${BN(past.length)} past notice${
+        past.length > 1 ? "s" : ""} — closed, still searchable</summary>${
+        past.map(card).join("")}</details>` : "");
 }
 
 /* offline support — only meaningful over http(s); silently skipped on file:// */
@@ -5143,13 +5492,17 @@ $("#filters").addEventListener("click", e => {
      <span class="stat"><b>${BN(rolls.toLocaleString("en-US"))}</b> rolls</span>`;
   $("#hint").textContent = `Searching ${searchable.length} notices · seat plans, viva schedules and selected-candidate lists`
     + (scannedCount ? ` · ${scannedCount} scanned notice${scannedCount>1?"s":""} cannot be searched` : "");
-  $("#gen").textContent = `built ${DATA.generated} from ${notices.length} notice PDFs`;
+
+  const age = dayDiff(DATA.generated.slice(0, 10));
+  const fresh = age === 0 ? "আজ হালনাগাদ" : age === -1 ? "গতকাল হালনাগাদ"
+              : age < 0 ? `${BN(-age)} দিন আগে হালনাগাদ` : "হালনাগাদ";
+  $("#gen").textContent = `${fresh} · built ${DATA.generated} from ${notices.length} notice PDFs`;
   renderNotices();
 
   $("#roll").addEventListener("input", renderResult);
   $("#roll").addEventListener("keydown", e => { if (e.key === "Escape"){ e.target.value = ""; renderResult(); } });
 
-  const m = location.hash.match(/roll=(\d+)/);
+  const m = AS(decodeURIComponent(location.hash)).match(/roll=(\d+)/);
   if (m){ $("#roll").value = m[1]; renderResult(); }
 })();
 </script>

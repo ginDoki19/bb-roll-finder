@@ -12,13 +12,12 @@ git init
 git add -A
 git commit -m "BB roll finder"
 git branch -M main
-git remote add origin https://github.com/<your-username>/bb-roll-finder.git
+git remote add origin https://github.com/ginDoki19/bb-roll-finder.git
 git push -u origin main
 ```
 
-If `git push` asks for a password, GitHub wants a **Personal Access Token**:
-Settings → Developer settings → Personal access tokens → Tokens (classic) →
-Generate new token → scope `repo`. Paste the token as the password.
+Credentials are already cached from your other repo, so no login prompt is expected.
+Full walkthrough with screenshots-in-words: **`HOSTING.md`**.
 
 ## One-time: connect Cloudflare Pages
 

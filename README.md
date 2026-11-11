@@ -1,12 +1,15 @@
+**Live: <https://bb-roll-finder.pages.dev>**
+
 # BB E-Recruitment Roll Finder
 
 Enter your roll number → get your exam centre, seat range, date, time and a map link.
 Static site, no server, works offline. Covers seat plans, viva schedules and selected lists.
 
-**Open `index.html`.** 80 KB, 19.9 KB gzipped, works offline after one visit.
+**Open `index.html`.** 90 KB, 23 KB gzipped, works offline after one visit.
 
 Double-click **`run.bat`** to fetch new notices and push; **`check.bat`** to verify.
-Deployment: see `DEPLOY.md`. Design rationale and benchmarks: `AUDIT.md`.
+Audit & backlog: `ROADMAP.md`.
+Deployment: **`HOSTING.md`** (beginner, step by step) or `DEPLOY.md` (short). Design rationale and benchmarks: `AUDIT.md`.
 
 ```bash
 python3 tools/selftest.py                       # 24 converter cases + data invariants

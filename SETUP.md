@@ -309,3 +309,124 @@ python tools\test_fetch.py --live --solve --log logs\diag.log
 
 Paste `logs\diag.log`. The stage tags (T1–T9) tell me which layer failed, so it's
 usually a one-line fix rather than a guessing round-trip.
+
+
+## Optional: `pip install curl_cffi` (recommended)
+
+One command, and most runs finish with **no browser window at all**:
+
+```
+pip install curl_cffi
+```
+
+F5 fingerprints the TLS handshake itself (JA3/JA4) before it reads a single
+header, and Python's default handshake is instantly recognisable as "not a
+browser" — which is why a perfectly valid cookie could still come back as a
+6 KB challenge page. `curl_cffi` replays Chrome's exact handshake, so the
+cookie actually gets evaluated. Measured:
+
+```
+urllib     ja3n: 50bc0abcbaf93e723c87ee44564256f5   (Python-urllib)
+curl_cffi  ja3n: bd4930bd9b000ee684830e44bab76fdf   (real Chrome)
+```
+
+Without it everything still works — the script falls back to urllib, then to
+the browser window.
+
+## Why a browser window opens at all
+
+Two different things have to get past Bangladesh Bank's F5 firewall:
+
+| What | How it is fetched | Needs a browser? |
+|---|---|---|
+| the listing page | `jobopportunity.php` | only if the cookie is refused |
+| the notice PDFs | plain HTTPS GET | no |
+
+With a session pasted into `meta/session.txt` the script now tries the whole run
+over **plain HTTP first — no window at all**. You will see:
+
+```
+🍪 session: 10 cookie(s) [...], UA replayed — trying without a browser
+✓ listing saved -> career.html (7 PDFs) — no browser needed
+```
+
+The browser only opens if that cookie is refused, because F5 can also demand a
+JavaScript challenge that cannot be replayed from a script — a real browser has
+to execute it. In that case the window appears and you will see:
+
+```
+· cookie alone did not clear F5 — opening the browser window
+```
+
+That window usually clears **by itself** within a few seconds. Only type a
+CAPTCHA if one is actually visible on screen. The script waits 15 s before it
+says anything, then reports `✓ challenge cleared after 6s` once it is through.
+
+Use `--force-browser` to skip the fast path deliberately.
+
+## When the fetch keeps saying "CAPTCHA NEEDED"
+
+The fetcher drives Brave with **its own profile** (`~/.bb-fetch-profile`), which is a
+separate cookie jar from the Brave you browse in. So solving the challenge in your
+normal window does **not** help it — it has to pass the challenge on its own.
+
+You can just hand it the session you already solved:
+
+1. In normal Brave open
+   <https://erecruitment.bb.org.bd/career/jobopportunity.php> and solve the CAPTCHA
+   until you can see the notice table.
+2. `F12` → **Network** tab → press `F5` to reload.
+3. Click the first row (`jobopportunity.php`).
+4. Right-click it → **Copy** → **Copy as cURL (bash)**.
+5. Paste the whole thing into `meta/session.txt` and save.
+6. Run `run.bat` as usual. You should see:
+
+   ```
+   🍪 session injected: 7 cookie(s) [TSPD_101, bb_cookie, TS01cf43c8, …], UA replayed
+   ```
+
+**Any Copy-as format works** — cURL (bash), cURL (cmd), fetch, fetch (Node.js) or
+PowerShell. A plain `cookie: a=b; c=d` line works too if you prefer.
+
+Note that Chromium 115+ (so Brave 157) writes the cookie as a `-b` flag in bash
+ANSI-C quoting rather than as a `cookie:` header:
+
+```
+-b $'PHPSESSID=...; bb_cookie=\u0021Uh/...; TSPD_101=...'
+```
+
+The `\u0021` is an escaped `!`. Both forms are parsed, and the escapes are
+decoded — if they were not, F5 would see a corrupted token and reject it.
+
+To confirm the paste parsed before running a whole fetch:
+
+```
+session-check.bat
+```
+
+It prints the cookie **names** only, never the values, so the output is safe to
+share when asking for help:
+
+```
+session file: meta\session.txt
+  7 cookie(s): TSPD_101, bb_cookie, TS01cf43c8, PHPSESSID, ...
+  F5 token    : TSPD_101, TS01cf43c8
+  user-agent  : Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/142...
+```
+
+If it says **no cookies found**, you copied the wrong row — it must be the
+`jobopportunity.php` document request, not a `.css`, `.js` or image row.
+
+**Why the user-agent is copied as well:** F5 ties `TSPD_101` to the browser that was
+issued it. Replaying the cookie with a different UA string is a mismatch F5 can spot,
+so the script now uses yours instead of its hardcoded default.
+
+> ⚠️ `meta/session.txt` is a **live login**. `.gitignore` already excludes it so it
+> cannot reach GitHub, but never paste its contents into a chat, issue or log. It
+> expires on its own — usually hours to a few days. When fetching starts failing
+> again, repeat the steps above.
+
+**What this does and does not fix.** PDF downloads are plain HTTP requests, so a valid
+cookie makes those work every time. The listing page also runs an F5 JavaScript
+challenge, so a pasted cookie usually gets you straight through but is not guaranteed
+forever — if it still challenges, the window is open and you can solve it there.

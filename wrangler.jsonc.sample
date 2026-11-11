@@ -1,0 +1,11 @@
+// RENAME THIS FILE TO  wrangler.jsonc  only if you deploy via WORKERS.
+// If you deploy via Cloudflare PAGES, leave it named .sample — Pages
+// rejects a wrangler config that has no "pages_build_output_dir".
+{
+  "name": "bb-roll-finder",
+  "compatibility_date": "2026-11-05",
+  "assets": {
+    "directory": "./",
+    "not_found_handling": "404-page"
+  }
+}

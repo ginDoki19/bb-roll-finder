@@ -262,8 +262,19 @@ def build(html_path: str, pdf_dir: str, out_path: str) -> dict:
                                 for g in groups]
             notice["rollSource"] = row.get("rollSource", "manual")
             notice["verified"] = row.get("verified")
+            # provenance for OCR-recovered lists: what was cross-checked, and
+            # which numbers only one or two passes agreed on. The UI shows the
+            # printed total so a reader can judge the claim for themselves.
+            if row.get("ocrChecks"):
+                notice["ocrChecks"] = row["ocrChecks"]
+            # Not every roll list means "you are hired". A preliminary-test
+            # result calls people to a written exam; saying "primarily
+            # selected" there would mislead. Let the override say what it is.
+            for k in ("headline", "note"):
+                if row.get(k):
+                    notice[k] = row[k]
 
-        if notice.get("rollSource") == "manual":
+        if notice.get("rollSource") in ("manual", "ocr"):
             notice["rollCount"] = len(notice["rolls"])
         else:
             notice["rollCount"] = parsed["rollCount"] if parsed["kind"] != "centre" else None

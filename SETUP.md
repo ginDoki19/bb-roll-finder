@@ -311,6 +311,52 @@ Paste `logs\diag.log`. The stage tags (T1–T9) tell me which layer failed, so i
 usually a one-line fix rather than a guessing round-trip.
 
 
+## Reading a scanned notice automatically (`tools/ocr_rolls.py`)
+
+Some notices are photographs of paper — no text to extract. This script reads
+the roll numbers off the image, but only publishes them when the notice's own
+figures agree.
+
+```
+pip install pytesseract pypdfium2
+```
+plus Tesseract itself: <https://github.com/UB-Mannheim/tesseract/wiki>
+(click through the installer; the script finds it automatically on Windows).
+
+```
+python tools\ocr_rolls.py notices\20261111_bb_87_1794395117.pdf --expect 334 ^
+       --post "সহকারী ব্যবস্থাপক (জেনারেল)" --job-id 303 --published 11/11/2026
+```
+
+`--expect` is the total printed on the notice ("৩৩৪ (তিনশত চৌত্রিশ) জন"). It
+runs Tesseract four different ways and keeps the read that matches:
+
+```
+  pass          found  ascending  matches-total
+  digits/psm6     332        yes             no
+  digits/psm4     332        yes             no
+  plain/psm6      334        yes            yes      <- chosen
+  plain/psm11     333        NO              no
+
+  confirmed   : 332 by 3+ of 4 passes
+  rejected    : 217751, 235993 (failed the order/total check)
+  ⚠ LOW CONFIDENCE — check these few against the PDF by eye:
+      221034   (seen by 2 of 4 passes)
+```
+
+**Nothing goes live yet.** It writes `meta/overrides.draft.json`. Open the PDF,
+check only the low-confidence numbers, then:
+
+```
+python tools\ocr_rolls.py --approve
+run.bat
+```
+
+If the count does not match the printed total, it refuses to write anything and
+tells you to transcribe that one by hand. A wrong digit tells a candidate they
+failed, so the bar is deliberately high. The site labels these lists "Read
+automatically from a scanned notice" and links the official PDF.
+
 ## Optional: `pip install curl_cffi` (recommended)
 
 One command, and most runs finish with **no browser window at all**:

@@ -193,7 +193,8 @@ def main() -> int:
         print("  ok  ISO dates present and consistent on every notice")
 
     # 5. hand-transcribed roll lists must match the totals printed on the notice
-    MANUAL = {"20261102_bb_83_1793613569": 11, "20261029_bb_372_1793248807": 17}
+    MANUAL = {"20261102_bb_83_1793613569": 11, "20261029_bb_372_1793248807": 17,
+              "20261111_bb_87_1794395117": 334, "20261109_bb_419_1794210128": 2}
     for nid, want in MANUAL.items():
         n = next((x for x in data["notices"] if x["id"] == nid), None)
         if not n:
@@ -205,13 +206,17 @@ def main() -> int:
         if got != want or grouped != want:
             fails += 1
             print(f"  FAIL {nid}: {got} rolls / {grouped} grouped, notice states {want}")
-        elif n.get("rollSource") != "manual":
+        elif n.get("rollSource") not in ("manual", "ocr"):
             fails += 1
-            print(f"  FAIL {nid}: rollSource = {n.get('rollSource')!r}, expected 'manual'")
+            print(f"  FAIL {nid}: rollSource = {n.get('rollSource')!r}, "
+                  f"expected 'manual' or 'ocr' so the UI can disclose the source")
+        elif n.get("rollSource") == "ocr" and not n.get("ocrChecks", {}).get("printedTotal"):
+            fails += 1
+            print(f"  FAIL {nid}: OCR rolls published without a printed-total cross-check")
         elif sorted(set(n["rolls"])) != n["rolls"]:
             fails += 1
             print(f"  FAIL {nid}: roll list has duplicates or is unsorted")
-    print("  ok  hand-typed roll lists match the totals printed on both scans")
+    print("  ok  recovered roll lists match the totals printed on the scans")
 
     # 6. the two scans must no longer be dead ends
     still_scanned = [n["id"] for n in data["notices"] if n.get("kind") == "scanned"]
@@ -219,7 +224,7 @@ def main() -> int:
         fails += 1
         print(f"  FAIL transcribed notice still marked scanned: {still_scanned}")
     else:
-        print(f"  ok  both transcribed notices are searchable ({len(still_scanned)} left unreadable)")
+        print(f"  ok  all {len(MANUAL)} recovered notices searchable ({len(still_scanned)} left unreadable)")
 
     print("\n" + ("ALL PASS" if not fails else f"{fails} FAILURE(S)"))
     return 1 if fails else 0

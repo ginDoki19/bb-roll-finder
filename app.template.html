@@ -359,10 +359,15 @@ function selectedCard(n, roll){
       <span class="badge sm">বিজ্ঞপ্তি ${esc(n.noticeNo)}</span>
       ${n.jobId ? `<span class="badge sm">Job ${esc(n.jobId)}</span>` : ""}
     </div>
-    <p class="ttl">You are on the primarily selected list</p>
+    <p class="ttl">${esc(n.headline || "You are on the primarily selected list")}</p>
     <div class="meta">Roll ${esc(roll)} appears in this notice's ${BN(n.rolls.length)} candidate list.${
       post ? ` Post: <b style="color:var(--txt)">${esc(post)}</b>.` : ""
-    } Follow the PDF for document verification instructions.</div>
+    } ${esc(n.note || "Follow the PDF for document verification instructions.")}</div>
+    ${n.rollSource === "ocr" ? `<div class="manual"><b>Read automatically from a scanned notice.</b>
+      This PDF is an image. The numbers were read by OCR and only published because the count
+      matched the total printed on the notice${n.ocrChecks && n.ocrChecks.printedTotal ? ` (${AS(String(n.ocrChecks.printedTotal))})` : ""},
+      and several independent reads agreed. Mistakes are still possible —
+      <a href="${esc(n.pdf)}" target="_blank" rel="noopener">confirm on the official PDF</a>.</div>` : ""}
     ${n.rollSource === "manual" ? `<div class="manual"><b>Typed by hand from a scanned notice.</b>
       This PDF is an image, so the numbers were transcribed manually and double-checked against
       the total the notice states. Always confirm on the
@@ -470,6 +475,10 @@ function renderNotices(){
         ${n.groups.map(g => `<tr><td>${esc(g.post || "—")}</td>
           <td class="num">${g.rolls.map(BN).join(", ")}</td></tr>`).join("")}
         </tbody></table>
+        ${n.rollSource === "ocr" ? `<div class="manual">Read by OCR from the scanned
+          PDF${n.verified ? ` on ${esc(n.verified)}` : ""}; the count matches the total printed
+          on the notice. Confirm on the
+          <a href="${esc(n.pdf)}" target="_blank" rel="noopener">official PDF</a>.</div>` : ""}
         ${n.rollSource === "manual" ? `<div class="manual">Transcribed by hand from the scanned
           PDF${n.verified ? ` and verified ${esc(n.verified)}` : ""}; the count matches the total
           printed on the notice. Confirm on the

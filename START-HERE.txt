@@ -1,0 +1,26 @@
+BB E-Recruitment Roll Finder
+============================
+
+WANT TO JUST USE IT?
+  Double-click  index.html  -> type your roll number. No install needed.
+  Try 105432 — you should get two cards (Mollah College + Milestone College).
+
+WANT IT TO UPDATE ITSELF?
+  Open SETUP.md and follow Steps 1-8. About 10 minutes.
+  Short version:
+      pip install pdfplumber playwright
+      python -m playwright install chromium
+      python tools\test_fetch.py          <- must print "7 passed"
+      python tools\fetch_notices.py --build
+
+EVERY FEW DAYS
+  Double-click  run.bat   -> fetches new notices, rebuilds, pushes.
+                             The live site updates itself ~30s later.
+  Double-click  check.bat -> verifies everything still works.
+
+DOCS
+  SETUP.md    install Python + dependencies            <- start here
+  DEPLOY.md   put it online free (Cloudflare Pages)
+  TESTING.md  what to test, expected output, fixes
+  PLAN.md     how it works and why
+  README.md   command reference

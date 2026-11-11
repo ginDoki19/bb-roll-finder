@@ -1,0 +1,20 @@
+# Cloudflare Pages / Netlify header rules.
+# index.html must revalidate so a new notice shows up immediately;
+# everything else is content-addressed enough to cache hard.
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/notices/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/data/*
+  Cache-Control: public, max-age=3600

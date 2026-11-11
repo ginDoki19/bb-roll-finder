@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BB E-Recruitment — Roll Finder</title>
+<meta name="description" content="Enter your roll number to find your Bangladesh Bank exam centre, seat range, date, time and map location. Seat plans, viva schedules and selected-candidate lists in one place.">
+<meta name="theme-color" content="#0a0f1a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:title" content="BB E-Recruitment — Roll Finder">
+<meta property="og:description" content="Find your exam centre, seat, time and map by roll number.">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#0a0e16; --card:#141b2a; --card2:#1a2333; --line:#25314a;
+    --txt:#e9eefb; --dim:#94a4c2; --dim2:#6b7c9c;
+    --acc:#22d3ee; --acc2:#6366f1; --ok:#34d399; --warn:#fbbf24; --bad:#f87171;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;padding:0 16px 64px;
+    background:
+      radial-gradient(1100px 520px at 12% -12%, rgba(99,102,241,.22), transparent 60%),
+      radial-gradient(900px 440px at 96% -4%, rgba(34,211,238,.13), transparent 55%),
+      var(--bg);
+    color:var(--txt);min-height:100vh;
+    font:16px/1.55 "Segoe UI", system-ui, -apple-system, "Noto Sans Bengali", "Nirmala UI", sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px;margin:0 auto}
+  header{padding:34px 0 6px}
+  .brand{display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+  .logo{width:44px;height:44px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04121a;font-weight:800;font-size:19px;
+    box-shadow:0 10px 26px rgba(34,211,238,.28)}
+  h1{margin:0;font-size:clamp(20px,3.3vw,27px);letter-spacing:-.02em}
+  .sub{color:var(--dim);font-size:13.5px;margin-top:2px}
+  .stats{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .stat{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;
+    padding:6px 12px;font-size:12px;color:var(--dim);white-space:nowrap}
+  .stat b{color:var(--txt)}
+
+  /* search */
+  .search{position:relative;margin:20px 0 6px}
+  .search input{width:100%;padding:20px 20px 20px 56px;font-size:19px;border-radius:var(--r);
+    background:var(--card);border:1.5px solid var(--line);color:var(--txt);outline:none;
+    transition:.18s;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  .search input:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(34,211,238,.12)}
+  .search input::placeholder{color:var(--dim2);letter-spacing:0}
+  .search svg{position:absolute;left:19px;top:50%;transform:translateY(-50%);opacity:.5}
+  .hint{color:var(--dim2);font-size:12.5px;margin:8px 2px 0}
+
+  /* result cards */
+  #result{margin-top:16px;display:grid;gap:12px}
+  .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);
+    border-radius:var(--r);padding:20px;animation:pop .2s ease-out}
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card.bad{border-color:rgba(248,113,113,.4);background:linear-gradient(180deg,#2a1620,#1d1420)}
+  .card.muted{background:var(--card);border-style:dashed}
+  .kicker{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.04em}
+  .b-seat{background:rgba(34,211,238,.14);color:var(--acc);border:1px solid rgba(34,211,238,.32)}
+  .b-viva{background:rgba(99,102,241,.16);color:#a5b4fc;border:1px solid rgba(99,102,241,.36)}
+  .b-selected{background:rgba(52,211,153,.14);color:var(--ok);border:1px solid rgba(52,211,153,.32)}
+  .b-result{background:rgba(251,191,36,.14);color:var(--warn);border:1px solid rgba(251,191,36,.32)}
+  .b-circular{background:rgba(148,164,194,.13);color:var(--dim);border:1px solid var(--line)}
+  .b-scanned{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.35)}
+  .scanwarn{margin-top:10px;padding:10px 12px;border-radius:9px;font-size:12.5px;line-height:1.55;
+    background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.28);color:#fcd34d}
+  .scanwarn a{color:#fde68a;font-weight:600}
+  .badge.sm{background:rgba(255,255,255,.05);color:var(--dim2);border:1px solid var(--line);font-weight:600}
+  .ttl{font-size:clamp(18px,2.6vw,22px);font-weight:700;margin:0 0 3px;line-height:1.34}
+  .meta{color:var(--dim);font-size:14px;margin-bottom:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:11px}
+  .cell{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+  .k{font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--dim2);margin-bottom:4px}
+  .v{font-size:15.5px;font-weight:650;font-variant-numeric:tabular-nums}
+  .v.acc{color:var(--acc)} .v.warn{color:var(--warn)}
+  .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+  .btn{display:inline-flex;align-items:center;gap:7px;text-decoration:none;padding:10px 16px;
+    border-radius:10px;font-size:13.5px;font-weight:650;border:1px solid var(--line);
+    color:var(--txt);background:rgba(255,255,255,.04);cursor:pointer;transition:.16s}
+  .btn:hover{background:rgba(255,255,255,.09);border-color:#33415f}
+  .btn.primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04121a;border:0}
+  .btn.primary:hover{filter:brightness(1.08)}
+  .mapbox{margin-top:12px;border-radius:11px;overflow:hidden;border:1px solid var(--line);display:none}
+  .mapbox iframe{width:100%;height:300px;border:0;display:block;filter:invert(.9) hue-rotate(180deg) saturate(.7)}
+
+  /* notices */
+  h2{font-size:13px;letter-spacing:.11em;text-transform:uppercase;color:var(--dim2);
+    margin:36px 0 12px;font-weight:700;display:flex;align-items:center;gap:10px}
+  h2 .line{flex:1;height:1px;background:var(--line)}
+  .filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{font-size:12.5px;padding:6px 13px;border-radius:999px;border:1px solid var(--line);
+    background:rgba(255,255,255,.03);color:var(--dim);cursor:pointer;transition:.15s}
+  .chip:hover{color:var(--txt)}
+  .chip.on{background:rgba(34,211,238,.14);color:var(--acc);border-color:rgba(34,211,238,.4)}
+  .ncard{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:15px 17px;margin-bottom:9px;transition:.15s}
+  .ncard:hover{border-color:#31405e}
+  .nhead{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+  .ntitle{font-weight:650;font-size:15px;line-height:1.4}
+  .nmeta{color:var(--dim2);font-size:12.5px;margin-top:5px;display:flex;gap:14px;flex-wrap:wrap}
+  .nmeta a{color:var(--acc);text-decoration:none}
+  .nmeta a:hover{text-decoration:underline}
+  details{margin-top:10px}
+  summary{cursor:pointer;color:var(--dim);font-size:13px;list-style:none;user-select:none}
+  summary::-webkit-details-marker{display:none}
+  summary:before{content:"▸ ";color:var(--acc)}
+  details[open] summary:before{content:"▾ "}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px}
+  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line)}
+  th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim2);font-weight:600}
+  td.num{font-variant-numeric:tabular-nums;color:var(--dim);white-space:nowrap}
+  footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim2);
+    font-size:12.5px;line-height:1.75}
+  code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:5px;font-size:12px}
+  @media(max-width:600px){
+    .search input{padding:17px 16px 17px 47px;font-size:17px}
+    .search svg{left:15px}
+    .stats{display:none}
+    th,td{padding:7px 6px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo">ব</div>
+      <div>
+        <h1>BB E-Recruitment — Roll Finder</h1>
+        <div class="sub">বাংলাদেশ ব্যাংক নোটিশ · আসন বিন্যাস · ফলাফল · এক জায়গায়</div>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+  </header>
+
+  <div class="search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+    </svg>
+    <input id="roll" type="text" inputmode="numeric" autocomplete="off" spellcheck="false"
+           placeholder="রোল নম্বর লিখুন / Enter your roll number — e.g. 105432">
+  </div>
+  <div class="hint" id="hint"></div>
+
+  <div id="result"></div>
+
+  <h2>All notices <span class="line"></span></h2>
+  <div class="filters" id="filters"></div>
+  <div id="notices"></div>
+
+  <footer>
+    <div><b>Data:</b> <span id="gen"></span> · parsed from the official BB/BSCS notice PDFs · not affiliated with Bangladesh Bank.</div>
+    <div><b>Always confirm against the official PDF</b> before travelling — this is a convenience layer, not an authority.</div>
+    <div style="margin-top:6px">Static site · no server · no tracking · works offline.</div>
+  </footer>
+</div>
+
+<script>
+/* data is inlined at build time by parser/build_site.py so the page works
+   from file://, from a phone with no signal, and inside sandboxed previews */
+const DATA = /*__DATA__*/;
+
+const $ = s => document.querySelector(s);
+const BN = s => String(s).replace(/[0-9]/g, d => "০১২৩৪৫৬৭৮৯"[d]);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KIND = {
+  seat:     { label: "SEAT PLAN",  cls: "b-seat",     en: "Centre & seat allocation" },
+  viva:     { label: "VIVA",       cls: "b-viva",     en: "Viva / interview schedule" },
+  result:   { label: "RESULT",     cls: "b-result",   en: "Written result" },
+  selected: { label: "SELECTED",   cls: "b-selected", en: "Primarily selected list" },
+  circular: { label: "CIRCULAR",   cls: "b-circular", en: "Schedule / circular" },
+  scanned:  { label: "SCANNED",    cls: "b-scanned",  en: "Scanned image — not searchable" }
+};
+
+/* ---------------------------------------------------------------- indexing */
+const notices = DATA.notices.slice();
+const scannedCount = notices.filter(n => n.kind === "scanned").length;
+notices.forEach(n => {
+  if (n.rolls) n._set = new Set(n.rolls.map(String));
+  if (n.centres) n.centres.sort((a, b) => a.from - b.from);
+
+  /* Sittings arrive delta-encoded: r = [first, gap, gap, ...]. Undo the deltas
+     and build one Map for O(1) roll lookup. Done once at load; for the whole
+     dataset (3,840 rolls) this is well under a millisecond, and it keeps the
+     shipped JSON 5.6x smaller than storing a record per roll. */
+  if (n.sittings){
+    n._rolls = new Map();
+    n._count = 0;
+    for (const s of n.sittings){
+      let acc = 0;
+      for (const d of s.r){
+        acc += d;
+        n._rolls.set(acc, s);
+        n._count++;
+      }
+    }
+  }
+});
+const searchable = notices.filter(n => n.centres || n.sittings || n.rolls);
+
+function findCentre(n, roll){
+  const v = n.centres;
+  let lo = 0, hi = v.length - 1;
+  while (lo <= hi){
+    const mid = (lo + hi) >> 1, c = v[mid];
+    if (roll < c.from) hi = mid - 1;
+    else if (roll > c.to) lo = mid + 1;
+    else return c;
+  }
+  return null;
+}
+
+/* "3:00 PM" minus 60 minutes -> "2:00 PM" */
+function minus60(label){
+  const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(label || "");
+  if (!m) return null;
+  let h = parseInt(m[1], 10) % 12 + (m[3].toUpperCase() === "PM" ? 12 : 0);
+  let t = (h * 60 + parseInt(m[2], 10) - 60 + 1440) % 1440;
+  const hh = Math.floor(t / 60), mm = String(t % 60).padStart(2, "0");
+  return `${(hh % 12) || 12}:${mm} ${hh < 12 ? "AM" : "PM"}`;
+}
+
+const mapsUrl = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+
+/* ---------------------------------------------------------------- rendering */
+function seatCard(n, c, roll){
+  const from = n.examWindow?.[0], to = n.examWindow?.[1];
+  const rep = from ? minus60(from) : null;
+  const q = c.mapQuery || `${c.name}, ${c.address}`;
+  return `<div class="card">
+    <div class="kicker">
+      <span class="badge ${KIND.seat.cls}">${KIND.seat.label}</span>
+      <span class="badge sm">বিজ্ঞপ্তি ${esc(n.noticeNo)}</span>
+      ${n.jobId ? `<span class="badge sm">Job ${esc(n.jobId)}</span>` : ""}
+    </div>
+    <p class="ttl">${esc(c.name)}</p>
+    <div class="meta">${esc(c.address || "")}${c.address ? " · " : ""}seat range ${BN(c.from)}–${BN(c.to)}</div>
+    <div class="grid">
+      <div class="cell"><div class="k">Exam date</div><div class="v">${esc(n.examDate || "see PDF")}</div></div>
+      <div class="cell"><div class="k">Time</div><div class="v acc">${esc(from ? `${from} – ${to}` : "see PDF")}</div></div>
+      ${rep ? `<div class="cell"><div class="k">Be there by</div><div class="v warn">${esc(rep)}</div></div>` : ""}
+      <div class="cell"><div class="k">Your roll</div><div class="v">${esc(roll)}</div></div>
+    </div>
+    <div class="actions">
+      <a class="btn primary" target="_blank" rel="noopener" href="${mapsUrl(q)}">Open in Google Maps</a>
+      <button class="btn" data-map="1">Show map here</button>
+      <a class="btn" href="${esc(n.pdf)}" target="_blank" rel="noopener">Official PDF</a>
+    </div>
+    <div class="mapbox"><iframe loading="lazy" title="map"
+      data-src="https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=15&output=embed"></iframe></div>
+  </div>`;
+}
+
+function sittingCard(n, info, roll){
+  const kind = KIND[n.kind] || KIND.viva;
+  const q = n.venueMapQuery || n.venue;
+  return `<div class="card">
+    <div class="kicker">
+      <span class="badge ${kind.cls}">${kind.label}</span>
+      <span class="badge sm">বিজ্ঞপ্তি ${esc(n.noticeNo)}</span>
+      ${info.b ? `<span class="badge sm">Batch ${esc(info.b)}</span>` : ""}
+    </div>
+    <p class="ttl">${esc(n.title)}</p>
+    <div class="meta">${esc(n.venue || "Venue as stated in the notice.")}</div>
+    <div class="grid">
+      <div class="cell"><div class="k">Date</div><div class="v">${esc(info.d || "—")}</div></div>
+      <div class="cell"><div class="k">Reporting time</div><div class="v acc">${esc(info.t || "—")}</div></div>
+      <div class="cell"><div class="k">Your roll</div><div class="v">${esc(roll)}</div></div>
+    </div>
+    <div class="actions">
+      ${q ? `<a class="btn primary" target="_blank" rel="noopener" href="${mapsUrl(q)}">Open venue in Maps</a>` : ""}
+      <a class="btn" href="${esc(n.pdf)}" target="_blank" rel="noopener">Official PDF</a>
+    </div>
+  </div>`;
+}
+
+function selectedCard(n, roll){
+  return `<div class="card">
+    <div class="kicker">
+      <span class="badge ${KIND.selected.cls}">${KIND.selected.label}</span>
+      <span class="badge sm">বিজ্ঞপ্তি ${esc(n.noticeNo)}</span>
+      ${n.jobId ? `<span class="badge sm">Job ${esc(n.jobId)}</span>` : ""}
+    </div>
+    <p class="ttl">You are on the primarily selected list</p>
+    <div class="meta">Roll ${esc(roll)} appears in this notice's ${BN(n.rolls.length)} candidate list. Follow the PDF for document verification instructions.</div>
+    <div class="actions"><a class="btn primary" href="${esc(n.pdf)}" target="_blank" rel="noopener">Open official PDF</a></div>
+  </div>`;
+}
+
+function renderResult(){
+  const raw = $("#roll").value.replace(/\D/g, "");
+  const box = $("#result");
+  if (!raw){ box.innerHTML = ""; return; }
+
+  if (raw.length < 6){
+    box.innerHTML = `<div class="card bad"><div class="meta" style="margin:0">
+      Roll numbers here are 6 digits — <b>${esc(raw)}</b> is too short.</div></div>`;
+    return;
+  }
+  const roll = parseInt(raw, 10);
+  const hits = [];
+
+  for (const n of notices){
+    if (n.centres){
+      const c = findCentre(n, roll);
+      if (c) hits.push(seatCard(n, c, raw));
+    }
+    if (n._rolls && n._rolls.has(roll)){
+      const s = n._rolls.get(roll);
+      hits.push(sittingCard(n, { d: s.date, t: s.time, b: s.sl }, raw));
+    }
+    if (n._set && n._set.has(String(roll))){
+      hits.push(selectedCard(n, roll));
+    }
+  }
+
+  if (!hits.length){
+    const cover = searchable
+      .filter(n => n.centres ? (roll < n.rollFrom || roll > n.rollTo) : true)
+      .map(n => `<li>${esc(n.noticeNo)} — ${esc((KIND[n.kind] || {}).en || n.kind)}</li>`)
+      .join("");
+    box.innerHTML = `<div class="card bad">
+      <p class="ttl" style="font-size:19px">Roll ${esc(raw)} not found in any indexed notice</p>
+      <div class="meta">Checked ${BN(searchable.length)} searchable notices. This is normal if your notice
+      hasn't been added yet — new notices appear on the portal first, then here.</div>
+      <ul style="color:var(--dim);font-size:13px;margin:0 0 0 18px;padding:0">${cover}</ul>
+      <div class="actions"><a class="btn" href="${DATA.source}" target="_blank" rel="noopener">Check the official portal</a></div>
+    </div>`;
+    return;
+  }
+  box.innerHTML = hits.join("");
+}
+
+/* one delegated handler for every "Show map" button */
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-map]");
+  if (!b) return;
+  const box = b.closest(".card").querySelector(".mapbox");
+  const ifr = box.querySelector("iframe");
+  const open = box.style.display === "block";
+  box.style.display = open ? "none" : "block";
+  b.textContent = open ? "Show map here" : "Hide map";
+  if (!open && !ifr.src) ifr.src = ifr.dataset.src;
+});
+
+/* ---------------------------------------------------------------- notice list */
+let filter = "all";
+
+function renderNotices(){
+  const kinds = ["all", ...new Set(notices.map(n => n.kind))];
+  $("#filters").innerHTML = kinds.map(k => {
+    const lbl = k === "all" ? `All ${notices.length}` : `${(KIND[k] || {}).label || k} ${notices.filter(n => n.kind === k).length}`;
+    return `<button class="chip${k === filter ? " on" : ""}" data-f="${k}">${esc(lbl)}</button>`;
+  }).join("");
+
+  $("#notices").innerHTML = notices.filter(n => filter === "all" || n.kind === filter).map(n => {
+    const k = KIND[n.kind] || KIND.circular;
+    let detail = "";
+    if (n.centres){
+      detail = `<details><summary>${BN(n.centres.length)} centres · rolls ${BN(n.rollFrom)}–${BN(n.rollTo)}</summary>
+        <table><thead><tr><th>#</th><th>Centre</th><th>Rolls</th><th>Seats</th></tr></thead><tbody>
+        ${n.centres.map(c => `<tr><td class="num">${BN(c.sl ?? "")}</td>
+          <td>${esc(c.name)}<div style="color:var(--dim2);font-size:11.5px">${esc(c.address || "")}</div></td>
+          <td class="num">${BN(c.from)}–${BN(c.to)}</td><td class="num">${c.seats ? BN(c.seats.toLocaleString("en-US")) : "—"}</td></tr>`).join("")}
+        </tbody></table></details>`;
+    } else if (n.sittings){
+      detail = `<details><summary>${BN(n.sittings.length)} sittings · ${BN(n._count || 0)} rolls</summary>
+        <table><thead><tr><th>Batch</th><th>Date</th><th>Time</th><th>Rolls</th></tr></thead><tbody>
+        ${n.sittings.map(b => `<tr><td class="num">${BN(b.sl)}</td><td>${esc(b.date || "—")}</td>
+          <td>${esc(b.time || "—")}</td><td class="num">${BN(b.count)}</td></tr>`).join("")}
+        </tbody></table></details>`;
+    } else if (n.kind === "scanned"){
+      detail = `<div class="scanwarn"><b>This notice is a scanned image.</b> Its roll numbers
+        cannot be read automatically, so searching will not find them here.
+        <a href="${esc(n.pdf)}" target="_blank" rel="noopener">Open the official PDF</a> and
+        check it by eye.</div>`;
+    } else if (n.rolls){
+      detail = `<details><summary>${BN(n.rolls.length)} roll numbers</summary>
+        <div style="color:var(--dim);font-size:12.5px;margin-top:8px;line-height:1.9;font-variant-numeric:tabular-nums">
+        ${n.rolls.slice(0, 60).map(BN).join(", ")}${n.rolls.length > 60 ? " …" : ""}</div></details>`;
+    }
+    return `<div class="ncard">
+      <div class="nhead">
+        <span class="badge ${k.cls}">${k.label}</span>
+        <span class="ntitle">${esc(n.title)}</span>
+      </div>
+      <div class="nmeta">
+        <span>বিজ্ঞপ্তি ${esc(n.noticeNo || "—")}</span>
+        ${n.jobId ? `<span>Job ${esc(n.jobId)}</span>` : ""}
+        ${n.published ? `<span>Published ${esc(n.published)}</span>` : ""}
+        ${n.examDate ? `<span>Exam ${esc(n.examDate)}</span>` : ""}
+        <a href="${esc(n.pdf)}" target="_blank" rel="noopener">PDF${n.sizeKB ? ` · ${BN(n.sizeKB)} KB` : ""}</a>
+        ${n.pages ? `<span>${BN(n.pages)} page${n.pages > 1 ? "s" : ""}</span>` : ""}
+      </div>
+      ${detail}
+    </div>`;
+  }).join("");
+}
+
+/* offline support — only meaningful over http(s); silently skipped on file:// */
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+
+$("#filters").addEventListener("click", e => {
+  const b = e.target.closest("[data-f]");
+  if (!b) return;
+  filter = b.dataset.f;
+  renderNotices();
+});
+
+/* ------------------------------------------------------------------- boot */
+(function boot(){
+  const centres = notices.reduce((a, n) => a + (n.centres ? n.centres.length : 0), 0);
+  const rolls = notices.reduce((a, n) => a + (n._count || 0) + (n.rolls ? n.rolls.length : 0), 0);
+  $("#stats").innerHTML =
+    `<span class="stat"><b>${BN(notices.length)}</b> notices</span>
+     <span class="stat"><b>${BN(centres)}</b> centres</span>
+     <span class="stat"><b>${BN(rolls.toLocaleString("en-US"))}</b> rolls</span>`;
+  $("#hint").textContent = `Searching ${searchable.length} notices · seat plans, viva schedules and selected-candidate lists`
+    + (scannedCount ? ` · ${scannedCount} scanned notice${scannedCount>1?"s":""} cannot be searched` : "");
+  $("#gen").textContent = `built ${DATA.generated} from ${notices.length} notice PDFs`;
+  renderNotices();
+
+  $("#roll").addEventListener("input", renderResult);
+  $("#roll").addEventListener("keydown", e => { if (e.key === "Escape"){ e.target.value = ""; renderResult(); } });
+
+  const m = location.hash.match(/roll=(\d+)/);
+  if (m){ $("#roll").value = m[1]; renderResult(); }
+})();
+</script>
+</body>
+</html>

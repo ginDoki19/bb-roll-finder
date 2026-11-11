@@ -1,0 +1,49 @@
+{
+  "_note": "Titles for notices whose PDF is not in the saved listing page yet. The scraper fills these automatically from jobopportunity.php; this file only covers backfill.",
+  "20261109_bb_85_1794223946.pdf": {
+    "title": "Written Result & Schedule of Viva Voce — Assistant Director (Job ID-302)",
+    "category": "VIVA",
+    "jobId": "302",
+    "venue": "বাংলাদেশ ব্যাংক প্রধান কার্যালয়, মূল ভবন (৪র্থ তল), মতিঝিল, ঢাকা",
+    "venueMapQuery": "Bangladesh Bank Head Office, Motijheel, Dhaka",
+    "published": "09/11/2026",
+    "closing": "28/11/2026"
+  },
+  "20261110_bb_86_1794286537.pdf": {
+    "title": "MCQ Exam Centre & Seat Plan — Officer (General), SPCBL (Job ID-307)",
+    "category": "MCQ",
+    "jobId": "307",
+    "centres": [
+      {
+        "from": 100001,
+        "to": 108000,
+        "name": "ড. মাহবুবুর রহমান মোল্লা কলেজ",
+        "address": "মিরপুর, ঢাকা-১৩৬২",
+        "mapQuery": "Dr. Mahbubur Rahman Mollah College, Mirpur, Dhaka"
+      },
+      {
+        "from": 108001,
+        "to": 111000,
+        "name": "মিরপুর কলেজ",
+        "address": "মিরপুর-২, ঢাকা-১২১৬",
+        "mapQuery": "Mirpur College, Mirpur 2, Dhaka"
+      },
+      {
+        "from": 111001,
+        "to": 113800,
+        "name": "মিরপুর গার্লস আইডিয়াল কলেজ",
+        "address": "মিরপুর-১০, পল্লবী, ঢাকা-১২১৬",
+        "mapQuery": "Mirpur Girls Ideal College, Mirpur 10, Dhaka"
+      },
+      {
+        "from": 113801,
+        "to": 116596,
+        "name": "ল্যাবরেটরি ইনস্টিটিউট (মিরপুর গার্লস আইডিয়াল কলেজ ভবন)",
+        "address": "মিরপুর-১০, ঢাকা-১২১৬",
+        "mapQuery": "Laboratory Institute, Mirpur 10, Dhaka"
+      }
+    ],
+    "published": "10/11/2026",
+    "closing": "13/11/2026"
+  }
+}

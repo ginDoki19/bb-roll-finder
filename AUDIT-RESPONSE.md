@@ -80,7 +80,7 @@ same notice.
 | **5.1** | `noteBn` time ranges match the structured rows' spaced en-dash form. |
 | **5.4** | The sitting panel's eyebrow is now `yourSitting`, distinct from the `reportingTime` cell below it; the cell also runs through `clock()`. |
 
-### Bengali — 19 strings
+### Bengali — 19 strings, then a second fluency pass
 
 Idiom (`ocrProv`, `manualProv`, `scannedWarn`, `tooShort`, `notFoundTitle`,
 `notFoundBody`, `nextViva[1]`, `congratsOffer`, `congratsGeneric`,
@@ -95,6 +95,25 @@ The biggest win is the three provenance strings — the calque
 `কম্পিউটার দিয়ে পড়া` became `স্বয়ংক্রিয়ভাবে`, the filler `আসলে` is gone, and the
 run-on sentences are split. That block is where a candidate decides whether to
 trust the result enough to travel.
+
+**A second pass followed**, because the first one still read as translated.
+The diagnosis and the full before/after table are in `BENGALI-REWRITE.md`.
+Short version: participle-style headline fragments were given finite verbs,
+তৎসম register was dropped for everyday words, run-ons were split, and the
+OCR count became concrete ("নোটিশে লেখা আছে মোট ৩৩৪টি রোল, আমরাও ততগুলোই
+পেয়েছি") instead of an abstract "total number". One audit instruction was
+reverted: it told me to replace `কম্পিউটার দিয়ে পড়া` with `স্বয়ংক্রিয়ভাবে`,
+which made the register *more* bureaucratic, not less.
+
+**A third pass then rewrote the Bengali against a corpus** — Prothom Alo,
+Daily Star Bangla and Amar Desh, including eight Prothom Alo চাকরি stories
+about Bangladesh Bank's own notices. That pass found the real offender was
+not copy but two formatters: every Bengali date printed as `১৬/১১/২০২৬` and
+every time as `সকাল ১০:০০`. Both now follow the papers (`১৬ নভেম্বর ২০২৬`,
+`সকাল ১০টা`, `দেড়টা` for 1:30). It also reversed my own earlier
+over-correction: `রয়েছে`, `কমপক্ষে`, `সম্পন্ন`, `তালিকাভুক্ত` and `আসন্ন` are
+normal journalism, and banning them was wrong. Full record in
+`BENGALI-REWRITE.md`.
 
 ### Discovery
 

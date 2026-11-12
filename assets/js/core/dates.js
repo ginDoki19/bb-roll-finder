@@ -59,3 +59,13 @@ function countdown(iso, timeLabel, reportBy){
   return `<div class="cd ${cls}"><b>${esc(head)}</b><span>${esc(bits.join(" · "))}</span></div>`;
 }
 const dnum = s => NUM(String(s ?? ""));
+/* ১৬/১১/২০২৬ in the middle of a Bengali card is the loudest possible signal
+   that no one wrote it: the papers always spell the month — "১৬ নভেম্বর
+   ২০২৬". English keeps the numeric form, which is the ordinary convention
+   there. Anything that is not a date (357/2026, a batch number) falls
+   through to dnum untouched, which is why this is separate from it. */
+const fmtDate = s => {
+  if (LANG !== "bn") return dnum(s);
+  const iso = toISO(s);
+  return iso ? fmtDay(iso) : dnum(s);
+};

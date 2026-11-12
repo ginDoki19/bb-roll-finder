@@ -51,9 +51,9 @@ function paintStatic(){
   const centres = notices.reduce((a, n) => a + (n.centres ? n.centres.length : 0), 0);
   const rolls   = notices.reduce((a, n) => a + (n._count || 0) + (n.rolls ? n.rolls.length : 0), 0);
   $("#stats").innerHTML =
-    `<span class="stat"><b>${NUM(notices.length)}</b> ${esc(t("statNotices"))}</span>
-     <span class="stat"><b>${NUM(centres)}</b> ${esc(t("statCentres"))}</span>
-     <span class="stat"><b>${NUM(rolls.toLocaleString("en-US"))}</b> ${esc(t("statRolls"))}</span>`;
+    `<span class="stat"><b>${NUM(notices.length)}${esc(t("cls"))}</b> ${esc(t("statNotices"))}</span>
+     <span class="stat"><b>${NUM(centres)}${esc(t("cls"))}</b> ${esc(t("statCentres"))}</span>
+     <span class="stat"><b>${NUM(rolls.toLocaleString("en-IN"))}${esc(t("cls"))}</b> ${esc(t("statRolls"))}</span>`;
   $("#hint").textContent = t("hintBase")(NUM(searchable.length))
     + (scannedCount ? t("hintScanned")(NUM(scannedCount)) : "");
 

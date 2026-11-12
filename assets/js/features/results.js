@@ -21,7 +21,7 @@ function identBlock(n, group, opts){
   const post = postOf(n, group);
   const bits = [];
   if (n.noticeNo)  bits.push(`${t("notice")} ${dnum(n.noticeNo)}`);
-  if (n.published) bits.push(`${t("published")} ${dnum(n.published)}`);
+  if (n.published) bits.push(`${t("published")} ${fmtDate(n.published)}`);
   return `<div class="ident">
     <div class="jobtag"${jobAttr(n.jobId)}><span class="k">${esc(t("job"))}</span><span class="v">${esc(JOB_LABEL(n.jobId))}</span></div>
     <div class="identtext">
@@ -121,7 +121,7 @@ function seatCard(n, c, roll, pref){
       <div class="refline">${esc(c.address || "")}${c.address ? " · " : ""}${esc(t("seatRange"))} ${esc(NUM(c.from))}–${esc(NUM(c.to))}</div>
     </div>
     <div class="grid">
-      <div class="cell"><div class="k">${esc(t("examDate"))}</div><div class="v">${esc(dnum(n.examDate) || "—")}</div></div>
+      <div class="cell"><div class="k">${esc(t("examDate"))}</div><div class="v">${esc(fmtDate(n.examDate) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("time"))}</div><div class="v acc">${esc(from ? clockRange(from, to) : "—")}</div></div>
       ${rep ? `<div class="cell"><div class="k">${esc(t("beThere"))}</div><div class="v warn">${esc(rep)}</div></div>` : ""}
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
@@ -151,11 +151,11 @@ function sittingCard(n, info, roll, pref){
     ${countdown(toISO(info.d), clock(info.t), null)}
     <div class="panel info">
       <div class="eyebrow">${esc(t("yourSitting"))}</div>
-      <div class="big">${esc(dnum(info.d) || "—")}${info.t ? ` · ${esc(clock(info.t))}` : ""}</div>
+      <div class="big">${esc(fmtDate(info.d) || "—")}${info.t ? ` · ${esc(clock(info.t))}` : ""}</div>
       ${n.venue ? `<div class="refline">${esc(n.venue)}</div>` : ""}
     </div>
     <div class="grid">
-      <div class="cell"><div class="k">${esc(t("date"))}</div><div class="v">${esc(dnum(info.d) || "—")}</div></div>
+      <div class="cell"><div class="k">${esc(t("date"))}</div><div class="v">${esc(fmtDate(info.d) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("reportingTime"))}</div><div class="v acc">${esc(clock(info.t) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
     </div>

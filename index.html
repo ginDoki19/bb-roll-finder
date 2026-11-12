@@ -607,7 +607,7 @@ code{background:var(--md-surface-high);padding:1px 6px;border-radius:var(--r-xs)
 <script>
 /* ===== core/constants.js ===== */
 const KIND = {
-  seat:     { key:"seat",     cls:"b-seat",     en:"Centre & seat allocation",     labEn:"SEAT PLAN", labBn:"আসন বিন্যাস" },
+  seat:     { key:"seat",     cls:"b-seat",     en:"Centre & seat allocation",     labEn:"SEAT PLAN", labBn:"আসনবিন্যাস" },
   viva:     { key:"viva",     cls:"b-viva",     en:"Viva / interview schedule",    labEn:"VIVA",      labBn:"ভাইভা" },
   result:   { key:"result",   cls:"b-result",   en:"Written result",               labEn:"RESULT",    labBn:"ফলাফল" },
   selected: { key:"selected", cls:"b-selected", en:"Primarily selected list",      labEn:"SELECTED",  labBn:"নির্বাচিত" },
@@ -688,11 +688,30 @@ const clock = s => {
   if (!s || LANG !== "bn") return s;
   const out = String(s).replace(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi, (_, h, m, ap) => {
     let hh = +h % 12; if (/pm/i.test(ap)) hh += 12;
-    const part = hh >= 5 && hh < 12 ? "সকাল" : hh >= 12 && hh < 16 ? "দুপুর"
-               : hh >= 16 && hh < 18 ? "বিকাল" : hh >= 18 && hh < 20 ? "সন্ধ্যা" : "রাত";
-    return `${part} ${BN(+h)}:${BN(m)}`;
+    /* বিকেল, not বিকাল — both papers use the চলিত spelling. ভোর is a real
+       part of the day here; candidates queue from before dawn. */
+    const part = hh >= 4 && hh < 6 ? "ভোর" : hh >= 6 && hh < 12 ? "সকাল"
+               : hh >= 12 && hh < 16 ? "দুপুর" : hh >= 16 && hh < 18 ? "বিকেল"
+               : hh >= 18 && hh < 20 ? "সন্ধ্যা" : "রাত";
+    /* A clock face is spoken, not punctuated: সকাল ১০টা, never সকাল ১০:০০.
+       Half past has its own words for one and two o'clock — দেড়টা and
+       আড়াইটা. "সাড়ে ১টা" is not something anyone says or prints. */
+    const h12 = +h, mm = +m;
+    const face = mm === 0  ? `${BN(h12)}টা`
+               : mm === 30 ? (h12 === 1 ? "দেড়টা" : h12 === 2 ? "আড়াইটা" : `সাড়ে ${BN(h12)}টা`)
+               :             `${BN(h12)}টা ${BN(mm)} মিনিট`;
+    return `${part} ${face}`;
   });
   return BN(out);
+};
+
+/* Bengali genitive on a clock face. "দুপুর ২টা" -> "দুপুর ২টার"; a
+   consonant-final one like "৯টা ২০ মিনিট" -> "...মিনিটের". Hyphenating the
+   case ending on ("২টা-এর") is a transliteration habit — it reads as though
+   the sentence were assembled rather than written. */
+const ofTime = s => {
+  if (!s || LANG !== "bn") return s;
+  return /[\u09BE\u09BF\u09C0-\u09C4\u09C7\u09C8\u09CB\u09CC\u0985-\u0994]$/.test(s) ? s + "র" : s + "ের";
 };
 
 /* "সকাল ১০:০০ – সকাল ১১:০০" -> "সকাল ১০:০০ – ১১:০০": say the part of the day once. */
@@ -761,6 +780,16 @@ function countdown(iso, timeLabel, reportBy){
   return `<div class="cd ${cls}"><b>${esc(head)}</b><span>${esc(bits.join(" · "))}</span></div>`;
 }
 const dnum = s => NUM(String(s ?? ""));
+/* ১৬/১১/২০২৬ in the middle of a Bengali card is the loudest possible signal
+   that no one wrote it: the papers always spell the month — "১৬ নভেম্বর
+   ২০২৬". English keeps the numeric form, which is the ordinary convention
+   there. Anything that is not a date (357/2026, a batch number) falls
+   through to dnum untouched, which is why this is separate from it. */
+const fmtDate = s => {
+  if (LANG !== "bn") return dnum(s);
+  const iso = toISO(s);
+  return iso ? fmtDay(iso) : dnum(s);
+};
 
 /* ===== core/language.js ===== */
 /* ------------------------------------------------------------- language */
@@ -822,6 +851,11 @@ en:{
   hintBase:n => `Searching ${n} notices · seat plans, viva schedules and selected-candidate lists`,
   hintScanned:n => ` · ${n} scanned notice${n>1?"s":""} cannot be searched`,
   statNotices:"notices", statCentres:"centres", statRolls:"listed rolls",
+  /* Bengali counts with a classifier glued to the numeral — ১৩টি নোটিশ.
+     "১৩ নোটিশ" is the one shape the papers never print. English has no
+     classifier, so the key is empty there and the parity test still sees
+     the same key in both dictionaries. */
+  cls:"",
   allNotices:"All notices", all:"All",
   lang:"Language", theme:"Theme", system:"Auto", light:"Light", dark:"Dark",
   examToday:"Exam today", daysLeft:d => `${d} day${+d===1?"":"s"} left`, upcoming:"Upcoming",
@@ -883,26 +917,30 @@ en:{
   multiPost:"Multiple posts in one notice"
 },
 bn:{
-  tagline:"বাংলাদেশ ব্যাংকের নোটিশ, আসন বিন্যাস ও ফলাফল — সব এক জায়গায়",
+  tagline:"বাংলাদেশ ব্যাংকের নোটিশ, আসনবিন্যাস ও ফলাফল এক জায়গায়",
   placeholder:"রোল নম্বর লিখুন, যেমন ১০৫৪৩২",
   rollLabel:"রোল নম্বর",
   /* Bengali attaches the count to the thing counted, not to a possessive on
-     the roll: "রোল ২০০৯৮৩ — ২টি ফলাফল", never "রোল ২০০৯৮৩-এর ২টি ফলাফল". */
-  srFound:(n,r) => `রোল ${r} — ${n}টি ফলাফল পাওয়া গেছে`,
-  srAmbig:(n,r,j) => `রোল ${r} — ${j}টি আলাদা পদে ${n}টি ফলাফল পাওয়া গেছে, আপনার পদটি বেছে নিন`,
-  hintBase:n => `${n}টি নোটিশে খোঁজা হচ্ছে — আসন বিন্যাস, ভাইভার সূচি ও নির্বাচিত প্রার্থীদের তালিকা`,
+     the roll: "রোল ২০০৯৮৩, ২টি ফলাফল", never "রোল ২০০৯৮৩-এর ২টি ফলাফল".
+     The separator is a comma, not an em dash: in Bangla journalism — only
+     introduces a list ("কেন্দ্রগুলো হলো—"), never a trailing aside. */
+  srFound:(n,r) => `রোল ${r}, ${n}টি ফলাফল পাওয়া গেছে`,
+  srAmbig:(n,r,j) => `রোল ${r} ${j}টি পদে পাওয়া গেছে, মোট ${n}টি ফলাফল। আপনার পদটি বেছে নিন।`,
+  hintBase:n => `${n}টি নোটিশে খোঁজা হচ্ছে — আসনবিন্যাস, মৌখিক পরীক্ষার সূচি ও নির্বাচিত প্রার্থীদের তালিকা`,
   hintScanned:n => ` · স্ক্যান করা ${n}টি নোটিশে খোঁজা যায় না`,
-  statNotices:"নোটিশ", statCentres:"কেন্দ্র", statRolls:"তালিকাভুক্ত রোল",
+  statNotices:"নোটিশ", statCentres:"কেন্দ্র", statRolls:"রোল নম্বর",
+  cls:"টি",
   allNotices:"সব নোটিশ", all:"সব",
   lang:"ভাষা", theme:"থিম", system:"অটো", light:"লাইট", dark:"ডার্ক",
-  /* Status badges are noun phrases — আসন্ন, চলমান — so the finished state is
-     সম্পন্ন, not the finite verb "শেষ হয়েছে". */
+  /* Status badges are noun phrases, as in the papers: আসন্ন / চলমান / শেষ.
+     শেষ rather than সম্পন্ন — সম্পন্ন is correct but reads as officialese
+     next to two one-word badges. */
   examToday:"আজ পরীক্ষা", daysLeft:d => `${d} দিন বাকি`, upcoming:"আসন্ন",
-  completed:"সম্পন্ন", ongoing:"চলমান",
+  completed:"শেষ", ongoing:"চলমান",
   /* Bengali puts the time adverb first: আজ আপনার পরীক্ষা, not আপনার পরীক্ষা আজ. */
   cdToday:"আজ আপনার পরীক্ষা", cdTomorrow:"আগামীকাল আপনার পরীক্ষা",
   cdDays:d => `আর ${d} দিন পর আপনার পরীক্ষা`, cdPast:d => `${d} দিন আগে এই পরীক্ষা হয়ে গেছে`,
-  beThereBy:r => `${r}-এর মধ্যে কেন্দ্রে পৌঁছান`,
+  beThereBy:r => `${ofTime(r)} মধ্যে কেন্দ্রে পৌঁছান`,
   examDate:"পরীক্ষার তারিখ", time:"সময়", beThere:"কেন্দ্রে পৌঁছানোর সময়", yourRoll:"আপনার রোল",
   date:"তারিখ", reportingTime:"হাজির হওয়ার সময়", yourSitting:"আপনার সময়সূচি",
   batch:"ব্যাচ", post:"পদ",
@@ -911,52 +949,53 @@ bn:{
      locale and falls through to the English dictionary. */
   stop:"।",
   notice:"বিজ্ঞপ্তি", published:"প্রকাশিত", exam:"পরীক্ষা", pages:n => `${n} পৃষ্ঠা`,
-  openMaps:"গুগল ম্যাপে দেখুন", showMap:"মানচিত্র দেখুন", hideMap:"মানচিত্র লুকান",
-  mapOffline:"মানচিত্র দেখতে ইন্টারনেট সংযোগ লাগবে। উপরের বোতাম থেকে গুগল ম্যাপে খুলুন।",
+  openMaps:"গুগল ম্যাপে দেখুন", showMap:"ম্যাপ দেখুন", hideMap:"ম্যাপ লুকান",
+  mapOffline:"ম্যাপ দেখতে ইন্টারনেট লাগবে। উপরের বোতামে চাপ দিলে গুগল ম্যাপে খুলবে।",
   officialPdf:"অফিসিয়াল পিডিএফ", openPdf:"অফিসিয়াল পিডিএফ খুলুন", checkPortal:"অফিসিয়াল পোর্টালে দেখুন",
   share:"শেয়ার করুন", shared:"লিংক কপি হয়েছে",
   whatNext:"এরপর কী করবেন",
   yourCentre:"আপনার কেন্দ্র",
   yoursBadge:"আপনার পদ",
   disambigQ:(r,n) => `রোল ${r} ${n}টি আলাদা নোটিশে পাওয়া গেছে।`,
-  disambigWhy:"প্রতিটি বিজ্ঞপ্তিতে রোল নম্বর আবার শুরু থেকে দেওয়া হয়, তাই একই নম্বর দুটি আলাদা পদের হতে পারে। আপনি যে পদে আবেদন করেছেন সেটি বেছে নিন — পছন্দটি মনে রাখা হবে।",
+  disambigWhy:"প্রতিটি বিজ্ঞপ্তিতে রোল নম্বর নতুন করে শুরু হয়। তাই একই নম্বর দুই পদে পড়ে যেতে পারে। আপনি যে পদে আবেদন করেছিলেন, সেটি বেছে নিন। পরেরবারের জন্য মনে রাখা হবে।",
   showAll:"সব দেখান",
-  congratsOffer:"অভিনন্দন! আপনার নিয়োগপত্র প্রদান করা হয়েছে",
+  congratsOffer:"অভিনন্দন! আপনি নিয়োগপত্র পেয়েছেন",
   congratsPrimary:"অভিনন্দন! আপনি প্রাথমিকভাবে নির্বাচিত হয়েছেন",
-  congratsGeneric:"এই তালিকায় আপনার রোল রয়েছে",
+  congratsGeneric:"এই তালিকায় আপনার রোল আছে",
   selectedRef:"আপনার রোল নম্বর",
-  lowConfTitle:"এই রোল নম্বরটি স্পষ্ট পড়া যায়নি",
-  lowConfBody:"স্ক্যান করা ছবিতে এই নম্বরটি ঝাপসা ছিল, কয়েকবার পড়েও একই ফল আসেনি। এটি আসলে অন্য কোনো রোল নম্বরও হতে পারে। নির্ভর করার আগে ",
-  nextOffer:["নিয়োগপত্র সংগ্রহ করে যোগদানের শর্তগুলো মন দিয়ে পড়ুন।","নোটিশে দেওয়া যোগদানের শেষ তারিখের মধ্যে যোগ দিন।","যাচাইয়ের জন্য মূল সনদগুলো গুছিয়ে রাখুন।"],
-  nextPrimary:["এটি প্রাথমিক নির্বাচন। এরপর কাগজপত্র যাচাই বা নিয়োগ প্রক্রিয়ার পরবর্তী ধাপ রয়েছে।","যাচাইয়ের তারিখ ও কাগজপত্রের তালিকার জন্য পোর্টালে নজর রাখুন।","মূল কাগজপত্র আর এক সেট ফটোকপি তৈরি রাখুন।"],
-  nextSeat:["প্রবেশপত্র আর ছবিসহ পরিচয়পত্র সঙ্গে নিন।","কমপক্ষে এক ঘণ্টা আগে কেন্দ্রে পৌঁছান।","মোবাইল ফোন, ক্যালকুলেটর, স্মার্টওয়াচ ও ব্যাগ সাধারণত ভেতরে নেওয়া যায় না।","বিস্তারিত নির্দেশনা অফিসিয়াল পিডিএফে দেখুন।"],
-  nextViva:["সব মূল সনদ ও এক সেট ফটোকপি সঙ্গে নিন।","উপরে দেওয়া সময়ে হাজির থাকুন — দেরি করলে সাধারণত ঢুকতে দেওয়া হয় না।","কাগজপত্রের তালিকা অফিসিয়াল পিডিএফে দেখুন।"],
-  notFoundTitle:r => `এই সাইটের কোনো নোটিশে রোল ${r} পাওয়া যায়নি`,
-  notFoundBody:n => `এই সাইটে থাকা ${n}টি নোটিশেই খোঁজা হয়েছে। সম্ভবত আপনার নোটিশটি এখনো যোগ করা হয়নি — নতুন নোটিশ আগে অফিসিয়াল পোর্টালে আসে, তারপর এখানে।`,
-  notFoundList:"এই সাইটে এখন যেসব নোটিশ আছে:",
-  tooShort:r => `${r} রোল নম্বর হিসেবে খুব ছোট — পুরো নম্বরটি লিখুন।`,
+  lowConfTitle:"এই রোল নম্বরটি ভালোভাবে পড়া যায়নি",
+  lowConfBody:"স্ক্যানে এই জায়গাটা ঝাপসা, কয়েকবার পড়েও একই ফল আসেনি। নম্বরটি আসলে অন্য কিছুও হতে পারে। ভরসা করার আগে ",
+  nextOffer:["নিয়োগপত্র সংগ্রহ করে যোগদানের শর্তগুলো মন দিয়ে পড়ুন।","নোটিশে যোগদানের যে শেষ তারিখ দেওয়া আছে, তার মধ্যে যোগ দিন।","যাচাইয়ের জন্য মূল সনদগুলো গুছিয়ে রাখুন।"],
+  nextPrimary:["এটি প্রাথমিক নির্বাচন। এরপর কাগজপত্র যাচাই বা পরের ধাপ বাকি আছে।","যাচাইয়ের তারিখ ও কাগজপত্রের তালিকার জন্য পোর্টালে নজর রাখুন।","মূল কাগজপত্র ও এক সেট ফটোকপি তৈরি রাখুন।"],
+  nextSeat:["প্রবেশপত্র ও ছবিসহ পরিচয়পত্র সঙ্গে নিন।","পরীক্ষা শুরুর অন্তত এক ঘণ্টা আগে কেন্দ্রে পৌঁছান।","মোবাইল ফোন, ক্যালকুলেটর, স্মার্টওয়াচ ও ব্যাগ সাধারণত কেন্দ্রে আনা যায় না।","বিস্তারিত নির্দেশনা অফিসিয়াল পিডিএফে দেখুন।"],
+  nextViva:["সব মূল সনদ ও এক সেট ফটোকপি সঙ্গে নিন।","উপরে দেওয়া সময়ে কেন্দ্রে উপস্থিত থাকুন। দেরি করলে সাধারণত ঢুকতে দেওয়া হয় না।","কাগজপত্রের তালিকা অফিসিয়াল পিডিএফে দেখুন।"],
+  notFoundTitle:r => `রোল ${r} কোনো নোটিশে পাওয়া যায়নি`,
+  notFoundBody:n => `এখানে যে ${n}টি নোটিশ আছে, সবগুলোতেই খোঁজা হয়েছে। আপনার নোটিশটি সম্ভবত এখনো যোগ হয়নি। নতুন নোটিশ আগে অফিসিয়াল পোর্টালে ওঠে, তারপর এখানে আসে।`,
+  notFoundList:"এখন যেসব নোটিশ আছে:",
+  tooShort:r => `${r} দিয়ে খোঁজা যাবে না। পুরো রোল নম্বরটি লিখুন।`,
   nRolls:n => `${n}টি রোল নম্বর`,
   nRollsIn:(r,p) => `${p}টি পদে মোট ${r}টি রোল নম্বর`,
   nCentres:(c,a,b) => `${c}টি কেন্দ্র · রোল ${a}–${b}`,
   nSittings:(s,r) => `${s}টি ব্যাচ · ${r}টি রোল`,
   filterList:"এই তালিকায় খুঁজুন…", copyAll:"সব কপি করুন", copied:"কপি হয়েছে", noMatchInList:"এই তালিকায় এমন কোনো রোল নেই।",
   showing:(a,b) => `${b}টির মধ্যে ${a}টি দেখানো হচ্ছে`,
-  pastNotices:n => `${n}টি পুরোনো নোটিশ — শেষ হয়ে গেছে, তবে এখানে খোঁজা যায়`,
-  /* "কম্পিউটার দিয়ে পড়া" is a calque that reads as a description of a
-     machine rather than of the data; স্বয়ংক্রিয়ভাবে is the word a Bengali
-     notice would use. The run-on is split into three short sentences. */
-  ocrProv:(tot) => `<b>স্ক্যান করা নোটিশ থেকে স্বয়ংক্রিয়ভাবে পড়া।</b> এই পিডিএফটি একটি ছবি, তাই নম্বরগুলো ওসিআর দিয়ে পড়া হয়েছে। নোটিশে ছাপা মোট সংখ্যার${tot?` (${tot})`:""} সঙ্গে মিলেছে এবং কয়েকবার আলাদাভাবে পড়েও একই ফল এসেছে, তাই প্রকাশ করা হয়েছে। তবুও ভুল থাকতে পারে — `,
-  manualProv:"<b>স্ক্যান করা নোটিশ থেকে হাতে টাইপ করা।</b> এই পিডিএফটি একটি ছবি। নম্বরগুলো হাতে টাইপ করে নোটিশে ছাপা মোট সংখ্যার সঙ্গে মিলিয়ে দেখা হয়েছে। তবুও সবসময় ",
+  pastNotices:n => `${n}টি পুরোনো নোটিশ, পরীক্ষা শেষ হয়ে গেছে তবু এখানে খোঁজা যায়`,
+  /* Provenance follows Prothom Alo's চাকরি desk: "রোল নম্বর" (never bare
+     নম্বরগুলো), short finite sentences, and তাই/তবু as the connector where
+     English would reach for a dash. স্বয়ংক্রিয়ভাবে was tried here and is
+     wrong — it is circular-speak, the exact register being avoided. */
+  ocrProv:(tot) => `<b>রোল নম্বরগুলো কম্পিউটারে পড়া হয়েছে।</b> নোটিশটি স্ক্যান করা ছবি, তাই ওসিআর দিয়ে নম্বর তোলা হয়েছে।${tot?` নোটিশে লেখা আছে মোট ${tot}টি রোল, আমরাও ততগুলোই পেয়েছি।`:""} কয়েকবার আলাদা করে পড়েও একই ফল এসেছে। তবু ভুল থাকতে পারে, তাই `,
+  manualProv:"<b>রোল নম্বরগুলো হাতে টাইপ করা হয়েছে।</b> নোটিশটি স্ক্যান করা ছবি, তাই একটি একটি করে টাইপ করতে হয়েছে। পরে নোটিশে লেখা মোট সংখ্যার সঙ্গে মিলিয়েও দেখা হয়েছে। তবু ",
   confirmPdf:"অফিসিয়াল পিডিএফে মিলিয়ে নিন",
-  scannedWarn:"<b>এই নোটিশটি স্ক্যান করা ছবি।</b> এর রোল নম্বর স্বয়ংক্রিয়ভাবে পড়া যায়নি, তাই এখানে খুঁজে পাওয়া যাবে না। ",
+  scannedWarn:"<b>এই নোটিশটি স্ক্যান করা ছবি মাত্র।</b> ভেতরের রোল নম্বর কম্পিউটারে পড়া যায়নি, তাই এখানে খুঁজে পাবেন না। ",
   openPdfCheck:"অফিসিয়াল পিডিএফ খুলে নিজে মিলিয়ে দেখুন।",
   fData:"তথ্য:", fDataRest:"· বাংলাদেশ ব্যাংক ও বিএসসিএসের অফিসিয়াল নোটিশের পিডিএফ থেকে নেওয়া · বাংলাদেশ ব্যাংকের সঙ্গে এই সাইটের কোনো সম্পর্ক নেই।",
-  fConfirm:"রওনা দেওয়ার আগে অবশ্যই অফিসিয়াল পিডিএফে মিলিয়ে নিন — এটি শুধু সহায়ক একটি সাইট, অফিসিয়াল উৎস নয়।",
+  fConfirm:"রওনা দেওয়ার আগে অবশ্যই অফিসিয়াল পিডিএফে মিলিয়ে নিন। এই সাইট কেবল সহায়ক, অফিসিয়াল উৎস নয়।",
   fStatic:"কোনো সার্ভার নেই · কোনো ট্র্যাকিং নেই · ইন্টারনেট ছাড়াও চলে।",
   updToday:"আজ আপডেট হয়েছে", updYesterday:"গতকাল আপডেট হয়েছে",
   updDays:d => `${d} দিন আগে আপডেট হয়েছে`, upd:"আপডেট",
   builtFrom:(d,n) => `· ${d} তারিখে ${n}টি নোটিশের পিডিএফ থেকে তৈরি`,
-  multiPost:"এক নোটিশে একাধিক পদ"
+  multiPost:"একই নোটিশে কয়েকটি পদ"
 }};
 
 const kindLabel = k => LANG === "bn" ? (KIND[k]||KIND.circular).labBn : (KIND[k]||KIND.circular).labEn;
@@ -1681,8 +1720,8 @@ const DATA = {
    },
    "headline": "You passed the preliminary test — written exam next",
    "note": "Written exam 20/11/2026, 3:00–5:00 PM at the Academic Building, Faculty of Business Studies, University of Dhaka. Admit card required; be there one hour early — the gate closes at 3:00 PM. No calculator, phone, smartwatch, bag or jewellery.",
-   "headlineBn": "অভিনন্দন! আপনি প্রাথমিক পরীক্ষায় উত্তীর্ণ হয়েছেন — এরপর লিখিত পরীক্ষা",
-   "noteBn": "লিখিত পরীক্ষা ২০/১১/২০২৬, বিকাল ৩:০০ – ৫:০০টা, ঢাকা বিশ্ববিদ্যালয় ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবনে। প্রবেশপত্র আবশ্যক; এক ঘণ্টা আগে পৌঁছান — ৩:০০টায় গেট বন্ধ হয়ে যাবে। ক্যালকুলেটর, মোবাইল, স্মার্টওয়াচ, ব্যাগ বা গয়না আনা যাবে না।",
+   "headlineBn": "অভিনন্দন! আপনি প্রাথমিক পরীক্ষায় উত্তীর্ণ হয়েছেন, এরপর লিখিত পরীক্ষা",
+   "noteBn": "লিখিত পরীক্ষা ২০ নভেম্বর ২০২৬ (শুক্রবার), দুপুর ৩টা থেকে বিকেল ৫টা পর্যন্ত। কেন্দ্র ঢাকা বিশ্ববিদ্যালয়ের ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবন। প্রবেশপত্র সঙ্গে আনতেই হবে। দুপুর ২টার মধ্যে পৌঁছান; দুপুর ৩টায় মূল ফটক বন্ধ হয়ে যাবে। ক্যালকুলেটর, মোবাইল ফোন, স্মার্টওয়াচ, ব্যাগ বা গয়না আনা যাবে না।",
    "details": [
     {
      "k": "Date",
@@ -1717,15 +1756,15 @@ const DATA = {
     },
     {
      "k": "সময়",
-     "v": "বিকাল ৩:০০ – ৫:০০"
+     "v": "দুপুর ৩টা থেকে বিকেল ৫টা"
     },
     {
      "k": "কেন্দ্র",
-     "v": "একাডেমিক ভবন, ব্যবসায় শিক্ষা অনুষদ, ঢাকা বিশ্ববিদ্যালয়"
+     "v": "ঢাকা বিশ্ববিদ্যালয়ের ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবন"
     },
     {
      "k": "পৌঁছানোর সময়",
-     "v": "দুপুর ২:০০ — বিকাল ৩:০০টায় গেট বন্ধ হয়ে যাবে"
+     "v": "দুপুর ২টা; দুপুর ৩টায় মূল ফটক বন্ধ হয়ে যাবে"
     },
     {
      "k": "সঙ্গে আনুন",
@@ -6764,7 +6803,7 @@ function identBlock(n, group, opts){
   const post = postOf(n, group);
   const bits = [];
   if (n.noticeNo)  bits.push(`${t("notice")} ${dnum(n.noticeNo)}`);
-  if (n.published) bits.push(`${t("published")} ${dnum(n.published)}`);
+  if (n.published) bits.push(`${t("published")} ${fmtDate(n.published)}`);
   return `<div class="ident">
     <div class="jobtag"${jobAttr(n.jobId)}><span class="k">${esc(t("job"))}</span><span class="v">${esc(JOB_LABEL(n.jobId))}</span></div>
     <div class="identtext">
@@ -6864,7 +6903,7 @@ function seatCard(n, c, roll, pref){
       <div class="refline">${esc(c.address || "")}${c.address ? " · " : ""}${esc(t("seatRange"))} ${esc(NUM(c.from))}–${esc(NUM(c.to))}</div>
     </div>
     <div class="grid">
-      <div class="cell"><div class="k">${esc(t("examDate"))}</div><div class="v">${esc(dnum(n.examDate) || "—")}</div></div>
+      <div class="cell"><div class="k">${esc(t("examDate"))}</div><div class="v">${esc(fmtDate(n.examDate) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("time"))}</div><div class="v acc">${esc(from ? clockRange(from, to) : "—")}</div></div>
       ${rep ? `<div class="cell"><div class="k">${esc(t("beThere"))}</div><div class="v warn">${esc(rep)}</div></div>` : ""}
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
@@ -6894,11 +6933,11 @@ function sittingCard(n, info, roll, pref){
     ${countdown(toISO(info.d), clock(info.t), null)}
     <div class="panel info">
       <div class="eyebrow">${esc(t("yourSitting"))}</div>
-      <div class="big">${esc(dnum(info.d) || "—")}${info.t ? ` · ${esc(clock(info.t))}` : ""}</div>
+      <div class="big">${esc(fmtDate(info.d) || "—")}${info.t ? ` · ${esc(clock(info.t))}` : ""}</div>
       ${n.venue ? `<div class="refline">${esc(n.venue)}</div>` : ""}
     </div>
     <div class="grid">
-      <div class="cell"><div class="k">${esc(t("date"))}</div><div class="v">${esc(dnum(info.d) || "—")}</div></div>
+      <div class="cell"><div class="k">${esc(t("date"))}</div><div class="v">${esc(fmtDate(info.d) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("reportingTime"))}</div><div class="v acc">${esc(clock(info.t) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
     </div>
@@ -7097,7 +7136,7 @@ function noticeCard(n){
   } else if (n.sittings){
     detail = `<details><summary>${esc(t("nSittings")(NUM(n.sittings.length), NUM(n._count || 0)))}</summary>
       <div class="tscroll"><table><thead><tr><th>${esc(t("batch"))}</th><th>${esc(t("date"))}</th><th>${esc(t("time"))}</th><th>${esc(t("rolls"))}</th></tr></thead><tbody>
-      ${n.sittings.map(b => `<tr><td class="num">${esc(NUM(b.sl))}</td><td>${esc(dnum(b.date) || "—")}</td>
+      ${n.sittings.map(b => `<tr><td class="num">${esc(NUM(b.sl))}</td><td>${esc(fmtDate(b.date) || "—")}</td>
         <td>${esc(clock(b.time) || "—")}</td><td class="num">${esc(NUM(b.count))}</td></tr>`).join("")}
       </tbody></table></div></details>`;
   } else if (n.kind === "scanned"){
@@ -7130,8 +7169,8 @@ function noticeCard(n){
            a Job ID for them. Printing "notice —" invented a field that does not
            exist, so the row is simply dropped instead. */""}
       ${n.noticeNo ? `<span>${esc(t("notice"))} ${esc(dnum(n.noticeNo))}</span>` : ""}
-      ${n.published ? `<span>${esc(t("published"))} ${esc(dnum(n.published))}</span>` : ""}
-      ${n.examDate ? `<span>${esc(t("exam"))} ${esc(dnum(n.examDate))}</span>` : ""}
+      ${n.published ? `<span>${esc(t("published"))} ${esc(fmtDate(n.published))}</span>` : ""}
+      ${n.examDate ? `<span>${esc(t("exam"))} ${esc(fmtDate(n.examDate))}</span>` : ""}
       <a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}${n.sizeKB ? ` · ${esc(NUM(n.sizeKB))} KB` : ""}</a>
       ${n.pages ? `<span>${esc(t("pages")(NUM(n.pages)))}</span>` : ""}
     </div>
@@ -7211,9 +7250,9 @@ function paintStatic(){
   const centres = notices.reduce((a, n) => a + (n.centres ? n.centres.length : 0), 0);
   const rolls   = notices.reduce((a, n) => a + (n._count || 0) + (n.rolls ? n.rolls.length : 0), 0);
   $("#stats").innerHTML =
-    `<span class="stat"><b>${NUM(notices.length)}</b> ${esc(t("statNotices"))}</span>
-     <span class="stat"><b>${NUM(centres)}</b> ${esc(t("statCentres"))}</span>
-     <span class="stat"><b>${NUM(rolls.toLocaleString("en-US"))}</b> ${esc(t("statRolls"))}</span>`;
+    `<span class="stat"><b>${NUM(notices.length)}${esc(t("cls"))}</b> ${esc(t("statNotices"))}</span>
+     <span class="stat"><b>${NUM(centres)}${esc(t("cls"))}</b> ${esc(t("statCentres"))}</span>
+     <span class="stat"><b>${NUM(rolls.toLocaleString("en-IN"))}${esc(t("cls"))}</b> ${esc(t("statRolls"))}</span>`;
   $("#hint").textContent = t("hintBase")(NUM(searchable.length))
     + (scannedCount ? t("hintScanned")(NUM(scannedCount)) : "");
 
@@ -7331,8 +7370,8 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")){
    no behavioural gain on a page that loads no other scripts. */
 const BB = {
   dom:         { $, esc, safeHref, pdfAttrs },
-  numbers:     { BN, AS, NUM, JOB, JOB_LIST, JOB_LABEL, jobAttr, clock, clockRange },
-  dates:       { TODAY, toISO, dayDiff, statusOf, countdown, dnum, fmtDay },
+  numbers:     { BN, AS, NUM, JOB, JOB_LIST, JOB_LABEL, jobAttr, clock, clockRange, ofTime },
+  dates:       { TODAY, toISO, dayDiff, statusOf, countdown, dnum, fmtDay, fmtDate },
   language:    { get lang(){ return LANG; }, t, STR, kindLabel },
   constants:   { KIND, POST_RE },
   data:        { DATA, notices, searchable, scannedCount, findCentre, minus60 },

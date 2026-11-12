@@ -21,7 +21,7 @@ function noticeCard(n){
   } else if (n.sittings){
     detail = `<details><summary>${esc(t("nSittings")(NUM(n.sittings.length), NUM(n._count || 0)))}</summary>
       <div class="tscroll"><table><thead><tr><th>${esc(t("batch"))}</th><th>${esc(t("date"))}</th><th>${esc(t("time"))}</th><th>${esc(t("rolls"))}</th></tr></thead><tbody>
-      ${n.sittings.map(b => `<tr><td class="num">${esc(NUM(b.sl))}</td><td>${esc(dnum(b.date) || "—")}</td>
+      ${n.sittings.map(b => `<tr><td class="num">${esc(NUM(b.sl))}</td><td>${esc(fmtDate(b.date) || "—")}</td>
         <td>${esc(clock(b.time) || "—")}</td><td class="num">${esc(NUM(b.count))}</td></tr>`).join("")}
       </tbody></table></div></details>`;
   } else if (n.kind === "scanned"){
@@ -54,8 +54,8 @@ function noticeCard(n){
            a Job ID for them. Printing "notice —" invented a field that does not
            exist, so the row is simply dropped instead. */""}
       ${n.noticeNo ? `<span>${esc(t("notice"))} ${esc(dnum(n.noticeNo))}</span>` : ""}
-      ${n.published ? `<span>${esc(t("published"))} ${esc(dnum(n.published))}</span>` : ""}
-      ${n.examDate ? `<span>${esc(t("exam"))} ${esc(dnum(n.examDate))}</span>` : ""}
+      ${n.published ? `<span>${esc(t("published"))} ${esc(fmtDate(n.published))}</span>` : ""}
+      ${n.examDate ? `<span>${esc(t("exam"))} ${esc(fmtDate(n.examDate))}</span>` : ""}
       <a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}${n.sizeKB ? ` · ${esc(NUM(n.sizeKB))} KB` : ""}</a>
       ${n.pages ? `<span>${esc(t("pages")(NUM(n.pages)))}</span>` : ""}
     </div>

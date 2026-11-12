@@ -25,11 +25,30 @@ const clock = s => {
   if (!s || LANG !== "bn") return s;
   const out = String(s).replace(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi, (_, h, m, ap) => {
     let hh = +h % 12; if (/pm/i.test(ap)) hh += 12;
-    const part = hh >= 5 && hh < 12 ? "সকাল" : hh >= 12 && hh < 16 ? "দুপুর"
-               : hh >= 16 && hh < 18 ? "বিকাল" : hh >= 18 && hh < 20 ? "সন্ধ্যা" : "রাত";
-    return `${part} ${BN(+h)}:${BN(m)}`;
+    /* বিকেল, not বিকাল — both papers use the চলিত spelling. ভোর is a real
+       part of the day here; candidates queue from before dawn. */
+    const part = hh >= 4 && hh < 6 ? "ভোর" : hh >= 6 && hh < 12 ? "সকাল"
+               : hh >= 12 && hh < 16 ? "দুপুর" : hh >= 16 && hh < 18 ? "বিকেল"
+               : hh >= 18 && hh < 20 ? "সন্ধ্যা" : "রাত";
+    /* A clock face is spoken, not punctuated: সকাল ১০টা, never সকাল ১০:০০.
+       Half past has its own words for one and two o'clock — দেড়টা and
+       আড়াইটা. "সাড়ে ১টা" is not something anyone says or prints. */
+    const h12 = +h, mm = +m;
+    const face = mm === 0  ? `${BN(h12)}টা`
+               : mm === 30 ? (h12 === 1 ? "দেড়টা" : h12 === 2 ? "আড়াইটা" : `সাড়ে ${BN(h12)}টা`)
+               :             `${BN(h12)}টা ${BN(mm)} মিনিট`;
+    return `${part} ${face}`;
   });
   return BN(out);
+};
+
+/* Bengali genitive on a clock face. "দুপুর ২টা" -> "দুপুর ২টার"; a
+   consonant-final one like "৯টা ২০ মিনিট" -> "...মিনিটের". Hyphenating the
+   case ending on ("২টা-এর") is a transliteration habit — it reads as though
+   the sentence were assembled rather than written. */
+const ofTime = s => {
+  if (!s || LANG !== "bn") return s;
+  return /[\u09BE\u09BF\u09C0-\u09C4\u09C7\u09C8\u09CB\u09CC\u0985-\u0994]$/.test(s) ? s + "র" : s + "ের";
 };
 
 /* "সকাল ১০:০০ – সকাল ১১:০০" -> "সকাল ১০:০০ – ১১:০০": say the part of the day once. */

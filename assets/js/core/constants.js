@@ -7,7 +7,7 @@
  * core/language.js under STR.
  */
 const KIND = {
-  seat:     { key:"seat",     cls:"b-seat",     en:"Centre & seat allocation",     labEn:"SEAT PLAN", labBn:"আসন বিন্যাস" },
+  seat:     { key:"seat",     cls:"b-seat",     en:"Centre & seat allocation",     labEn:"SEAT PLAN", labBn:"আসনবিন্যাস" },
   viva:     { key:"viva",     cls:"b-viva",     en:"Viva / interview schedule",    labEn:"VIVA",      labBn:"ভাইভা" },
   result:   { key:"result",   cls:"b-result",   en:"Written result",               labEn:"RESULT",    labBn:"ফলাফল" },
   selected: { key:"selected", cls:"b-selected", en:"Primarily selected list",      labEn:"SELECTED",  labBn:"নির্বাচিত" },

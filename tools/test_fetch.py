@@ -94,6 +94,37 @@ def t2_listing_parse():
     return not bad
 
 
+def t2b_both_listings():
+    """Both listings must be represented in the saved career.html.
+
+    Bangladesh Bank publishes across two pages — jobopportunity.php (BB and
+    SPCBL) and jobopportunity_bscs.php (BSCS). The fetcher concatenates them.
+    If a run ever saves only one, every notice on the other page disappears
+    from the site at the next build with no error raised, so assert that both
+    sources are actually present rather than trusting the total count.
+    """
+    path = os.path.join(ROOT, "career.html")
+    if not os.path.exists(path):
+        record("T2b", "FAIL", "career.html missing"); return False
+    html = open(path, encoding="utf-8", errors="replace").read()
+    sections = html.split("<!-- ==== next listing ==== -->")
+    rows = fn.listing_pdf_urls(html)
+    bscs = [r for r in rows if "bscs" in r["file"].lower()]
+    other = [r for r in rows if "bscs" not in r["file"].lower()]
+    if len(sections) < len(fn.LISTINGS):
+        record("T2b", "FAIL",
+               f"{len(sections)} listing section(s) saved, expected {len(fn.LISTINGS)}"
+               " — a partial fetch would drop a whole source")
+        return False
+    if not bscs or not other:
+        record("T2b", "FAIL",
+               f"only one source present: {len(other)} BB/SPCBL + {len(bscs)} BSCS")
+        return False
+    record("T2b", "PASS",
+           f"{len(sections)} listings, {len(other)} BB/SPCBL + {len(bscs)} BSCS = {len(rows)} PDFs")
+    return True
+
+
 def t3_page_state():
     """The WAF classifier, against known-good and known-bad HTML."""
     fixtures = {
@@ -302,6 +333,7 @@ def main() -> int:
         print("— offline —")
         t1_environment()
         t2_listing_parse()
+        t2b_both_listings()
         t3_page_state()
         t4_build_pipeline()
 

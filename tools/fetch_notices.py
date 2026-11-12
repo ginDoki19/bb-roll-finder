@@ -367,7 +367,7 @@ def _http_pass(cookies, ua, download: bool, retries: int = 3):
     browser. Deliberately all-or-nothing on the listing: a partial listing
     would make career.html advertise PDFs we never got.
     """
-    rows, pages = [], []
+    rows, pages, counts = [], [], []
     for url in LISTINGS:
         print(f"→ {url}")
         try:
@@ -387,7 +387,12 @@ def _http_pass(cookies, ua, download: bool, retries: int = 3):
         got = listing_pdf_urls(html, url)
         print(f"  · HTTP {status}, {len(html)//1024} KB, {len(got)} PDF row(s)"
               f"  [{_TRANSPORT}]")
+        if not got:
+            print("  · that listing parsed to zero rows — falling back to the browser\n"
+                  "    rather than saving a career.html that is missing a whole source.")
+            return None
         pages.append(html)
+        counts.append((url, len(got)))
         rows += [r for r in got if r["file"] not in {x["file"] for x in rows}]
 
     if not rows:
@@ -395,7 +400,9 @@ def _http_pass(cookies, ua, download: bool, retries: int = 3):
     dest = os.path.join(ROOT, "career.html")
     open(dest, "w", encoding="utf-8").write(
         "\n<!-- ==== next listing ==== -->\n".join(pages))
-    print(f"  ✓ listing saved -> career.html ({len(rows)} PDFs) — no browser needed")
+    print(f"  ✓ listing saved -> career.html ({len(rows)} PDFs = "
+          + " + ".join(str(c) for _, c in counts)
+          + f" across {len(counts)} listings) — no browser needed")
 
     have = set(os.listdir(os.path.join(ROOT, "notices")))
     new = [p for p in rows if p["file"] not in have]
@@ -480,12 +487,14 @@ def fetch(headless: bool, timeout: int = 300, download: bool = True,
         page = ctx.new_page()
         have = set(os.listdir(os.path.join(ROOT, "notices")))
         rows, pages = [], []
+        counts, missed = [], []          # per-listing tallies for the summary
         for url in LISTINGS:
             print(f"→ {url}")
             try:
                 page.goto(url, wait_until="domcontentloaded", timeout=90_000)
             except Exception as e:
                 print(f"  ✗ {type(e).__name__}: {_scrub(e)}")
+                missed.append(url)
                 continue
             ok, html = wait_for_page(page, timeout=timeout)
             if not ok:
@@ -532,8 +541,10 @@ def fetch(headless: bool, timeout: int = 300, download: bool = True,
             print(f"  · {len(html)//1024} KB, {len(got)} PDF row(s)")
             if got:
                 pages.append(html)
+                counts.append((url, len(got)))
                 rows += [r for r in got if r["file"] not in {x["file"] for x in rows}]
             else:
+                missed.append(url)
                 dbg = os.path.join(ROOT, "career.debug.html")
                 open(dbg, "w", encoding="utf-8").write(html)
                 links = re.findall(r"""href\s*=\s*["']([^"']+)["']""", html)
@@ -544,9 +555,24 @@ def fetch(headless: bool, timeout: int = 300, download: bool = True,
             print("  ✗ no PDF rows on any listing page — career.html left untouched.")
             ctx.close()
             return None
+        # All-or-nothing, matching _http_pass. Bangladesh Bank publishes across
+        # two listings; writing career.html from only the one that answered
+        # would quietly delete every notice belonging to the other, and the
+        # next build would drop them from the site with no error anywhere.
+        if missed:
+            print(f"  ✗ {len(missed)} of {len(LISTINGS)} listings returned no rows:")
+            for u in missed:
+                print(f"      · {u}")
+            print("    career.html left untouched — saving a partial listing would\n"
+                  "    silently drop every notice published on the missing page.\n"
+                  "    Re-run when the portal answers; nothing has been lost.")
+            ctx.close()
+            return None
         dest = os.path.join(ROOT, "career.html")
         open(dest, "w", encoding="utf-8").write("\n<!-- ==== next listing ==== -->\n".join(pages))
-        print(f"  ✓ listing saved -> career.html ({len(rows)} PDFs)")
+        print(f"  ✓ listing saved -> career.html ({len(rows)} PDFs = "
+              + " + ".join(str(c) for _, c in counts)
+              + f" across {len(counts)} listings)")
         html = "\n".join(pages)
         new = [p for p in rows if p["file"] not in have]
         if not download:

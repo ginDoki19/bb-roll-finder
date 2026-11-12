@@ -515,6 +515,24 @@ Content pulled out of the PDFs (post names, centre names, notice titles) is
 shown as published and is not translated.
 
 ### Fonts
+### Where the notices come from
+
+Bangladesh Bank publishes circulars across **two** listing pages, and
+`fetch_notices.py` reads both on every run:
+
+| page | covers |
+|---|---|
+| `career/jobopportunity.php` | Bangladesh Bank and SPCBL |
+| `career/jobopportunity_bscs.php` | BSCS |
+
+`career.html` is the two pages concatenated with a
+`<!-- ==== next listing ==== -->` marker between them, and `build_data.py`
+parses the whole file. Both the HTTP and the browser fetch paths are
+**all-or-nothing**: if either listing fails or parses to zero rows, the run
+refuses to overwrite `career.html`. Saving only the page that answered would
+quietly delete every notice from the other one at the next build. `T2b` in
+`test_fetch.py` asserts both sources are present.
+
 Two families, self-hosted in `fonts/`, split by script with `unicode-range`
 so Latin text never drags the Bengali file along.
 

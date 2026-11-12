@@ -274,8 +274,10 @@ of conventional advice:
   HTML/CSS/JS**, plus the font as a separately-cached ~90–120 KB file. If the
   design cannot fit, the design changes, not the budget.
 - **Generated, not hand-edited.** `index.html` is produced by
-  `parser/build_site.py` from `app.template.html`. All work happens in the
-  template.
+  `parser/build_site.py` from three sources: `app.template.html` (markup),
+  `assets/css/*.css` (styling) and `assets/js/**/*.js` (behaviour), with
+  `data/notices.json` inlined. Never edit `index.html`; edit the source that
+  owns the thing you are changing and re-run the build.
 - **Bengali text is content, not decoration.** Line-height must accommodate
   vowel signs above and below the matra; the current 1.55 is marginal for Bengali
   at small sizes.

@@ -1,0 +1,12 @@
+/* print.css
+ * Print output — applicants print their seat plan and carry it.
+ *
+ * Part of the build: assembled by parser/build_site.py in the order listed
+ * in CSS_FILES. Do not link this file directly from the page.
+ */
+@media print{
+  body{background:#fff;color:#000;padding:0}
+  .controls,.filters,.search,.hint,.actions,.mapbox,.rolltools,#notices,h2,.disambig{display:none !important}
+  .card,.panel{break-inside:avoid;box-shadow:none;border:1px solid #999}
+  .rollgrid{max-height:none;overflow:visible}
+}

@@ -23,6 +23,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -134,21 +135,62 @@ def t3_page_state():
 
 
 def t4_build_pipeline():
-    """data/notices.json must rebuild and satisfy the invariants."""
-    steps = [[sys.executable, "parser/build_data.py", "--html", "career.html",
-              "--pdfs", "notices", "--out", "data/notices.json"],
-             [sys.executable, "parser/build_site.py"],
-             [sys.executable, "tools/selftest.py"]]
-    for cmd in steps:
-        r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True,
-                           encoding="utf-8", errors="replace",
-                           env={**os.environ, "PYTHONUTF8": "1"})
-        if r.returncode:
-            record("T4", "FAIL", f"{' '.join(map(str, cmd))} → exit {r.returncode}: "
-                                 f"{(r.stderr or r.stdout).strip().splitlines()[-1][:90]}")
+    """The parser must reproduce the committed data, and the site must build.
+
+    build_data.py writes to a temporary file rather than over
+    data/notices.json. Overwriting it used to refresh the `generated`
+    timestamp on every test run, so index.html changed every time the tests
+    were run even though nothing about the site had — pure diff noise right
+    before a deploy.
+
+    Comparing instead of overwriting is also a stronger check: it proves the
+    committed data is exactly what the current parser produces from the
+    current PDFs and overrides, so curated data cannot silently drift away
+    from its sources.
+    """
+    curated_path = os.path.join(ROOT, "data", "notices.json")
+    with tempfile.TemporaryDirectory() as tmp:
+        regen_path = os.path.join(tmp, "notices.json")
+        steps = [[sys.executable, "parser/build_data.py", "--html", "career.html",
+                  "--pdfs", "notices", "--out", regen_path],
+                 [sys.executable, "parser/build_site.py"],
+                 [sys.executable, "tools/selftest.py"]]
+        for cmd in steps:
+            r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True,
+                               encoding="utf-8", errors="replace",
+                               env={**os.environ, "PYTHONUTF8": "1"})
+            if r.returncode:
+                record("T4", "FAIL", f"{' '.join(map(str, cmd))} → exit {r.returncode}: "
+                                     f"{(r.stderr or r.stdout).strip().splitlines()[-1][:90]}")
+                return False
+
+        try:
+            regen = json.load(open(regen_path, encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            record("T4", "FAIL", f"build_data.py produced no usable output: {exc}")
             return False
-    n = len(json.load(open(os.path.join(ROOT, "data", "notices.json"), encoding="utf-8"))["notices"])
-    record("T4", "PASS", f"rebuild + selftest OK ({n} notices)")
+
+    curated = json.load(open(curated_path, encoding="utf-8"))
+    # the build timestamp is expected to differ; nothing else may
+    regen.pop("generated", None)
+    want = dict(curated)
+    want.pop("generated", None)
+
+    if regen != want:
+        a = {n.get("id") for n in want.get("notices", [])}
+        b = {n.get("id") for n in regen.get("notices", [])}
+        if a != b:
+            detail = f"notice ids differ: committed-only={sorted(a - b)} parsed-only={sorted(b - a)}"
+        else:
+            drifted = [n.get("id") for n in want.get("notices", [])
+                       if n != next((m for m in regen["notices"] if m.get("id") == n.get("id")), None)]
+            detail = f"{len(drifted)} notice(s) differ from a fresh parse: {drifted[:4]}"
+        record("T4", "FAIL", f"data/notices.json is not what the parser produces — {detail}"
+                             f" (run run.bat / build_data.py to refresh it)")
+        return False
+
+    record("T4", "PASS", f"site builds; committed data matches a fresh parse "
+                         f"({len(curated['notices'])} notices)")
     return True
 
 

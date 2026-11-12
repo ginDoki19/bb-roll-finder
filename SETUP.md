@@ -498,9 +498,16 @@ background. All clear 4.5:1. `--border-control` exists separately because
 interactive outlines need 3:1 and the decorative `--border` does not meet it.
 
 ### Bengali / English
-Toggle in the header; stored as `bb-lang`. All interface copy lives in the `STR`
-table in `app.template.html` — **add new strings to both `en` and `bn`**, or the
-Bengali side silently falls back to English. Digits follow the language: Bengali
+Toggle in the header; stored as `bb-lang`. English is the default for a
+first-time visitor; a saved Bengali preference is always honoured. All interface
+copy lives in the `STR` table in `assets/js/core/language.js` — **add new strings
+to both `en` and `bn`**, or the Bengali side silently falls back to English
+(`tools/selftest.py` fails the build if the two dictionaries drift apart).
+
+`Job ID` is the one deliberate exception: it stays English in both languages,
+with ASCII digits, because it is a system identifier cross-referenced against
+the official portal. Roll numbers are *not* treated that way — they follow the
+interface language, because candidates read them off Bengali notices. Digits follow the language: Bengali
 shows ০-৯, English shows 0-9. Search accepts ০-৯, ٠-٩, full-width and ASCII
 regardless of the interface language.
 

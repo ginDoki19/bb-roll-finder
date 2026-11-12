@@ -38,7 +38,7 @@ BB notice fetcher — staged tests
   … T1d  INFO  no profile yet — first run will need a CAPTCHA
   ✓ T2   PASS  8 rows, 0 malformed, e.g. 20261108_bscs_357_1794134950.pdf
   ✓ T3   PASS  5 classifier fixtures
-  ✓ T4   PASS  rebuild + selftest OK (6 notices)
+  ✓ T4   PASS  site builds; committed data matches a fresh parse (13 notices)
 
 7 checks · 7 passed · 0 failed · 0 skipped
 ```
@@ -60,7 +60,7 @@ only make it worse — fix that first.
 | T1a–d | Python, pdfplumber, playwright, chromium, cookie profile | no |
 | T2 | `career.html` still parses into 8 PDF rows | no |
 | T3 | the WAF classifier reads real/CAPTCHA/rejected/empty pages correctly | no |
-| T4 | rebuild + selftest: data and site still consistent | no |
+| T4 | site builds, and `data/notices.json` is exactly what the parser produces | no |
 | T5 | a Chromium binary actually launches | no (local binary) |
 | T6 | the portal answers, and **which** answer you get | yes |
 | T7 | the challenge clears once a human solves it | yes + you |
@@ -102,9 +102,22 @@ an hour hunting the wrong thing.
 python3 tools/test_fetch.py --only T4
 ```
 
-Runs `build_data.py` → `build_site.py` → `selftest.py`. Pass:
-`rebuild + selftest OK (6 notices)` and `ALL PASS` from the selftest (24 converter
-cases, 4 notice invariants).
+Runs `build_data.py` → `build_site.py` → `selftest.py`, then compares the
+result against the committed data.
+
+`build_data.py` writes to a **temporary file**, not over `data/notices.json`.
+Overwriting it refreshed the `generated` timestamp on every run, so `index.html`
+changed every time you ran the tests even when nothing about the site had.
+Comparing instead is also stricter: it proves the committed data is exactly what
+the current parser produces from the current PDFs and overrides, so curated data
+cannot quietly drift from its sources.
+
+Pass: `site builds; committed data matches a fresh parse (13 notices)` and
+`ALL PASS` from the selftest.
+
+If T4 reports *"data/notices.json is not what the parser produces"*, the
+committed data is stale — run `run.bat` (or `build_data.py`) to refresh it. It
+names the notices that differ.
 
 ---
 

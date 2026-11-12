@@ -1,0 +1,19 @@
+/* responsive.css
+ * Narrow-viewport overrides. Kept in its own file loaded AFTER
+ * components.css: this block intentionally overrides .search, .controls,
+ * .stats, th/td, .card, .panel and .rollgrid, so its position in the
+ * cascade is load-bearing.
+ *
+ * Part of the build: assembled by parser/build_site.py in the order listed
+ * in CSS_FILES. Do not link this file directly from the page.
+ */
+@media(max-width:620px){
+  .search input{padding:17px 16px 17px 47px;font-size:17px}
+  .search svg{left:15px}
+  .controls{margin-left:0;width:100%}
+  .stats{display:none}
+  th,td{padding:7px 6px}
+  .card{padding:17px 15px}
+  .panel{padding:17px 15px}
+  .rollgrid{grid-template-columns:repeat(auto-fill,minmax(min(100%,4.9rem),1fr))}
+}

@@ -182,3 +182,14 @@ link text in its own body sentence — caught on visual review and fixed.)
 Three notices have rolled off the BB portal and exist in no local snapshot:
 `20260505_bscs_159`, `20260506_bscs_163`, `20260621_bscs_217`. Their URLs are
 recorded; fetching them is a separate decision.
+
+## Phase 5 — exam timings (arrival / gate-closing cards)
+
+Separate brief, implemented after the Bengali overhaul. Full write-up in
+`EXAM-TIMINGS.md`. Headline: a real parser bug was found and fixed — `TIME_RE`
+was reading **marks** (`1.00 নম্বর`, `0.25 নম্বর কর্তন`) as clock times, which
+gave notice 38/2026 a fictitious 1:00 AM exam window and truncated 348/2026's
+window to 12:25 PM. Times now require BB's unit word (`টা`/`ঘটিকা`) and a
+window that ends before it starts is discarded. Two other time bugs went with
+it: the viva card labelled the sitting start time "Reporting time", and
+`clock()` called 3 PM `দুপুর` where BB itself writes `বিকাল`.

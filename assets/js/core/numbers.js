@@ -26,9 +26,11 @@ const clock = s => {
   const out = String(s).replace(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi, (_, h, m, ap) => {
     let hh = +h % 12; if (/pm/i.test(ap)) hh += 12;
     /* বিকেল, not বিকাল — both papers use the চলিত spelling. ভোর is a real
-       part of the day here; candidates queue from before dawn. */
+       part of the day here; candidates queue from before dawn. The 3 PM
+       boundary is set by the notices themselves: BB writes "দুপুর ২.৩০টা"
+       but "বিকাল ৩.০০টা", so বিকেল starts at 15:00, not 16:00. */
     const part = hh >= 4 && hh < 6 ? "ভোর" : hh >= 6 && hh < 12 ? "সকাল"
-               : hh >= 12 && hh < 16 ? "দুপুর" : hh >= 16 && hh < 18 ? "বিকেল"
+               : hh >= 12 && hh < 15 ? "দুপুর" : hh >= 15 && hh < 18 ? "বিকেল"
                : hh >= 18 && hh < 20 ? "সন্ধ্যা" : "রাত";
     /* A clock face is spoken, not punctuated: সকাল ১০টা, never সকাল ১০:০০.
        Half past has its own words for one and two o'clock — দেড়টা and

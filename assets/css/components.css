@@ -127,6 +127,23 @@
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .cell{background:var(--md-surface-container);border-radius:var(--r-md);padding:12px 14px}
 
+/* Arrival and gate-closing get their own section because a candidate reading
+   this at 7am needs them separated from the exam duration, not averaged in
+   with it. Two equal cards: green = the thing you can still act on, red =
+   the deadline. minmax(215px) drops them to one column before either can
+   squeeze its time, so the number never shrinks to hold a column. */
+.tsec{margin:18px 0 8px;font-size:16px;font-weight:600;color:var(--md-on-surface)}
+.timings{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px}
+.tcard{display:grid;grid-template-columns:auto 1fr;gap:1px 13px;align-items:start;
+  border-radius:var(--r-md);padding:14px 16px}
+.tcard .ticon{grid-row:1/4;width:24px;height:24px;margin-top:3px}
+.tcard .tk{font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;line-height:1.5}
+.tcard .tv{font:600 clamp(20px,2.8vw,25px)/1.35 var(--font-display);font-variant-numeric:tabular-nums}
+.tcard .th{font-size:13px;line-height:1.5;opacity:.88}
+.tcard.arrive{background:var(--md-success-container);color:var(--md-on-success-container)}
+.tcard.gate{background:var(--md-error-container);color:var(--md-on-error-container)}
+:lang(bn) .tcard .tk{letter-spacing:0}
+
 /* Structured "what happens next": one box per fact, stacked, label left and
    value right so the eye can land on a single row. Beats a paragraph for
    somebody checking a gate-closing time on a phone the morning of an exam.

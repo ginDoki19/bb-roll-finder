@@ -102,10 +102,38 @@ function shareBtn(roll){
   return `<button type="button" class="btn" data-share="${esc(roll)}">${esc(t("share"))}</button>`;
 }
 
+/* Two facts a candidate needs separated from the exam duration: the latest
+   moment they can arrive, and the moment the gate shuts. Both are derived
+   from the exam start — arrival an hour before, gate on the hour the exam
+   begins. That is not a guess: notice 86 prints the gate time and it equals
+   the start, and 86, 357, 356 and 81 all print the one-hour rule. Green for
+   the thing you still have time to do, red for the deadline; the icon and
+   the label carry the same meaning, so colour is never the only signal. */
+const I_ARRIVE = '<svg class="ticon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13 3H5v18h8"/><path d="M13 12h8"/><path d="m18 8 4 4-4 4"/></svg>';
+const I_GATE   = '<svg class="ticon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>';
+
+function timingsBlock(start){
+  if (!start) return "";
+  const arrive = clock(minus60(start)), gate = clock(start);
+  if (!arrive || !gate) return "";
+  return `<h4 class="tsec">${esc(t("importantTimings"))}</h4>
+    <div class="timings">
+      <div class="tcard arrive">${I_ARRIVE}
+        <div class="tk">${esc(t("arriveBy"))}</div>
+        <div class="tv">${esc(arrive)}</div>
+        <div class="th">${esc(t("arriveHint"))}</div>
+      </div>
+      <div class="tcard gate">${I_GATE}
+        <div class="tk">${esc(t("gatesClose"))}</div>
+        <div class="tv">${esc(gate)}</div>
+        <div class="th">${esc(t("noEntryAfter"))}</div>
+      </div>
+    </div>`;
+}
+
 /* ---------------------------------------------------------------- cards */
 function seatCard(n, c, roll, pref){
   const from = n.examWindow?.[0], to = n.examWindow?.[1];
-  const rep = from ? clock(minus60(from)) : null;
   const q = c.mapQuery || `${c.name}, ${c.address}`;
   const st = statusOf(n);
   return `<div class="card${pref ? " preferred" : ""}">
@@ -114,18 +142,19 @@ function seatCard(n, c, roll, pref){
       <span class="badge ${st.cls}">${esc(st.lbl)}</span>
     </div>
     ${identBlock(n, null, { preferred: pref })}
-    ${countdown(n.examDateISO, from ? clockRange(from, to) : null, rep)}
+    ${countdown(n.examDateISO, from ? clockRange(from, to) : null, null)}
     <div class="panel info">
       <div class="eyebrow">${esc(t("yourCentre"))}</div>
       <div class="big">${esc(c.name)}</div>
       <div class="refline">${esc(c.address || "")}${c.address ? " · " : ""}${esc(t("seatRange"))} ${esc(NUM(c.from))}–${esc(NUM(c.to))}</div>
     </div>
+    <h4 class="tsec">${esc(t("examSchedule"))}</h4>
     <div class="grid">
       <div class="cell"><div class="k">${esc(t("examDate"))}</div><div class="v">${esc(fmtDate(n.examDate) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("time"))}</div><div class="v acc">${esc(from ? clockRange(from, to) : "—")}</div></div>
-      ${rep ? `<div class="cell"><div class="k">${esc(t("beThere"))}</div><div class="v warn">${esc(rep)}</div></div>` : ""}
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
     </div>
+    ${timingsBlock(from)}
     ${nextBlock(t("nextSeat"), null)}
     <div class="actions">
       <a class="btn primary" target="_blank" rel="noopener noreferrer" href="${mapsUrl(q)}">${esc(t("openMaps"))}</a>
@@ -154,11 +183,13 @@ function sittingCard(n, info, roll, pref){
       <div class="big">${esc(fmtDate(info.d) || "—")}${info.t ? ` · ${esc(clock(info.t))}` : ""}</div>
       ${n.venue ? `<div class="refline">${esc(n.venue)}</div>` : ""}
     </div>
+    <h4 class="tsec">${esc(t("examSchedule"))}</h4>
     <div class="grid">
       <div class="cell"><div class="k">${esc(t("date"))}</div><div class="v">${esc(fmtDate(info.d) || "—")}</div></div>
-      <div class="cell"><div class="k">${esc(t("reportingTime"))}</div><div class="v acc">${esc(clock(info.t) || "—")}</div></div>
+      <div class="cell"><div class="k">${esc(t("time"))}</div><div class="v acc">${esc(clock(info.t) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
     </div>
+    ${timingsBlock(info.t)}
     ${nextBlock(t("nextViva"), null)}
     <div class="actions">
       ${q ? `<a class="btn primary" target="_blank" rel="noopener noreferrer" href="${mapsUrl(q)}">${esc(t("openMaps"))}</a>` : ""}

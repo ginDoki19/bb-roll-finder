@@ -92,7 +92,14 @@ PERIODS = [
     ("‡ejv", "PM"),      # বেলা
     ("ivZ", "PM"),       # রাত
 ]
-TIME_RE = re.compile(r"(?<!\d)(\d{1,2})[.:](\d{2})(?!\d)")
+# A bare "d.dd" is not a time. These notices print marks the same way —
+# "প্রতিটি ভুল উত্তরের জন্য 0.25 নম্বর কর্তন", "প্রতিটি প্রশ্নের মান 1.00 নম্বর" —
+# and reading those as 12:25 AM and 1:00 AM put two junk windows into the
+# data. Every genuine time in all 13 notices is followed by BB's own unit
+# word, টা (Uv) or ঘটিকা (NwUKv), so require it. Verified by dumping every
+# match in every PDF: 100% of the real times carry it, none of the marks do.
+TIME_UNIT = r"(?:\s*(?:Uv|NwUKv|টা|ঘটিকা|টায়|ঘটিকায়))"
+TIME_RE = re.compile(r"(?<!\d)(\d{1,2})[.:](\d{2})(?!\d)" + TIME_UNIT)
 
 MONTHS = None  # dates in these notices are numeric dd/mm/yyyy only
 
@@ -113,6 +120,21 @@ def _tkey(label: str) -> str:
     the notice. Only the digits and the meridian letter carry meaning here.
     """
     return re.sub(r"[^0-9apAP]", "", (label or "")).lower()
+
+
+def exam_window(window: list[dict]) -> list[str] | None:
+    """First and last clock time of a notice, or None when that is not a window.
+
+    A window that ends before it starts is not a window — it is two unrelated
+    numbers that both happened to look like times. Downstream the start drives
+    the arrival and gate-closing cards, so a wrong one is worse than none.
+    """
+    if len(window) < 2:
+        return None
+    a, b = window[0], window[-1]
+    if b["24"] <= a["24"]:
+        return None
+    return [a["label"], b["label"]]
 
 
 def times_in(text: str) -> list[dict]:
@@ -368,7 +390,7 @@ def parse_pdf(path: str, published: str | None = None) -> dict:
         "kind": kind,
         "pages": len(texts),
         "examDate": exam,
-        "examWindow": [window[0]["label"], window[-1]["label"]] if len(window) >= 2 else None,
+        "examWindow": exam_window(window),
         "centres": centres,
         "batches": batches,
         "rolls": rolls,

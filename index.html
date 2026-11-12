@@ -375,6 +375,23 @@ h1{margin:0;font:600 clamp(20px,3.4vw,26px)/1.3 var(--font-display)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .cell{background:var(--md-surface-container);border-radius:var(--r-md);padding:12px 14px}
 
+/* Arrival and gate-closing get their own section because a candidate reading
+   this at 7am needs them separated from the exam duration, not averaged in
+   with it. Two equal cards: green = the thing you can still act on, red =
+   the deadline. minmax(215px) drops them to one column before either can
+   squeeze its time, so the number never shrinks to hold a column. */
+.tsec{margin:18px 0 8px;font-size:16px;font-weight:600;color:var(--md-on-surface)}
+.timings{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px}
+.tcard{display:grid;grid-template-columns:auto 1fr;gap:1px 13px;align-items:start;
+  border-radius:var(--r-md);padding:14px 16px}
+.tcard .ticon{grid-row:1/4;width:24px;height:24px;margin-top:3px}
+.tcard .tk{font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;line-height:1.5}
+.tcard .tv{font:600 clamp(20px,2.8vw,25px)/1.35 var(--font-display);font-variant-numeric:tabular-nums}
+.tcard .th{font-size:13px;line-height:1.5;opacity:.88}
+.tcard.arrive{background:var(--md-success-container);color:var(--md-on-success-container)}
+.tcard.gate{background:var(--md-error-container);color:var(--md-on-error-container)}
+:lang(bn) .tcard .tk{letter-spacing:0}
+
 /* Structured "what happens next": one box per fact, stacked, label left and
    value right so the eye can land on a single row. Beats a paragraph for
    somebody checking a gate-closing time on a phone the morning of an exam.
@@ -526,7 +543,12 @@ code{background:var(--md-surface-high);padding:1px 6px;border-radius:var(--r-xs)
      card flow and protect the small units instead — a row or a panel split
      across a page fold is what actually looks broken. */
   .card{box-shadow:none;border:1px solid #999;break-inside:auto}
-  .panel,.det,.prov,.cd,.ident,.cell{break-inside:avoid}
+  .panel,.det,.prov,.cd,.ident,.cell,.tcard{break-inside:avoid}
+  /* The two timing cards must stay legible in grayscale, so the colour is
+     dropped and a rule carries the distinction instead. */
+  .timings{grid-template-columns:1fr 1fr}
+  .tcard{background:none;color:#000;border:1px solid #999}
+  .tcard.gate{border-width:2px}
   .rollgrid{max-height:none;overflow:visible}
 
   /* 7.7 — .actions used to be hidden outright, so somebody holding the
@@ -689,9 +711,11 @@ const clock = s => {
   const out = String(s).replace(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi, (_, h, m, ap) => {
     let hh = +h % 12; if (/pm/i.test(ap)) hh += 12;
     /* বিকেল, not বিকাল — both papers use the চলিত spelling. ভোর is a real
-       part of the day here; candidates queue from before dawn. */
+       part of the day here; candidates queue from before dawn. The 3 PM
+       boundary is set by the notices themselves: BB writes "দুপুর ২.৩০টা"
+       but "বিকাল ৩.০০টা", so বিকেল starts at 15:00, not 16:00. */
     const part = hh >= 4 && hh < 6 ? "ভোর" : hh >= 6 && hh < 12 ? "সকাল"
-               : hh >= 12 && hh < 16 ? "দুপুর" : hh >= 16 && hh < 18 ? "বিকেল"
+               : hh >= 12 && hh < 15 ? "দুপুর" : hh >= 15 && hh < 18 ? "বিকেল"
                : hh >= 18 && hh < 20 ? "সন্ধ্যা" : "রাত";
     /* A clock face is spoken, not punctuated: সকাল ১০টা, never সকাল ১০:০০.
        Half past has its own words for one and two o'clock — দেড়টা and
@@ -863,8 +887,16 @@ en:{
   cdToday:"Your exam is today", cdTomorrow:"Your exam is tomorrow",
   cdDays:d => `Your exam is in ${d} days`, cdPast:d => `This took place ${d} days ago`,
   beThereBy:r => `Be at the centre by ${r}`,
-  examDate:"Exam date", time:"Time", beThere:"Be there by", yourRoll:"Your roll",
-  date:"Date", reportingTime:"Reporting time", yourSitting:"Your sitting",
+  examDate:"Exam date", time:"Time", yourRoll:"Your roll",
+  /* The arrival and gate times are derived from the exam start: every BB
+     notice that states them says the same two things — be there at least an
+     hour before, and the main gate shuts when the exam begins. Notice 86
+     spells the gate time out ("সকাল ১০.০০টায় … মূল ফটক বন্ধ হবে") and it is
+     exactly the start time, which is why one rule covers every notice. */
+  examSchedule:"Examination schedule", importantTimings:"Entry deadlines",
+  arriveBy:"Arrive by", arriveHint:"At least 1 hour before the exam starts",
+  gatesClose:"Gates close", noEntryAfter:"No entry after this time",
+  date:"Date", yourSitting:"Your sitting",
   batch:"Batch", post:"Post",
   centre:"Centre", rolls:"Rolls", seats:"Seats", seatRange:"Seat range",
   stop:".",
@@ -890,8 +922,8 @@ en:{
   lowConfBody:"The scan is unclear at this number and repeated reads of it did not agree, so it may actually be a different roll. Before you rely on it, ",
   nextOffer:["Your offer letter has been issued — collect it and read the joining terms carefully.","Meet the joining deadline stated in the notice.","Keep your original certificates ready for verification."],
   nextPrimary:["This is a primary selection. The next step is document verification or the following phase of the process.","Watch the portal for the verification date and the document checklist.","Keep your originals and one set of photocopies ready."],
-  nextSeat:["Bring your admit card and a photo ID.","Reach the centre at least one hour early.","Mobile phones, calculators, smart watches and bags are normally not allowed.","Read the official PDF for the full instructions."],
-  nextViva:["Bring all original certificates and one set of photocopies.","Report at the time shown above — latecomers are usually not admitted.","Read the official PDF for the document checklist."],
+  nextSeat:["Bring your admit card and a photo ID.","Mobile phones, calculators, smart watches and bags are normally not allowed.","Read the official PDF for the full instructions."],
+  nextViva:["Bring all original certificates and one set of photocopies.","Read the official PDF for the document checklist."],
   notFoundTitle:r => `Roll ${r} is not in the notices indexed here`,
   notFoundBody:n => `We checked all ${n} searchable notices. This usually means your notice has not been added yet — new notices appear on the official portal first, then here.`,
   notFoundList:"Currently indexed:",
@@ -941,8 +973,11 @@ bn:{
   cdToday:"আজ আপনার পরীক্ষা", cdTomorrow:"আগামীকাল আপনার পরীক্ষা",
   cdDays:d => `আর ${d} দিন পর আপনার পরীক্ষা`, cdPast:d => `${d} দিন আগে এই পরীক্ষা হয়ে গেছে`,
   beThereBy:r => `${ofTime(r)} মধ্যে কেন্দ্রে পৌঁছান`,
-  examDate:"পরীক্ষার তারিখ", time:"সময়", beThere:"কেন্দ্রে পৌঁছানোর সময়", yourRoll:"আপনার রোল",
-  date:"তারিখ", reportingTime:"হাজির হওয়ার সময়", yourSitting:"আপনার সময়সূচি",
+  examDate:"পরীক্ষার তারিখ", time:"পরীক্ষার সময়", yourRoll:"আপনার রোল",
+  examSchedule:"পরীক্ষার সময়সূচি", importantTimings:"কেন্দ্রে ঢোকার সময়",
+  arriveBy:"কেন্দ্রে পৌঁছানোর শেষ সময়", arriveHint:"পরীক্ষা শুরুর ১ ঘণ্টা আগে",
+  gatesClose:"গেট বন্ধ হবে", noEntryAfter:"এরপর কেন্দ্রে প্রবেশ করা যাবে না",
+  date:"তারিখ", yourSitting:"আপনার ভাইভা",
   batch:"ব্যাচ", post:"পদ",
   centre:"কেন্দ্র", rolls:"রোল", seats:"আসন", seatRange:"আসনের পরিসর",
   /* no `job` key on purpose — "Job ID" is a fixed English label in every
@@ -967,8 +1002,8 @@ bn:{
   lowConfBody:"স্ক্যানে এই জায়গাটা ঝাপসা, কয়েকবার পড়েও একই ফল আসেনি। নম্বরটি আসলে অন্য কিছুও হতে পারে। ভরসা করার আগে ",
   nextOffer:["নিয়োগপত্র সংগ্রহ করে যোগদানের শর্তগুলো মন দিয়ে পড়ুন।","নোটিশে যোগদানের যে শেষ তারিখ দেওয়া আছে, তার মধ্যে যোগ দিন।","যাচাইয়ের জন্য মূল সনদগুলো গুছিয়ে রাখুন।"],
   nextPrimary:["এটি প্রাথমিক নির্বাচন। এরপর কাগজপত্র যাচাই বা পরের ধাপ বাকি আছে।","যাচাইয়ের তারিখ ও কাগজপত্রের তালিকার জন্য পোর্টালে নজর রাখুন।","মূল কাগজপত্র ও এক সেট ফটোকপি তৈরি রাখুন।"],
-  nextSeat:["প্রবেশপত্র ও ছবিসহ পরিচয়পত্র সঙ্গে নিন।","পরীক্ষা শুরুর অন্তত এক ঘণ্টা আগে কেন্দ্রে পৌঁছান।","মোবাইল ফোন, ক্যালকুলেটর, স্মার্টওয়াচ ও ব্যাগ সাধারণত কেন্দ্রে আনা যায় না।","বিস্তারিত নির্দেশনা অফিসিয়াল পিডিএফে দেখুন।"],
-  nextViva:["সব মূল সনদ ও এক সেট ফটোকপি সঙ্গে নিন।","উপরে দেওয়া সময়ে কেন্দ্রে উপস্থিত থাকুন। দেরি করলে সাধারণত ঢুকতে দেওয়া হয় না।","কাগজপত্রের তালিকা অফিসিয়াল পিডিএফে দেখুন।"],
+  nextSeat:["প্রবেশপত্র ও ছবিসহ পরিচয়পত্র সঙ্গে নিন।","মোবাইল ফোন, ক্যালকুলেটর, স্মার্টওয়াচ ও ব্যাগ সাধারণত কেন্দ্রে আনা যায় না।","বিস্তারিত নির্দেশনা অফিসিয়াল পিডিএফে দেখুন।"],
+  nextViva:["সব মূল সনদ ও এক সেট ফটোকপি সঙ্গে নিন।","কাগজপত্রের তালিকা অফিসিয়াল পিডিএফে দেখুন।"],
   notFoundTitle:r => `রোল ${r} কোনো নোটিশে পাওয়া যায়নি`,
   notFoundBody:n => `এখানে যে ${n}টি নোটিশ আছে, সবগুলোতেই খোঁজা হয়েছে। আপনার নোটিশটি সম্ভবত এখনো যোগ হয়নি। নতুন নোটিশ আগে অফিসিয়াল পোর্টালে ওঠে, তারপর এখানে আসে।`,
   notFoundList:"এখন যেসব নোটিশ আছে:",
@@ -5498,7 +5533,7 @@ const DATA = {
    "examDate": null,
    "examWindow": [
     "3:00 PM",
-    "12:25 PM"
+    "4:00 PM"
    ],
    "pages": 1,
    "seats": null,
@@ -6723,10 +6758,7 @@ const DATA = {
    "published": "04/05/2026",
    "closing": "31/05/2027",
    "examDate": null,
-   "examWindow": [
-    "1:00 AM",
-    "12:25 AM"
-   ],
+   "examWindow": null,
    "pages": 1,
    "seats": null,
    "venue": null,
@@ -6884,10 +6916,38 @@ function shareBtn(roll){
   return `<button type="button" class="btn" data-share="${esc(roll)}">${esc(t("share"))}</button>`;
 }
 
+/* Two facts a candidate needs separated from the exam duration: the latest
+   moment they can arrive, and the moment the gate shuts. Both are derived
+   from the exam start — arrival an hour before, gate on the hour the exam
+   begins. That is not a guess: notice 86 prints the gate time and it equals
+   the start, and 86, 357, 356 and 81 all print the one-hour rule. Green for
+   the thing you still have time to do, red for the deadline; the icon and
+   the label carry the same meaning, so colour is never the only signal. */
+const I_ARRIVE = '<svg class="ticon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13 3H5v18h8"/><path d="M13 12h8"/><path d="m18 8 4 4-4 4"/></svg>';
+const I_GATE   = '<svg class="ticon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>';
+
+function timingsBlock(start){
+  if (!start) return "";
+  const arrive = clock(minus60(start)), gate = clock(start);
+  if (!arrive || !gate) return "";
+  return `<h4 class="tsec">${esc(t("importantTimings"))}</h4>
+    <div class="timings">
+      <div class="tcard arrive">${I_ARRIVE}
+        <div class="tk">${esc(t("arriveBy"))}</div>
+        <div class="tv">${esc(arrive)}</div>
+        <div class="th">${esc(t("arriveHint"))}</div>
+      </div>
+      <div class="tcard gate">${I_GATE}
+        <div class="tk">${esc(t("gatesClose"))}</div>
+        <div class="tv">${esc(gate)}</div>
+        <div class="th">${esc(t("noEntryAfter"))}</div>
+      </div>
+    </div>`;
+}
+
 /* ---------------------------------------------------------------- cards */
 function seatCard(n, c, roll, pref){
   const from = n.examWindow?.[0], to = n.examWindow?.[1];
-  const rep = from ? clock(minus60(from)) : null;
   const q = c.mapQuery || `${c.name}, ${c.address}`;
   const st = statusOf(n);
   return `<div class="card${pref ? " preferred" : ""}">
@@ -6896,18 +6956,19 @@ function seatCard(n, c, roll, pref){
       <span class="badge ${st.cls}">${esc(st.lbl)}</span>
     </div>
     ${identBlock(n, null, { preferred: pref })}
-    ${countdown(n.examDateISO, from ? clockRange(from, to) : null, rep)}
+    ${countdown(n.examDateISO, from ? clockRange(from, to) : null, null)}
     <div class="panel info">
       <div class="eyebrow">${esc(t("yourCentre"))}</div>
       <div class="big">${esc(c.name)}</div>
       <div class="refline">${esc(c.address || "")}${c.address ? " · " : ""}${esc(t("seatRange"))} ${esc(NUM(c.from))}–${esc(NUM(c.to))}</div>
     </div>
+    <h4 class="tsec">${esc(t("examSchedule"))}</h4>
     <div class="grid">
       <div class="cell"><div class="k">${esc(t("examDate"))}</div><div class="v">${esc(fmtDate(n.examDate) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("time"))}</div><div class="v acc">${esc(from ? clockRange(from, to) : "—")}</div></div>
-      ${rep ? `<div class="cell"><div class="k">${esc(t("beThere"))}</div><div class="v warn">${esc(rep)}</div></div>` : ""}
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
     </div>
+    ${timingsBlock(from)}
     ${nextBlock(t("nextSeat"), null)}
     <div class="actions">
       <a class="btn primary" target="_blank" rel="noopener noreferrer" href="${mapsUrl(q)}">${esc(t("openMaps"))}</a>
@@ -6936,11 +6997,13 @@ function sittingCard(n, info, roll, pref){
       <div class="big">${esc(fmtDate(info.d) || "—")}${info.t ? ` · ${esc(clock(info.t))}` : ""}</div>
       ${n.venue ? `<div class="refline">${esc(n.venue)}</div>` : ""}
     </div>
+    <h4 class="tsec">${esc(t("examSchedule"))}</h4>
     <div class="grid">
       <div class="cell"><div class="k">${esc(t("date"))}</div><div class="v">${esc(fmtDate(info.d) || "—")}</div></div>
-      <div class="cell"><div class="k">${esc(t("reportingTime"))}</div><div class="v acc">${esc(clock(info.t) || "—")}</div></div>
+      <div class="cell"><div class="k">${esc(t("time"))}</div><div class="v acc">${esc(clock(info.t) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
     </div>
+    ${timingsBlock(info.t)}
     ${nextBlock(t("nextViva"), null)}
     <div class="actions">
       ${q ? `<a class="btn primary" target="_blank" rel="noopener noreferrer" href="${mapsUrl(q)}">${esc(t("openMaps"))}</a>` : ""}
@@ -7376,7 +7439,7 @@ const BB = {
   constants:   { KIND, POST_RE },
   data:        { DATA, notices, searchable, scannedCount, findCentre, minus60 },
   maps:        { mapsUrl },
-  results:     { postOf, identBlock, provenance, outcomeOf, nextBlock,
+  results:     { timingsBlock, postOf, identBlock, provenance, outcomeOf, nextBlock,
                  lowConf, lowConfBlock, shareBtn,
                  seatCard, sittingCard, selectedCard },
   rolls:       { rollWrapHtml, paintRolls },

@@ -117,7 +117,7 @@ const BB = {
   constants:   { KIND, POST_RE },
   data:        { DATA, notices, searchable, scannedCount, findCentre, minus60 },
   maps:        { mapsUrl },
-  results:     { postOf, identBlock, provenance, outcomeOf, nextBlock,
+  results:     { timingsBlock, postOf, identBlock, provenance, outcomeOf, nextBlock,
                  lowConf, lowConfBlock, shareBtn,
                  seatCard, sittingCard, selectedCard },
   rolls:       { rollWrapHtml, paintRolls },

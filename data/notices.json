@@ -4493,7 +4493,7 @@
    "examDate": null,
    "examWindow": [
     "3:00 PM",
-    "12:25 PM"
+    "4:00 PM"
    ],
    "pages": 1,
    "seats": null,
@@ -5718,10 +5718,7 @@
    "published": "04/05/2026",
    "closing": "31/05/2027",
    "examDate": null,
-   "examWindow": [
-    "1:00 AM",
-    "12:25 AM"
-   ],
+   "examWindow": null,
    "pages": 1,
    "seats": null,
    "venue": null,

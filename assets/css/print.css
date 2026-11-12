@@ -20,7 +20,12 @@
      card flow and protect the small units instead — a row or a panel split
      across a page fold is what actually looks broken. */
   .card{box-shadow:none;border:1px solid #999;break-inside:auto}
-  .panel,.det,.prov,.cd,.ident,.cell{break-inside:avoid}
+  .panel,.det,.prov,.cd,.ident,.cell,.tcard{break-inside:avoid}
+  /* The two timing cards must stay legible in grayscale, so the colour is
+     dropped and a rule carries the distinction instead. */
+  .timings{grid-template-columns:1fr 1fr}
+  .tcard{background:none;color:#000;border:1px solid #999}
+  .tcard.gate{border-width:2px}
   .rollgrid{max-height:none;overflow:visible}
 
   /* 7.7 — .actions used to be hidden outright, so somebody holding the

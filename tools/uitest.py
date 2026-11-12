@@ -220,7 +220,7 @@ def main() -> int:
 
         # every notice kind still resolves
         for q, expect, kind in [("105432", "মোল্লা", "seat"),
-                                ("500006", "Reporting time", "viva"),
+                                ("500006", "Your sitting", "viva"),
                                 ("501991", "Congratulations", "selected (offer)"),
                                 ("213880", "preliminary test", "selected (written)"),
                                 ("201246", "Officer", "selected (2nd phase)")]:
@@ -228,6 +228,50 @@ def main() -> int:
             r.check(f"{kind} notice resolves for {q}",
                     expect.lower() in pg.inner_text("#result").lower(),
                     pg.inner_text("#result")[:80].replace("\n", " "))
+
+        # ---- arrival and gate-closing cards -------------------------------
+        # Derived uniformly: gate shuts when the exam starts, arrive an hour
+        # earlier. Notice 86 is the proof case — it prints "সকাল ১০.০০টায়
+        # মূল ফটক বন্ধ হবে" for a 10:00 exam, so the rule matches the source.
+        r.section("9b  arrival / gate-closing cards")
+        # 105432 sits in two notices (10:00 AM and 3:00 PM), so every seat card
+        # on screen is checked and each must derive from its own exam start.
+        pg.fill("#roll", "105432"); pg.wait_for_timeout(350)
+        arr, gat = pg.locator("#result .tcard.arrive"), pg.locator("#result .tcard.gate")
+        r.check("every seat card carries an arrival and a gate card",
+                arr.count() == 2 and gat.count() == 2,
+                f"arrive={arr.count()} gate={gat.count()}")
+        starts = pg.eval_on_selector_all(
+            "#result .card", "cs=>cs.map(c=>[c.querySelector('.cell .v.acc')?.textContent.trim(),"
+            "c.querySelector('.tcard.arrive .tv')?.textContent.trim(),"
+            "c.querySelector('.tcard.gate .tv')?.textContent.trim()])")
+        r.check("gate closes at the exam start, arrival an hour before",
+                sorted(starts) == sorted([["10:00 AM – 11:00 AM", "9:00 AM", "10:00 AM"],
+                                          ["3:00 PM – 4:00 PM", "2:00 PM", "3:00 PM"]]), str(starts))
+        r.check("colour is never the only signal: icon + text label on both",
+                pg.locator("#result .tcard svg.ticon").count() == 4
+                and all(x.strip() for x in pg.eval_on_selector_all(
+                    "#result .tcard .tk", "ks=>ks.map(k=>k.textContent)")))
+        r.check("timings use tabular numerals",
+                "tabular-nums" in pg.evaluate(
+                    "getComputedStyle(document.querySelector('#result .tcard .tv')).fontVariantNumeric"))
+        r.check("schedule stays out of the live region",
+                pg.evaluate("document.querySelector('#result').getAttribute('aria-live')") is None)
+        pg.click("button[data-lang-set='bn']"); pg.wait_for_timeout(350)
+        bn = pg.inner_text("#result").replace("\n", " ")
+        r.check("gate card is translated, not left in English", "গেট বন্ধ হবে" in bn, bn[:90])
+        r.check("arrival card is translated", "কেন্দ্রে পৌঁছানোর শেষ সময়" in bn, bn[:90])
+        r.check("a 3 PM gate reads বিকেল ৩টা on the card itself",
+                "বিকেল ৩টা" in bn, bn[:90])
+        r.check("3 PM is বিকেল, as the notices themselves write it",
+                pg.evaluate("clock('3:00 PM')") == "বিকেল ৩টা",
+                pg.evaluate("clock('3:00 PM')"))
+        pg.click("button[data-lang-set='en']"); pg.wait_for_timeout(300)
+        # a notice with no exam time must show no cards at all, rather than
+        # an empty one that reads as "there is no deadline"
+        pg.fill("#roll", "501991"); pg.wait_for_timeout(350)
+        r.check("no timing cards when the notice states no exam time",
+                pg.locator("#result .tcard").count() == 0)
 
         pg.fill("#roll", "999999"); pg.wait_for_timeout(350)
         r.check("unknown roll reports a gap in our index, not a verdict",

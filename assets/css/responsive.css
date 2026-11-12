@@ -23,5 +23,6 @@
   .card{padding:18px 16px;border-radius:var(--r-lg)}
   .panel{padding:18px 16px}
   .ncard{padding:14px 16px}
+  .det{grid-template-columns:1fr;gap:3px;padding:11px 14px}
   .rollgrid{grid-template-columns:repeat(auto-fill,minmax(min(100%,4.9rem),1fr))}
 }

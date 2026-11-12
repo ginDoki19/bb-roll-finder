@@ -56,7 +56,18 @@ function outcomeOf(n){
                                           return { tone:"ok", title:t("congratsPrimary"), steps:t("nextPrimary") };
   return { tone:"neutral", title:t("congratsGeneric"), steps:t("nextPrimary") };
 }
-function nextBlock(steps, note){
+function detailRows(details){
+  return `<div class="dets">` + details.map(d =>
+    `<div class="det${d.warn ? " warn" : ""}">` +
+      `<div class="k">${esc(d.k)}</div><div class="v">${esc(d.v)}</div></div>`).join("") + `</div>`;
+}
+/* A curated notice can describe the next step two ways. `details` is a list
+   of labelled facts and wins, because a candidate scanning for a time or a
+   gate-closing deadline should not have to read a paragraph to find it.
+   `note` is the older free-prose form and stays as the fallback. */
+function nextBlock(steps, note, details){
+  if (details && details.length)
+    return `<div class="next"><h4>${esc(t("whatNext"))}</h4>${detailRows(details)}</div>`;
   if (note) return `<div class="next"><h4>${esc(t("whatNext"))}</h4><p>${esc(note)}</p></div>`;
   if (!steps || !steps.length) return "";
   return `<div class="next"><h4>${esc(t("whatNext"))}</h4><ol>${
@@ -131,6 +142,7 @@ function selectedCard(n, roll, pref){
   const group = (n.groups || []).find(g => g.rolls.includes(roll)) || null;
   const o = outcomeOf(n);
   const note = LANG === "bn" ? (n.noteBn || n.note) : (n.note || n.noteBn);
+  const details = LANG === "bn" ? (n.detailsBn || n.details) : (n.details || n.detailsBn);
   const st = statusOf(n);
   return `<div class="card${pref ? " preferred" : ""}">
     <div class="kicker">
@@ -143,7 +155,7 @@ function selectedCard(n, roll, pref){
       <div class="big">${esc(o.title)}</div>
       <div class="refline">${esc(t("selectedRef"))}<b>${esc(NUM(roll))}</b></div>
     </div>
-    ${nextBlock(o.steps, note)}
+    ${nextBlock(o.steps, note, details)}
     ${provenance(n)}
     <div class="actions"><a class="btn primary" href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("openPdf"))}</a></div>
   </div>`;

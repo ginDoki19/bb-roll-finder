@@ -27,6 +27,11 @@ function applyLang(code){
   document.documentElement.lang = code;
   paintStatic();
   renderToggles();
+  // The box the user typed into is the one thing paintStatic cannot reach:
+  // it holds a value, not a label. Round-trip it through ASCII so Bengali
+  // digits become 200983 in English and 2009৮3 can never survive a switch.
+  const box = $("#roll");
+  if (box && box.value.trim()) box.value = NUM(AS(box.value));
   renderNotices();
   renderResult();
 }

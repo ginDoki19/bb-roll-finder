@@ -113,6 +113,21 @@
 .meta b{color:var(--md-on-surface);font-weight:600}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .cell{background:var(--md-surface-container);border-radius:var(--r-md);padding:12px 14px}
+
+/* Structured "what happens next": one box per fact, stacked, label left and
+   value right so the eye can land on a single row. Beats a paragraph for
+   somebody checking a gate-closing time on a phone the morning of an exam.
+   The label column is capped so a long venue still gets most of the width;
+   under 620px the label sits above the value instead. */
+.dets{display:grid;gap:8px;margin-top:10px}
+.det{display:grid;grid-template-columns:minmax(7.5rem,auto) 1fr;gap:2px 18px;align-items:baseline;
+  background:var(--md-surface-container);border-radius:var(--r-md);padding:12px 16px}
+.det .k{font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+  color:var(--md-on-surface-variant);line-height:1.5}
+.det .v{font-size:15px;font-weight:600;color:var(--md-on-surface);line-height:1.5}
+.det.warn{background:var(--md-tertiary-container)}
+.det.warn .k{color:var(--md-on-tertiary-container);opacity:.85}
+.det.warn .v{color:var(--md-on-tertiary-container)}
 .k{font-size:12px;letter-spacing:0;text-transform:none;color:var(--md-on-surface-variant);
   margin-bottom:2px;font-weight:400}
 .v{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}

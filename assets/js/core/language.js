@@ -42,7 +42,7 @@ en:{
   hintScanned:n => ` · ${n} scanned notice${n>1?"s":""} cannot be searched`,
   statNotices:"notices", statCentres:"centres", statRolls:"rolls",
   allNotices:"All notices", all:"All",
-  lang:"Language", theme:"Theme", system:"System", light:"Light", dark:"Dark",
+  lang:"Language", theme:"Theme", system:"Auto", light:"Light", dark:"Dark",
   examToday:"Exam today", daysLeft:d => `${d} day${+d===1?"":"s"} left`, upcoming:"Upcoming",
   completed:"Completed", ongoing:"Open",
   cdToday:"Your exam is today", cdTomorrow:"Your exam is tomorrow",

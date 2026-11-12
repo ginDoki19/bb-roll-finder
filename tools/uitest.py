@@ -154,6 +154,36 @@ def main() -> int:
         pg.reload(wait_until="networkidle")
         ctx.close()
 
+        # The header used to fit on one row in Bengali and wrap in English,
+        # so switching language made the whole page jump 54px. The control
+        # labels and .seg padding are sized so the widest language still
+        # fits beside the brand; this catches it if either grows again.
+        ctx, pg = fresh()
+        pg.set_viewport_size({"width": 1280, "height": 900})
+        _rows = {}
+        for _l in ("bn", "en"):
+            pg.click(f"[data-lang-set='{_l}']"); pg.wait_for_timeout(250)
+            _rows[_l] = pg.evaluate("""() => {const R=e=>e.getBoundingClientRect();
+              const t=document.querySelector('.topbar'),b=document.querySelector('.brand'),
+                    c=document.querySelector('.controls');
+              return Math.round(R(t).height) <= Math.max(R(b).height, R(c).height) + 4}""")
+        r.check("header stays on one row in Bengali", _rows["bn"])
+        r.check("header stays on one row in English", _rows["en"])
+        r.check("switching language does not reflow the header",
+                _rows["bn"] == _rows["en"] is True)
+
+        # Switching language must convert the value the user typed, not just
+        # the labels around it: an English page showing ২০০৯৮৩ is a bug.
+        pg.click("[data-lang-set='bn']"); pg.wait_for_timeout(200)
+        pg.fill("#roll", "২০০৯৮৩"); pg.wait_for_timeout(400)
+        pg.click("[data-lang-set='en']"); pg.wait_for_timeout(400)
+        _v = pg.input_value("#roll")
+        r.check("the typed roll follows the language into English", _v == "200983", _v)
+        pg.click("[data-lang-set='bn']"); pg.wait_for_timeout(400)
+        _v = pg.input_value("#roll")
+        r.check("the typed roll follows the language into Bengali", _v == "২০০৯৮৩", _v)
+        ctx.close()
+
         # ------------------------------------------------------------ search
         r.section("6-8  roll lookup, digits and disambiguation")
 

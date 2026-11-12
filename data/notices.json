@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-12T03:11:21Z",
+ "generated": "2026-11-12T03:33:15Z",
  "source": "https://erecruitment.bb.org.bd/career/jobopportunity.php",
  "notices": [
   {
@@ -717,6 +717,60 @@
    "note": "Written exam 20/11/2026, 3:00–5:00 PM at the Academic Building, Faculty of Business Studies, University of Dhaka. Admit card required; be there one hour early — the gate closes at 3:00 PM. No calculator, phone, smartwatch, bag or jewellery.",
    "headlineBn": "অভিনন্দন! আপনি প্রাথমিক পরীক্ষায় উত্তীর্ণ হয়েছেন — এরপর লিখিত পরীক্ষা",
    "noteBn": "লিখিত পরীক্ষা ২০/১১/২০২৬, বিকাল ৩:০০–৫:০০টা, ঢাকা বিশ্ববিদ্যালয় ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবনে। প্রবেশপত্র আবশ্যক; এক ঘণ্টা আগে পৌঁছান — ৩:০০টায় গেট বন্ধ হয়ে যাবে। ক্যালকুলেটর, মোবাইল, স্মার্টওয়াচ, ব্যাগ বা গয়না আনা যাবে না।",
+   "details": [
+    {
+     "k": "Date",
+     "v": "20 November 2026 (Friday)"
+    },
+    {
+     "k": "Time",
+     "v": "3:00 PM – 5:00 PM"
+    },
+    {
+     "k": "Venue",
+     "v": "Academic Building, Faculty of Business Studies, University of Dhaka"
+    },
+    {
+     "k": "Be there by",
+     "v": "2:00 PM — the gate closes at 3:00 PM"
+    },
+    {
+     "k": "Bring",
+     "v": "Admit card and a photo ID"
+    },
+    {
+     "k": "Not allowed",
+     "v": "Calculator, mobile phone, smartwatch, bag, jewellery",
+     "warn": true
+    }
+   ],
+   "detailsBn": [
+    {
+     "k": "তারিখ",
+     "v": "২০ নভেম্বর ২০২৬ (শুক্রবার)"
+    },
+    {
+     "k": "সময়",
+     "v": "বিকাল ৩:০০ – ৫:০০"
+    },
+    {
+     "k": "কেন্দ্র",
+     "v": "একাডেমিক ভবন, ব্যবসায় শিক্ষা অনুষদ, ঢাকা বিশ্ববিদ্যালয়"
+    },
+    {
+     "k": "পৌঁছানোর সময়",
+     "v": "দুপুর ২:০০ — বিকাল ৩:০০টায় গেট বন্ধ হয়ে যাবে"
+    },
+    {
+     "k": "সঙ্গে আনুন",
+     "v": "প্রবেশপত্র ও ছবিসহ পরিচয়পত্র"
+    },
+    {
+     "k": "আনা যাবে না",
+     "v": "ক্যালকুলেটর, মোবাইল ফোন, স্মার্টওয়াচ, ব্যাগ, গয়না",
+     "warn": true
+    }
+   ],
    "rollCount": 334
   },
   {

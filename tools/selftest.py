@@ -566,6 +566,21 @@ def main() -> int:
     else:
         print("  ok  _headers caches /fonts/* immutably")
 
+    # Structured "what happens next" rows: a box with a blank label or a
+    # blank value renders as an empty grey band, which looks like a bug.
+    bad = []
+    for n in data["notices"]:
+        for key in ("details", "detailsBn"):
+            for i, row in enumerate(n.get(key) or []):
+                if not str(row.get("k", "")).strip() or not str(row.get("v", "")).strip():
+                    bad.append(f"{n['id']}.{key}[{i}]")
+    if bad:
+        fails += 1
+        print(f"  FAIL detail rows missing k or v: {', '.join(bad)}")
+    else:
+        ndet = sum(len(n.get("details") or []) for n in data["notices"])
+        print(f"  ok  all {ndet} detail rows carry a label and a value")
+
     # Every module named in the BB surface must actually be built.
     surface = set(re.findall(r"^  ([A-Za-z]+):\s*\{", 
                              open(os.path.join(ROOT, "assets", "js", "app.js"),

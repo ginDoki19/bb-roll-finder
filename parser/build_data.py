@@ -270,7 +270,7 @@ def build(html_path: str, pdf_dir: str, out_path: str) -> dict:
             # Not every roll list means "you are hired". A preliminary-test
             # result calls people to a written exam; saying "primarily
             # selected" there would mislead. Let the override say what it is.
-            for k in ("headline", "note"):
+            for k in ("headline", "note", "headlineBn", "noteBn"):
                 if row.get(k):
                     notice[k] = row[k]
 

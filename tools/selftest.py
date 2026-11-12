@@ -226,6 +226,48 @@ def main() -> int:
     else:
         print(f"  ok  all {len(MANUAL)} recovered notices searchable ({len(still_scanned)} left unreadable)")
 
+    # 7. UI guarantees that live in the template. These are string checks, not
+    #    taste checks: each one maps to a bug that actually shipped once.
+    print("\n— interface guarantees —")
+    tpl = open(os.path.join(ROOT, "app.template.html"), encoding="utf-8").read()
+    ui = [
+        ('data-theme',                  'theme override hook'),
+        ('prefers-color-scheme: dark',  'OS dark-mode default'),
+        ('color-scheme: light dark',    'native control theming'),
+        ('localStorage.getItem("bb-theme")', 'theme read before first paint (no flash)'),
+        ('Hind Siliguri',               'Bengali/Latin webfont declared'),
+        ('unicode-range',               'font split by script'),
+        ('repeat(auto-fill,minmax(min(100%', 'roll grid cannot overflow its container'),
+        ('STR = {',                     'bilingual string table'),
+        ('disambigWhy',                 'job disambiguation copy'),
+        ('prefers-reduced-motion',      'motion opt-out'),
+        ('@media print',                'printable seat plan'),
+    ]
+    for needle, what in ui:
+        if needle not in tpl:
+            fails += 1
+            print(f"  FAIL template lost: {what}  ({needle!r})")
+    else:
+        print(f"  ok  {len(ui)} interface guarantees present in app.template.html")
+
+    # the old build joined rolls into one string inside a table cell, which is
+    # what forced the whole page to scroll sideways. It must not come back.
+    if '.map(BN).join(", ")' in tpl:
+        fails += 1
+        print("  FAIL roll list is being joined into a single string again "
+              "(this is what caused the horizontal page scroll)")
+    else:
+        print("  ok  roll lists render as a wrapping grid, not one long string")
+
+    # a roll number is only unique within a job, so every result card must be
+    # able to state its job
+    missing_job = [n["id"] for n in data["notices"] if not n.get("jobId")]
+    if missing_job:
+        fails += 1
+        print(f"  FAIL notices with no jobId (cards cannot be disambiguated): {missing_job}")
+    else:
+        print(f"  ok  all {len(data['notices'])} notices carry a jobId")
+
     print("\n" + ("ALL PASS" if not fails else f"{fails} FAILURE(S)"))
     return 1 if fails else 0
 

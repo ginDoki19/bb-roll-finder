@@ -476,3 +476,60 @@ so the script now uses yours instead of its hardcoded default.
 cookie makes those work every time. The listing page also runs an F5 JavaScript
 challenge, so a pasted cookie usually gets you straight through but is not guaranteed
 forever — if it still challenges, the window is open and you can solve it there.
+
+---
+
+## Interface: themes, language and fonts
+
+### Light / dark
+A three-state control in the header: **System · Light · Dark**. "System" follows
+the phone or OS setting; picking Light or Dark stores an override in
+`localStorage` under `bb-theme`, and picking System again removes it.
+
+The stored choice is read by a small blocking script in `<head>` *before* any
+CSS, so a dark-mode visitor never sees a white flash on load. Colours are
+semantic custom properties (`--surface-0…3`, `--text-primary/secondary/muted`,
+`--accent`, `--ok/--warn/--bad`) defined once per theme. **Never put a raw hex
+value in a component rule** — it will be wrong in one of the two themes.
+
+Every text/surface pair was checked with the WCAG relative-luminance formula
+against the *lightest* surface that text can appear on, not just the page
+background. All clear 4.5:1. `--border-control` exists separately because
+interactive outlines need 3:1 and the decorative `--border` does not meet it.
+
+### Bengali / English
+Toggle in the header; stored as `bb-lang`. All interface copy lives in the `STR`
+table in `app.template.html` — **add new strings to both `en` and `bn`**, or the
+Bengali side silently falls back to English. Digits follow the language: Bengali
+shows ০-৯, English shows 0-9. Search accepts ০-৯, ٠-٩, full-width and ASCII
+regardless of the interface language.
+
+Content pulled out of the PDFs (post names, centre names, notice titles) is
+shown as published and is not translated.
+
+### Fonts
+Hind Siliguri, self-hosted in `fonts/`, four files:
+
+| file | size |
+|---|---|
+| `hind-siliguri-bengali-400.woff2` | 71 KB |
+| `hind-siliguri-bengali-600.woff2` | 75 KB |
+| `hind-siliguri-latin-400.woff2` | 14 KB |
+| `hind-siliguri-latin-600.woff2` | 14 KB |
+
+Split by script with `unicode-range` so the Latin text does not drag the Bengali
+file around. `font-display: swap` means the system stack paints immediately and
+the webfont swaps in when ready. The service worker precaches all four, so it is
+one download, once. Licence: SIL OFL 1.1.
+
+To change weights, download from `@fontsource/hind-siliguri` and update both the
+`@font-face` blocks and the `SHELL` array in `sw.js` — **and bump `CACHE`**, or
+returning visitors keep the old files.
+
+### Roll lists
+Long lists render as a wrapping grid of chips inside a height-capped,
+independently scrolling box, built lazily when the list is opened. Do **not**
+go back to joining rolls into a single comma-separated string inside a table
+cell: table cells do not wrap unbroken content, so a 1,037-roll notice stretched
+the cell until the entire page scrolled sideways. `tools/selftest.py` fails if
+that pattern reappears.

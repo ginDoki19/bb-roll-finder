@@ -19,7 +19,7 @@ Remove-Item "$env:TEMP\bbupd" -Recurse -Force -ErrorAction SilentlyContinue
 Expand-Archive -Path $Zip -DestinationPath "$env:TEMP\bbupd" -Force
 
 # 2. copy over the project
-robocopy "$env:TEMP\bbupd\bb-notice" $Proj /E /XF listing-cache.json
+robocopy "$env:TEMP\bbupd\bb-notice" $Proj /E /XF listing-cache.json career.html
 if ($LASTEXITCODE -ge 8) { Write-Host "robocopy FAILED ($LASTEXITCODE)" -ForegroundColor Red }
 else                     { Write-Host "copy OK ($LASTEXITCODE)"        -ForegroundColor Green }
 
@@ -40,7 +40,7 @@ rmdir /s /q "%TEMP%\bbupd" 2>nul
 mkdir "%TEMP%\bbupd"
 tar -xf "%ZIP%" -C "%TEMP%\bbupd"
 
-robocopy "%TEMP%\bbupd\bb-notice" "%PROJ%" /E /XF listing-cache.json
+robocopy "%TEMP%\bbupd\bb-notice" "%PROJ%" /E /XF listing-cache.json career.html
 if %ERRORLEVEL% GEQ 8 (echo robocopy FAILED %ERRORLEVEL%) else (echo copy OK %ERRORLEVEL%)
 
 cd /d "%PROJ%"
@@ -55,6 +55,7 @@ check.bat
 |---|---|
 | `/E` | copy subdirectories, including empty ones |
 | `/XF listing-cache.json` | your local fetch cache; the zip's copy is older |
+| `/XF ... career.html` | the saved listing page. `fetch_notices.py` refreshes it from the portal on every run, so **your copy is always at least as fresh as the zip's**. Letting the zip overwrite it rewinds it to whenever the archive was built. |
 | **no `/PURGE`** | `/PURGE` (and `/MIR`, which implies it) deletes anything in the destination that is not in the source — that would wipe `meta\session.txt`, `logs\` and `.git\`. **Never add it.** |
 
 Because there is no `/PURGE`, local-only files survive the upgrade untouched:

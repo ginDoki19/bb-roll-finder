@@ -515,21 +515,32 @@ Content pulled out of the PDFs (post names, centre names, notice titles) is
 shown as published and is not translated.
 
 ### Fonts
-Hind Siliguri, self-hosted in `fonts/`, four files:
+Two families, self-hosted in `fonts/`, split by script with `unicode-range`
+so Latin text never drags the Bengali file along.
+
+**Noto Sans Bengali** — body text, weights 400 and 600:
 
 | file | size |
 |---|---|
-| `hind-siliguri-bengali-400.woff2` | 71 KB |
-| `hind-siliguri-bengali-600.woff2` | 75 KB |
-| `hind-siliguri-latin-400.woff2` | 14 KB |
-| `hind-siliguri-latin-600.woff2` | 14 KB |
+| `noto-sans-bengali-bengali-400-normal.woff2` | 43 KB |
+| `noto-sans-bengali-bengali-600-normal.woff2` | 47 KB |
+| `noto-sans-bengali-latin-400-normal.woff2` | 10 KB |
+| `noto-sans-bengali-latin-600-normal.woff2` | 10 KB |
 
-Split by script with `unicode-range` so the Latin text does not drag the Bengali
-file around. `font-display: swap` means the system stack paints immediately and
-the webfont swaps in when ready. The service worker precaches all four, so it is
-one download, once. Licence: SIL OFL 1.1.
+**Noto Serif Bengali** — the display family (`--font-display`): `h1`, `h2`,
+`.panel .big` and the logo mark. Weight 600 only:
 
-To change weights, download from `@fontsource/hind-siliguri` and update both the
+| file | size |
+|---|---|
+| `noto-serif-bengali-bengali-600-normal.woff2` | 69 KB |
+| `noto-serif-bengali-latin-600-normal.woff2` | 11 KB |
+
+All six are SIL OFL; the licence travels with them in `fonts/OFL-Noto.txt`.
+The two 400-weight sans files and the Latin serif are preloaded by the
+injector in `app.template.html` — if you change the display family, update
+that list too or `selftest.py` fails.
+
+To change weights, download from `@fontsource/noto-sans-bengali` and update both the
 `@font-face` blocks and the `SHELL` array in `sw.js` — **and bump `CACHE`**, or
 returning visitors keep the old files.
 

@@ -319,7 +319,7 @@ def main() -> int:
         ('prefers-color-scheme: dark',  'OS dark-mode default'),
         ('color-scheme: light dark',    'native control theming'),
         ('localStorage.getItem("bb-theme")', 'theme read before first paint (no flash)'),
-        ('Hind Siliguri',               'Bengali/Latin webfont declared'),
+        ('Noto Sans Bengali',           'Bengali/Latin webfont declared'),
         ('unicode-range',               'font split by script'),
         ('repeat(auto-fill,minmax(min(100%', 'roll grid cannot overflow its container'),
         ('STR = {',                     'bilingual string table'),
@@ -533,6 +533,38 @@ def main() -> int:
         print("  FAIL static <link rel=preload> is back — it logs CORS errors over file://")
     else:
         print("  ok  font preloads are injected for http(s) only")
+
+    # Every font referenced by @font-face must exist, and the display family
+    # that paints h1/h2/.panel .big must be in the preload list — otherwise
+    # the largest text on the page renders in Georgia and then swaps.
+    faces = set(re.findall(r'url\("fonts/([^"]+\.woff2)"\)', src))
+    missing = sorted(f for f in faces
+                     if not os.path.exists(os.path.join(ROOT, "fonts", f)))
+    if missing:
+        fails += 1
+        print(f"  FAIL @font-face points at missing files: {', '.join(missing)}")
+    else:
+        print(f"  ok  all {len(faces)} @font-face files are present")
+
+    display = re.search(r'--font-display:"([^"]+)"', src)
+    disp_files = sorted(f for f in faces
+                        if display and display.group(1).lower().replace(" ", "-") in f)
+    if disp_files and not any(f in html_src for f in disp_files):
+        fails += 1
+        print(f"  FAIL the display family {display.group(1)!r} is never preloaded")
+    else:
+        print(f"  ok  the display family is preloaded")
+
+    # Font filenames carry their version, so they must be cached immutably.
+    hdr = open(os.path.join(ROOT, "_headers"), encoding="utf-8").read()
+    if not re.search(r"^/fonts/\*", hdr, re.M):
+        fails += 1
+        print("  FAIL _headers has no /fonts/* rule — renamed fonts refetch every visit")
+    elif "immutable" not in hdr.split("/fonts/*")[1].split("\n\n")[0]:
+        fails += 1
+        print("  FAIL the /fonts/* rule does not set immutable")
+    else:
+        print("  ok  _headers caches /fonts/* immutably")
 
     # Every module named in the BB surface must actually be built.
     surface = set(re.findall(r"^  ([A-Za-z]+):\s*\{", 

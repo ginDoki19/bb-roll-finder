@@ -74,7 +74,7 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")){
    no behavioural gain on a page that loads no other scripts. */
 const BB = {
   dom:         { $, esc, safeHref },
-  numbers:     { BN, AS, NUM, JOB },
+  numbers:     { BN, AS, NUM, JOB, clock, clockRange },
   dates:       { TODAY, toISO, dayDiff, statusOf, countdown, dnum },
   language:    { get lang(){ return LANG; }, t, STR, kindLabel },
   constants:   { KIND, POST_RE },

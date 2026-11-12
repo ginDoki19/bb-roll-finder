@@ -289,11 +289,11 @@ def main() -> int:
         ctx = browser.new_context(color_scheme="dark")
         pg = ctx.new_page(); pg.goto(URL, wait_until="networkidle")
         r.check("OS dark preference is honoured by default",
-                "15, 19, 26" in pg.evaluate("getComputedStyle(document.body).backgroundColor"),
+                "14, 21, 17" in pg.evaluate("getComputedStyle(document.body).backgroundColor"),
                 pg.evaluate("getComputedStyle(document.body).backgroundColor"))
         pg.click("[data-theme-set='light']"); pg.wait_for_timeout(250)
         r.check("manual light overrides OS dark",
-                "244, 246, 249" in pg.evaluate("getComputedStyle(document.body).backgroundColor"))
+                "245, 251, 246" in pg.evaluate("getComputedStyle(document.body).backgroundColor"))
         pg.reload(wait_until="networkidle")
         r.check("theme choice survives a reload",
                 pg.evaluate("document.documentElement.getAttribute('data-theme')") == "light")
@@ -364,7 +364,7 @@ def main() -> int:
         pg.wait_for_function("navigator.serviceWorker.controller !== null", timeout=15000)
         names = pg.evaluate("() => caches.keys()")
         r.check("the shipped cache is the bumped one",
-                names == ["bb-roll-v4"], names)
+                names == ["bb-roll-v5"], names)
 
         pg.evaluate("""async () => {
             const c = await caches.open('bb-roll-v3');
@@ -381,10 +381,10 @@ def main() -> int:
         pg.wait_for_timeout(600)
         after = pg.evaluate("() => caches.keys()")
         r.check("activate evicts the superseded cache",
-                after == ["bb-roll-v4"], after)
+                after == ["bb-roll-v5"], after)
         r.check("the new shell is still precached",
                 pg.evaluate("""async () => {
-                    const c = await caches.open('bb-roll-v4');
+                    const c = await caches.open('bb-roll-v5');
                     return (await c.keys()).length >= 7;}"""))
         ctx.close()
 
@@ -410,7 +410,7 @@ def main() -> int:
         r.check("file:// injects no font preloads",
                 pg.evaluate("document.querySelectorAll('link[rel=preload]').length") == 0)
         r.check("file:// still loads the webfonts",
-                pg.evaluate("document.fonts.size") == 4,
+                pg.evaluate("document.fonts.size") == 6,
                 pg.evaluate("document.fonts.size"))
         ctx.close()
 
@@ -489,8 +489,14 @@ def main() -> int:
                     ".filter(h=>h && h.endsWith('.pdf'))")))
 
         # font preload: present over http, absent over file://
-        r.check("font preloads are injected over http",
-                pg.evaluate("document.querySelectorAll('link[rel=preload][as=font]').length") == 2)
+        # The expected count is derived from the injector array in
+        # app.template.html, so adding or removing a preloaded font does not
+        # mean editing a magic number here.
+        import re as _re
+        _tpl = open(os.path.join(ROOT, "app.template.html"), encoding="utf-8").read()
+        _want = len(_re.findall(r'"fonts/[^"]+\.woff2"', _tpl))
+        r.check(f"font preloads are injected over http ({_want})",
+                pg.evaluate("document.querySelectorAll('link[rel=preload][as=font]').length") == _want)
         ctx.close()
 
         # ---------------------------------------------------------------

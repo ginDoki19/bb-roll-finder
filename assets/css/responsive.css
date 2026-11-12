@@ -1,19 +1,27 @@
 /* responsive.css
- * Narrow-viewport overrides. Kept in its own file loaded AFTER
- * components.css: this block intentionally overrides .search, .controls,
- * .stats, th/td, .card, .panel and .rollgrid, so its position in the
- * cascade is load-bearing.
+ * Narrow-viewport overrides. Loaded AFTER components.css: it intentionally
+ * overrides .search, .controls, .stats, th/td, .card, .panel and .rollgrid,
+ * so its position in the cascade is load-bearing.
  *
  * Part of the build: assembled by parser/build_site.py in the order listed
  * in CSS_FILES. Do not link this file directly from the page.
  */
 @media(max-width:620px){
-  .search input{padding:17px 16px 17px 47px;font-size:17px}
-  .search svg{left:15px}
+  /* The M3 header is roomier than the old one. On a phone the search field
+     is the whole point of the page, so claw back the space above it —
+     tighter padding and a smaller logo only. Button heights stay at 40px:
+     touch targets are not negotiable. */
+  header{padding:14px 0 2px}
+  .topbar{gap:10px;margin-bottom:8px}
+  .logo{width:40px;height:40px;font-size:20px;border-radius:var(--r-sm)}
+  .seg button{padding:0 13px;font-size:13px}
+  .search input{height:56px;font-size:17px;padding:0 18px 0 54px}
+  .search svg{left:18px}
   .controls{margin-left:0;width:100%}
   .stats{display:none}
-  th,td{padding:7px 6px}
-  .card{padding:17px 15px}
-  .panel{padding:17px 15px}
+  th,td{padding:8px 6px}
+  .card{padding:18px 16px;border-radius:var(--r-lg)}
+  .panel{padding:18px 16px}
+  .ncard{padding:14px 16px}
   .rollgrid{grid-template-columns:repeat(auto-fill,minmax(min(100%,4.9rem),1fr))}
 }

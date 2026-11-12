@@ -66,7 +66,7 @@ function nextBlock(steps, note){
 /* ---------------------------------------------------------------- cards */
 function seatCard(n, c, roll, pref){
   const from = n.examWindow?.[0], to = n.examWindow?.[1];
-  const rep = from ? minus60(from) : null;
+  const rep = from ? clock(minus60(from)) : null;
   const q = c.mapQuery || `${c.name}, ${c.address}`;
   const st = statusOf(n);
   return `<div class="card${pref ? " preferred" : ""}">
@@ -75,7 +75,7 @@ function seatCard(n, c, roll, pref){
       <span class="badge ${st.cls}">${esc(st.lbl)}</span>
     </div>
     ${identBlock(n, null, { preferred: pref })}
-    ${countdown(n.examDateISO, from ? `${from} – ${to}` : null, rep)}
+    ${countdown(n.examDateISO, from ? clockRange(from, to) : null, rep)}
     <div class="panel info">
       <div class="eyebrow">${esc(t("yourCentre"))}</div>
       <div class="big">${esc(c.name)}</div>
@@ -83,7 +83,7 @@ function seatCard(n, c, roll, pref){
     </div>
     <div class="grid">
       <div class="cell"><div class="k">${esc(t("examDate"))}</div><div class="v">${esc(dnum(n.examDate) || "—")}</div></div>
-      <div class="cell"><div class="k">${esc(t("time"))}</div><div class="v acc">${esc(from ? `${from} – ${to}` : "—")}</div></div>
+      <div class="cell"><div class="k">${esc(t("time"))}</div><div class="v acc">${esc(from ? clockRange(from, to) : "—")}</div></div>
       ${rep ? `<div class="cell"><div class="k">${esc(t("beThere"))}</div><div class="v warn">${esc(rep)}</div></div>` : ""}
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
     </div>
@@ -108,10 +108,10 @@ function sittingCard(n, info, roll, pref){
       ${info.b ? `<span class="badge sm">${esc(t("batch"))} ${esc(dnum(info.b))}</span>` : ""}
     </div>
     ${identBlock(n, null, { preferred: pref })}
-    ${countdown(toISO(info.d), info.t, null)}
+    ${countdown(toISO(info.d), clock(info.t), null)}
     <div class="panel info">
       <div class="eyebrow">${esc(t("reportingTime"))}</div>
-      <div class="big">${esc(dnum(info.d) || "—")}${info.t ? ` · ${esc(info.t)}` : ""}</div>
+      <div class="big">${esc(dnum(info.d) || "—")}${info.t ? ` · ${esc(clock(info.t))}` : ""}</div>
       ${n.venue ? `<div class="refline">${esc(n.venue)}</div>` : ""}
     </div>
     <div class="grid">

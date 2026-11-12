@@ -369,7 +369,7 @@ suites.
 | Disambiguation | Strip appears only when a roll spans >1 job; choice is remembered and floats that job to the top with a "your post" marker |
 | Themes | System / light / dark, persisted, no flash, `color-scheme` set |
 | Contrast | Every text/surface pair computed against the lightest surface it can sit on; all ≥4.5:1, plus a dedicated ≥3:1 control-border token |
-| Fonts | Hind Siliguri self-hosted, split by script via `unicode-range`, tabular figures |
+| Fonts | ~~Hind Siliguri~~ → **Noto Sans Bengali** (body) + **Noto Serif Bengali** (display), self-hosted, split by script via `unicode-range`, tabular figures. Changed in the Material 3 pass; see `SETUP.md`. |
 | Language | Full EN/BN toggle; digits follow the language (১০৫৪৩২ vs 105432) |
 | Celebration | GOV.UK confirmation-panel pattern + "what happens next" |
 | Honesty | Prelim-pass notice still says *"you qualified for the written exam"*, never "selected"; OCR and hand-typed provenance still disclosed, in both languages |

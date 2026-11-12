@@ -17,10 +17,11 @@
  * PDFs and cross-origin requests are never cached (too big / not ours).
  * Bump CACHE when you deploy — old caches are deleted on activate.
  */
-const CACHE = "bb-roll-v4";
+const CACHE = "bb-roll-v5";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest",
-  "./fonts/hind-siliguri-bengali-400.woff2", "./fonts/hind-siliguri-bengali-600.woff2",
-  "./fonts/hind-siliguri-latin-400.woff2",   "./fonts/hind-siliguri-latin-600.woff2"];
+  "./fonts/noto-sans-bengali-bengali-400-normal.woff2", "./fonts/noto-sans-bengali-bengali-600-normal.woff2",
+  "./fonts/noto-sans-bengali-latin-400-normal.woff2",   "./fonts/noto-sans-bengali-latin-600-normal.woff2",
+  "./fonts/noto-serif-bengali-bengali-600-normal.woff2", "./fonts/noto-serif-bengali-latin-600-normal.woff2"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -46,7 +47,7 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url);
 
   // never cache the PDFs (big) or anything cross-origin (maps embeds).
-  // The Hind Siliguri woff2 files ARE same-origin, so they fall through to the
+  // The Noto woff2 files ARE same-origin, so they fall through to the
   // cache-first branch below and stay available offline.
   if (url.origin !== location.origin || url.pathname.endsWith(".pdf")) return;
 

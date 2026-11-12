@@ -88,7 +88,7 @@ bb-notice/
 ├── data/notices.json           13 notices · 4,204 searchable rolls
 ├── meta/overrides.json         curated Bengali copy, verified roll lists
 ├── notices/*.pdf               13 source PDFs
-├── fonts/*.woff2               Hind Siliguri, 4 files, self-hosted
+├── fonts/*.woff2               Noto Sans + Serif Bengali, 6 files, self-hosted
 ├── sw.js                       bb-roll-v4
 ├── manifest.webmanifest        lang "en", theme_color #0f131a
 ├── _headers                    4 security headers + cache rules

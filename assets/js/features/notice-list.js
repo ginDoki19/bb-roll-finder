@@ -22,7 +22,7 @@ function noticeCard(n){
     detail = `<details><summary>${esc(t("nSittings")(NUM(n.sittings.length), NUM(n._count || 0)))}</summary>
       <div class="tscroll"><table><thead><tr><th>${esc(t("batch"))}</th><th>${esc(t("date"))}</th><th>${esc(t("time"))}</th><th>${esc(t("rolls"))}</th></tr></thead><tbody>
       ${n.sittings.map(b => `<tr><td class="num">${esc(NUM(b.sl))}</td><td>${esc(dnum(b.date) || "—")}</td>
-        <td>${esc(b.time || "—")}</td><td class="num">${esc(NUM(b.count))}</td></tr>`).join("")}
+        <td>${esc(clock(b.time) || "—")}</td><td class="num">${esc(NUM(b.count))}</td></tr>`).join("")}
       </tbody></table></div></details>`;
   } else if (n.kind === "scanned"){
     detail = `<div class="scanwarn">${t("scannedWarn")}<a href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("openPdfCheck"))}</a></div>`;

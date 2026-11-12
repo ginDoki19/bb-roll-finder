@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BB E-Recruitment — Roll Finder</title>
 <meta name="description" content="Enter your roll number to find your Bangladesh Bank exam centre, seat range, date, time and map location. Seat plans, viva schedules and selected-candidate lists in one place.">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f131a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f5fbf6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1511" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -39,8 +39,9 @@
      http(s) keeps the head start online and leaves file:// silent. */
   try{
     if (location.protocol === "http:" || location.protocol === "https:"){
-      ["fonts/hind-siliguri-bengali-400.woff2",
-       "fonts/hind-siliguri-latin-400.woff2"].forEach(function(href){
+      ["fonts/noto-sans-bengali-bengali-400-normal.woff2",
+       "fonts/noto-sans-bengali-latin-400-normal.woff2",
+       "fonts/noto-serif-bengali-latin-600-normal.woff2"].forEach(function(href){
         var el = document.createElement("link");
         el.rel = "preload"; el.as = "font"; el.type = "font/woff2";
         el.href = href; el.crossOrigin = "anonymous";

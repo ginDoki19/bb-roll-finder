@@ -17,7 +17,7 @@
  * PDFs and cross-origin requests are never cached (too big / not ours).
  * Bump CACHE when you deploy — old caches are deleted on activate.
  */
-const CACHE = "bb-roll-98dbeb89";
+const CACHE = "bb-roll-457c139e";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest",
   "./fonts/noto-sans-bengali-bengali-400-normal.woff2", "./fonts/noto-sans-bengali-bengali-600-normal.woff2",
   "./fonts/noto-sans-bengali-latin-400-normal.woff2",   "./fonts/noto-sans-bengali-latin-600-normal.woff2",

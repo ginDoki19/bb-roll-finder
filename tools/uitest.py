@@ -273,6 +273,31 @@ def main() -> int:
         r.check("no timing cards when the notice states no exam time",
                 pg.locator("#result .tcard").count() == 0)
 
+        # 87/2026 is a preliminary-test result that calls people to a written
+        # exam. Its schedule is hand-keyed from an image-only scan, so it must
+        # reach the same components as a parsed seat plan.
+        pg.fill("#roll", "200096"); pg.wait_for_timeout(350)
+        sel = pg.eval_on_selector_all("#result .card", """cs=>cs.map(c=>({
+            kind: c.querySelector('.badge')?.textContent.trim(),
+            venue: c.querySelector('.panel.info .big')?.textContent.trim(),
+            date: c.querySelector('.grid .cell .v')?.textContent.trim(),
+            arrive: c.querySelector('.tcard.arrive .tv')?.textContent.trim(),
+            gate: c.querySelector('.tcard.gate .tv')?.textContent.trim()}))""")
+        got = [c for c in sel if (c["kind"] or "").lower() == "selected"]
+        r.check("the selected card reaches the schedule components", len(got) == 1, str(sel))
+        r.check("selected card shows its centre, date and both deadlines",
+                got and got[0]["venue"].startswith("Academic Building")
+                and got[0]["date"] == "20/11/2026"
+                and got[0]["arrive"] == "2:00 PM" and got[0]["gate"] == "3:00 PM", str(got))
+        r.check("the schedule is not repeated as detail rows",
+                pg.eval_on_selector_all("#result .det .k", "ks=>ks.map(k=>k.textContent.trim())")
+                == ["Bring", "Not allowed"],
+                str(pg.eval_on_selector_all("#result .det .k", "ks=>ks.map(k=>k.textContent)")))
+        pg.click("button[data-lang-set='bn']"); pg.wait_for_timeout(350)
+        r.check("the centre name switches to Bengali",
+                "ঢাকা বিশ্ববিদ্যালয়ের" in pg.inner_text("#result"))
+        pg.click("button[data-lang-set='en']"); pg.wait_for_timeout(300)
+
         pg.fill("#roll", "999999"); pg.wait_for_timeout(350)
         r.check("unknown roll reports a gap in our index, not a verdict",
                 "not in the notices indexed here" in pg.inner_text("#result"))

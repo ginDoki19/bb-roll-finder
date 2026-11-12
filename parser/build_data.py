@@ -203,11 +203,12 @@ def build(html_path: str, pdf_dir: str, out_path: str) -> dict:
             "sizeKB": row.get("sizeKB"),
             "published": row.get("published"),
             "closing": row.get("closing"),
-            "examDate": _exam_date(parsed, row, kind_label(row, parsed)),
-            "examWindow": parsed["examWindow"],
+            "examDate": row.get("examDate") or _exam_date(parsed, row, kind_label(row, parsed)),
+            "examWindow": row.get("examWindow") or parsed["examWindow"],
             "pages": parsed["pages"],
             "seats": parsed["seats"],
             "venue": row.get("venue"),
+            "venueBn": row.get("venueBn"),
             "venueMapQuery": row.get("venueMapQuery"),
         }
         notice["publishedISO"] = _iso(row.get("published"))

@@ -14,15 +14,19 @@
    "sizeKB": 600,
    "published": "11/11/2026",
    "closing": "20/11/2026",
-   "examDate": null,
-   "examWindow": null,
+   "examDate": "20/11/2026",
+   "examWindow": [
+    "3:00 PM",
+    "5:00 PM"
+   ],
    "pages": 1,
    "seats": null,
-   "venue": null,
-   "venueMapQuery": null,
+   "venue": "Academic Building, Faculty of Business Studies, University of Dhaka",
+   "venueBn": "ঢাকা বিশ্ববিদ্যালয়ের ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবন",
+   "venueMapQuery": "Faculty of Business Studies, University of Dhaka",
    "publishedISO": "2026-11-11",
    "closingISO": "2026-11-20",
-   "examDateISO": null,
+   "examDateISO": "2026-11-20",
    "rolls": [
     200096,
     200243,
@@ -719,22 +723,6 @@
    "noteBn": "লিখিত পরীক্ষা ২০ নভেম্বর ২০২৬ (শুক্রবার), দুপুর ৩টা থেকে বিকেল ৫টা পর্যন্ত। কেন্দ্র ঢাকা বিশ্ববিদ্যালয়ের ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবন। প্রবেশপত্র সঙ্গে আনতেই হবে। দুপুর ২টার মধ্যে পৌঁছান; দুপুর ৩টায় মূল ফটক বন্ধ হয়ে যাবে। ক্যালকুলেটর, মোবাইল ফোন, স্মার্টওয়াচ, ব্যাগ বা গয়না আনা যাবে না।",
    "details": [
     {
-     "k": "Date",
-     "v": "20 November 2026 (Friday)"
-    },
-    {
-     "k": "Time",
-     "v": "3:00 PM – 5:00 PM"
-    },
-    {
-     "k": "Venue",
-     "v": "Academic Building, Faculty of Business Studies, University of Dhaka"
-    },
-    {
-     "k": "Be there by",
-     "v": "2:00 PM — the gate closes at 3:00 PM"
-    },
-    {
      "k": "Bring",
      "v": "Admit card and a photo ID"
     },
@@ -745,22 +733,6 @@
     }
    ],
    "detailsBn": [
-    {
-     "k": "তারিখ",
-     "v": "২০ নভেম্বর ২০২৬ (শুক্রবার)"
-    },
-    {
-     "k": "সময়",
-     "v": "দুপুর ৩টা থেকে বিকেল ৫টা"
-    },
-    {
-     "k": "কেন্দ্র",
-     "v": "ঢাকা বিশ্ববিদ্যালয়ের ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবন"
-    },
-    {
-     "k": "পৌঁছানোর সময়",
-     "v": "দুপুর ২টা; দুপুর ৩টায় মূল ফটক বন্ধ হয়ে যাবে"
-    },
     {
      "k": "সঙ্গে আনুন",
      "v": "প্রবেশপত্র ও ছবিসহ পরিচয়পত্র"
@@ -793,6 +765,7 @@
    "pages": 1,
    "seats": 16596,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-11-10",
    "closingISO": "2026-11-13",
@@ -863,6 +836,7 @@
    "pages": 2,
    "seats": null,
    "venue": "বাংলাদেশ ব্যাংক প্রধান কার্যালয়, মূল ভবন (৪র্থ তল), মতিঝিল, ঢাকা",
+   "venueBn": null,
    "venueMapQuery": "Bangladesh Bank Head Office, Motijheel, Dhaka",
    "publishedISO": "2026-11-09",
    "closingISO": "2026-11-28",
@@ -1661,6 +1635,7 @@
    "pages": 1,
    "seats": null,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-11-09",
    "closingISO": "2026-12-09",
@@ -1712,6 +1687,7 @@
    "pages": 2,
    "seats": 120529,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-11-08",
    "closingISO": "2026-11-13",
@@ -1990,6 +1966,7 @@
    "pages": 1,
    "seats": null,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-11-05",
    "closingISO": "2026-11-14",
@@ -2013,6 +1990,7 @@
    "pages": 1,
    "seats": null,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-11-02",
    "closingISO": "2026-11-30",
@@ -2072,6 +2050,7 @@
    "pages": 6,
    "seats": null,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-10-27",
    "closingISO": "2026-11-21",
@@ -4498,6 +4477,7 @@
    "pages": 1,
    "seats": null,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-10-27",
    "closingISO": "2026-11-13",
@@ -4521,6 +4501,7 @@
    "pages": 1,
    "seats": null,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-10-25",
    "closingISO": "2026-11-30",
@@ -4637,6 +4618,7 @@
    "pages": 1,
    "seats": null,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-10-17",
    "closingISO": "2026-11-13",
@@ -4660,6 +4642,7 @@
    "pages": 3,
    "seats": null,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-09-29",
    "closingISO": "2026-11-29",
@@ -5722,6 +5705,7 @@
    "pages": 1,
    "seats": null,
    "venue": null,
+   "venueBn": null,
    "venueMapQuery": null,
    "publishedISO": "2026-05-04",
    "closingISO": "2027-05-31",

@@ -112,6 +112,10 @@ function shareBtn(roll){
 const I_ARRIVE = '<svg class="ticon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13 3H5v18h8"/><path d="M13 12h8"/><path d="m18 8 4 4-4 4"/></svg>';
 const I_GATE   = '<svg class="ticon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>';
 
+function venueOf(n){
+  return LANG === "bn" ? (n.venueBn || n.venue) : (n.venue || n.venueBn);
+}
+
 function timingsBlock(start){
   if (!start) return "";
   const arrive = clock(minus60(start)), gate = clock(start);
@@ -169,7 +173,7 @@ function seatCard(n, c, roll, pref){
 
 function sittingCard(n, info, roll, pref){
   const st = statusOf(n);
-  const q = n.venueMapQuery || n.venue;
+  const venue = venueOf(n), q = n.venueMapQuery || venue;
   return `<div class="card${pref ? " preferred" : ""}">
     <div class="kicker">
       <span class="badge ${(KIND[n.kind]||KIND.viva).cls}">${esc(kindLabel(n.kind))}</span>
@@ -181,7 +185,7 @@ function sittingCard(n, info, roll, pref){
     <div class="panel info">
       <div class="eyebrow">${esc(t("yourSitting"))}</div>
       <div class="big">${esc(fmtDate(info.d) || "—")}${info.t ? ` · ${esc(clock(info.t))}` : ""}</div>
-      ${n.venue ? `<div class="refline">${esc(n.venue)}</div>` : ""}
+      ${venue ? `<div class="refline">${esc(venue)}</div>` : ""}
     </div>
     <h4 class="tsec">${esc(t("examSchedule"))}</h4>
     <div class="grid">
@@ -205,6 +209,8 @@ function selectedCard(n, roll, pref){
   const note = LANG === "bn" ? (n.noteBn || n.note) : (n.note || n.noteBn);
   const details = LANG === "bn" ? (n.detailsBn || n.details) : (n.details || n.detailsBn);
   const st = statusOf(n);
+  const from = n.examWindow?.[0], to = n.examWindow?.[1];
+  const venue = venueOf(n), q = n.venueMapQuery || venue;
   return `<div class="card${pref ? " preferred" : ""}">
     <div class="kicker">
       <span class="badge ${KIND.selected.cls}">${esc(kindLabel("selected"))}</span>
@@ -216,11 +222,23 @@ function selectedCard(n, roll, pref){
       <div class="big">${esc(o.title)}</div>
       <div class="refline">${esc(t("selectedRef"))}<b>${esc(NUM(roll))}</b></div>
     </div>
+    ${countdown(n.examDateISO, from ? clockRange(from, to) : null, null)}
+    ${venue ? `<div class="panel info">
+      <div class="eyebrow">${esc(t("yourCentre"))}</div>
+      <div class="big">${esc(venue)}</div>
+    </div>` : ""}
+    ${n.examDate || from ? `<h4 class="tsec">${esc(t("examSchedule"))}</h4>
+    <div class="grid">
+      ${n.examDate ? `<div class="cell"><div class="k">${esc(t("examDate"))}</div><div class="v">${esc(fmtDate(n.examDate))}</div></div>` : ""}
+      ${from ? `<div class="cell"><div class="k">${esc(t("time"))}</div><div class="v acc">${esc(clockRange(from, to))}</div></div>` : ""}
+    </div>` : ""}
+    ${timingsBlock(from)}
     ${nextBlock(o.steps, note, details)}
     ${lowConfBlock(n, roll)}
     ${provenance(n)}
     <div class="actions">
       <a class="btn primary" ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("openPdf"))}</a>
+      ${q ? `<a class="btn" target="_blank" rel="noopener noreferrer" href="${mapsUrl(q)}">${esc(t("openMaps"))}</a>` : ""}
       ${shareBtn(roll)}
     </div>
   </div>`;

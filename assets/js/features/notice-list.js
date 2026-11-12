@@ -25,7 +25,7 @@ function noticeCard(n){
         <td>${esc(clock(b.time) || "—")}</td><td class="num">${esc(NUM(b.count))}</td></tr>`).join("")}
       </tbody></table></div></details>`;
   } else if (n.kind === "scanned"){
-    detail = `<div class="scanwarn">${t("scannedWarn")}<a href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("openPdfCheck"))}</a></div>`;
+    detail = `<div class="scanwarn">${t("scannedWarn")}<a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("openPdfCheck"))}</a></div>`;
   } else if (n.groups && n.groups.length){
     const multi = n.groups.length > 1;
     detail = `<details><summary>${esc(multi
@@ -45,7 +45,7 @@ function noticeCard(n){
     <div class="nhead">
       <span class="badge ${k.cls}">${esc(kindLabel(n.kind))}</span>
       <span class="badge ${st.cls}">${esc(st.lbl)}</span>
-      <span class="badge sm">${esc(t("job"))} ${esc(JOB(n.jobId))}</span>
+      <span class="badge sm"${jobAttr(n.jobId)}>${esc(t("job"))} ${esc(JOB_LABEL(n.jobId))}</span>
     </div>
     <p class="npost">${esc(post || t("multiPost"))}</p>
     <p class="ntitle">${esc(n.title)}</p>
@@ -56,7 +56,7 @@ function noticeCard(n){
       ${n.noticeNo ? `<span>${esc(t("notice"))} ${esc(dnum(n.noticeNo))}</span>` : ""}
       ${n.published ? `<span>${esc(t("published"))} ${esc(dnum(n.published))}</span>` : ""}
       ${n.examDate ? `<span>${esc(t("exam"))} ${esc(dnum(n.examDate))}</span>` : ""}
-      <a href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}${n.sizeKB ? ` · ${esc(NUM(n.sizeKB))} KB` : ""}</a>
+      <a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}${n.sizeKB ? ` · ${esc(NUM(n.sizeKB))} KB` : ""}</a>
       ${n.pages ? `<span>${esc(t("pages")(NUM(n.pages)))}</span>` : ""}
     </div>
     ${detail}

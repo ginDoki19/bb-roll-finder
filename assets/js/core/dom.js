@@ -22,7 +22,26 @@ const safeHref = u => {
   const s = String(u ?? "").trim();
   if (!s) return "";
   if (/[\u0000-\u001f\u007f]/.test(s)) return "";          // smuggled control chars
+  /* "//evil.example/x.pdf" carries no scheme, so the check below waves it
+     through — but a browser reads it as protocol-relative and goes off-origin
+     on the current protocol. Every legitimate link here is either a relative
+     notices/ path or an explicit https:// URL, so this costs nothing. */
+  if (s.indexOf("//") === 0) return "";
   const scheme = /^([a-z][a-z0-9+.\-]*):/i.exec(s);        // relative paths have none
   if (scheme && !/^https?$/i.test(scheme[1])) return "";   // javascript:, data:, vbscript:
   return esc(s);
+};
+
+/* print.css prints the official-PDF link as its URL so a printed card is
+   still traceable back to the notice. CSS attr() can only read what is
+   literally in the attribute, and that is a relative "notices/..." path —
+   useless on paper. Resolving it here rather than in a beforeprint handler
+   keeps it correct when the page is rendered to PDF programmatically, which
+   never fires that event. */
+const pdfAttrs = u => {
+  const h = safeHref(u);
+  if (!h) return "";
+  let abs = h;
+  try { abs = new URL(String(u), location.href).href; } catch(e){}
+  return `href="${h}" data-abs="${esc(abs)}"`;
 };

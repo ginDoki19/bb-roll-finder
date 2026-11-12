@@ -23,7 +23,7 @@ function identBlock(n, group, opts){
   if (n.noticeNo)  bits.push(`${t("notice")} ${dnum(n.noticeNo)}`);
   if (n.published) bits.push(`${t("published")} ${dnum(n.published)}`);
   return `<div class="ident">
-    <div class="jobtag"><span class="k">${esc(t("job"))}</span><span class="v">${esc(JOB(n.jobId))}</span></div>
+    <div class="jobtag"${jobAttr(n.jobId)}><span class="k">${esc(t("job"))}</span><span class="v">${esc(JOB_LABEL(n.jobId))}</span></div>
     <div class="identtext">
       <p class="post">${esc(post || t("multiPost"))}</p>
       ${bits.length ? `<div class="identmeta">${bits.map(b => `<span>${esc(b)}</span>`).join("")}</div>` : ""}
@@ -38,12 +38,33 @@ function identBlock(n, group, opts){
 function provenance(n){
   if (n.rollSource === "ocr"){
     const tot = n.ocrChecks && n.ocrChecks.printedTotal ? dnum(n.ocrChecks.printedTotal) : "";
-    return `<div class="prov">${t("ocrProv")(tot)}<a href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("confirmPdf"))}</a>.</div>`;
+    return `<div class="prov">${t("ocrProv")(tot)}<a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("confirmPdf"))}</a>${esc(t("stop"))}</div>`;
   }
   if (n.rollSource === "manual"){
-    return `<div class="prov">${t("manualProv")}<a href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("confirmPdf"))}</a>.</div>`;
+    return `<div class="prov">${t("manualProv")}<a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("confirmPdf"))}</a>${esc(t("stop"))}</div>`;
   }
   return "";
+}
+
+/* ------------------------------------------------- low-confidence rolls
+   The OCR records the rolls it could not read the same way twice in
+   ocrChecks.lowConfidence. Until now nothing read that field, so a candidate
+   whose number was one of them got the ordinary green "you are on the list"
+   card with no hint that the scan was unclear at exactly their number.
+
+   The list is deliberately kept in rolls[] rather than dropped — a candidate
+   searching a number the notice really does contain must not be told it is
+   absent — so the disclosure has to happen at render time instead. */
+function lowConf(n, roll){
+  const lc = n.ocrChecks && n.ocrChecks.lowConfidence;
+  if (!lc || !lc.length) return false;
+  return lc.map(String).indexOf(String(roll)) !== -1;
+}
+function lowConfBlock(n, roll){
+  if (!lowConf(n, roll)) return "";
+  return `<div class="prov warn" role="note">
+    <b>${esc(t("lowConfTitle"))}</b> ${esc(t("lowConfBody"))}
+    <a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("confirmPdf"))}</a>${esc(t("stop"))}</div>`;
 }
 
 /* --------------------------------------------------------- outcome panel */
@@ -74,6 +95,13 @@ function nextBlock(steps, note, details){
     steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol></div>`;
 }
 
+/* 7.8 — share. The page already restores #roll=NNN on load, so the link is
+   just this page plus the roll; no new routing. navigator.share exists on
+   nearly every Android browser, and app.js falls back to the clipboard. */
+function shareBtn(roll){
+  return `<button type="button" class="btn" data-share="${esc(roll)}">${esc(t("share"))}</button>`;
+}
+
 /* ---------------------------------------------------------------- cards */
 function seatCard(n, c, roll, pref){
   const from = n.examWindow?.[0], to = n.examWindow?.[1];
@@ -101,10 +129,11 @@ function seatCard(n, c, roll, pref){
     ${nextBlock(t("nextSeat"), null)}
     <div class="actions">
       <a class="btn primary" target="_blank" rel="noopener noreferrer" href="${mapsUrl(q)}">${esc(t("openMaps"))}</a>
-      <button type="button" class="btn" data-map="1">${esc(t("showMap"))}</button>
-      <a class="btn" href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}</a>
+      <button type="button" class="btn" data-map="1" aria-expanded="false" aria-controls="map-${esc(n.id)}">${esc(t("showMap"))}</button>
+      <a class="btn" ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}</a>
+      ${shareBtn(roll)}
     </div>
-    <div class="mapbox"><iframe loading="lazy" title="map"
+    <div class="mapbox" id="map-${esc(n.id)}" role="region" aria-label="${esc(t("yourCentre"))}"><iframe loading="lazy" title="${esc(t("yourCentre"))}"
       data-src="https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=15&output=embed"></iframe></div>
   </div>`;
 }
@@ -121,19 +150,20 @@ function sittingCard(n, info, roll, pref){
     ${identBlock(n, null, { preferred: pref })}
     ${countdown(toISO(info.d), clock(info.t), null)}
     <div class="panel info">
-      <div class="eyebrow">${esc(t("reportingTime"))}</div>
+      <div class="eyebrow">${esc(t("yourSitting"))}</div>
       <div class="big">${esc(dnum(info.d) || "—")}${info.t ? ` · ${esc(clock(info.t))}` : ""}</div>
       ${n.venue ? `<div class="refline">${esc(n.venue)}</div>` : ""}
     </div>
     <div class="grid">
       <div class="cell"><div class="k">${esc(t("date"))}</div><div class="v">${esc(dnum(info.d) || "—")}</div></div>
-      <div class="cell"><div class="k">${esc(t("reportingTime"))}</div><div class="v acc">${esc(info.t || "—")}</div></div>
+      <div class="cell"><div class="k">${esc(t("reportingTime"))}</div><div class="v acc">${esc(clock(info.t) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
     </div>
     ${nextBlock(t("nextViva"), null)}
     <div class="actions">
       ${q ? `<a class="btn primary" target="_blank" rel="noopener noreferrer" href="${mapsUrl(q)}">${esc(t("openMaps"))}</a>` : ""}
-      <a class="btn" href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}</a>
+      <a class="btn" ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}</a>
+      ${shareBtn(roll)}
     </div>
   </div>`;
 }
@@ -156,7 +186,11 @@ function selectedCard(n, roll, pref){
       <div class="refline">${esc(t("selectedRef"))}<b>${esc(NUM(roll))}</b></div>
     </div>
     ${nextBlock(o.steps, note, details)}
+    ${lowConfBlock(n, roll)}
     ${provenance(n)}
-    <div class="actions"><a class="btn primary" href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("openPdf"))}</a></div>
+    <div class="actions">
+      <a class="btn primary" ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("openPdf"))}</a>
+      ${shareBtn(roll)}
+    </div>
   </div>`;
 }

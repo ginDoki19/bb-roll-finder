@@ -392,9 +392,16 @@ def main() -> int:
         pg = ctx.new_page()
         pg.goto(URL, wait_until="networkidle")
         pg.wait_for_function("navigator.serviceWorker.controller !== null", timeout=15000)
+        # The cache name is derived from a hash of the bundle by
+        # build_site.py, so it is read from sw.js rather than written here --
+        # same rule as the font-preload count above: no magic constants that
+        # have to be remembered on every release.
+        import re as _re2
+        _sw = open(os.path.join(ROOT, "sw.js"), encoding="utf-8").read()
+        _cache = _re2.search(r'CACHE\s*=\s*"([^"]+)"', _sw).group(1)
         names = pg.evaluate("() => caches.keys()")
-        r.check("the shipped cache is the bumped one",
-                names == ["bb-roll-v5"], names)
+        r.check(f"the shipped cache is the derived one ({_cache})",
+                names == [_cache], names)
 
         pg.evaluate("""async () => {
             const c = await caches.open('bb-roll-v3');
@@ -411,11 +418,11 @@ def main() -> int:
         pg.wait_for_timeout(600)
         after = pg.evaluate("() => caches.keys()")
         r.check("activate evicts the superseded cache",
-                after == ["bb-roll-v5"], after)
+                after == [_cache], after)
         r.check("the new shell is still precached",
-                pg.evaluate("""async () => {
-                    const c = await caches.open('bb-roll-v5');
-                    return (await c.keys()).length >= 7;}"""))
+                pg.evaluate("""async (name) => {
+                    const c = await caches.open(name);
+                    return (await c.keys()).length >= 7;}""", _cache))
         ctx.close()
 
         # file:// — the project claims local-file usability
@@ -507,9 +514,10 @@ def main() -> int:
             data:  BB.dom.safeHref('data:text/html,<b>x'),
             vb:    BB.dom.safeHref('vbscript:x'),
             tab:   BB.dom.safeHref('java\\tscript:alert(1)'),
+            proto: BB.dom.safeHref('//evil.example/x.pdf'),
             rel:   BB.dom.safeHref('notices/a.pdf'),
             https: BB.dom.safeHref('https://a.example/x.pdf')})""")
-        for key in ("js", "mixed", "data", "vb", "tab"):
+        for key in ("js", "mixed", "data", "vb", "tab", "proto"):
             r.check(f"safeHref rejects {key}", probes[key] == "", probes[key])
         r.check("safeHref keeps relative pdf paths", probes["rel"] == "notices/a.pdf")
         r.check("safeHref keeps https", probes["https"] == "https://a.example/x.pdf")
@@ -517,6 +525,52 @@ def main() -> int:
                 all(h.startswith("notices/") for h in pg.evaluate(
                     "[...document.querySelectorAll('a')].map(a=>a.getAttribute('href'))"
                     ".filter(h=>h && h.endsWith('.pdf'))")))
+
+        # ---- P1-1: an OCR-uncertain roll must say so -------------------
+        pg.fill("#roll", "221034"); pg.wait_for_timeout(450)
+        _warn = pg.evaluate("document.querySelectorAll('#result .prov.warn').length")
+        r.check("an OCR low-confidence roll shows the uncertainty warning", _warn >= 1, _warn)
+        r.check("the warning names the risk, not just the source",
+                pg.evaluate("document.querySelector('#result .prov.warn').innerText").strip() != "")
+        r.check("the ordinary provenance note is still shown alongside it",
+                pg.evaluate("document.querySelectorAll('#result .prov').length") >= 2)
+        # a confident roll in the SAME notice must stay clean, or the warning
+        # is just decoration
+        pg.fill("#roll", "200983"); pg.wait_for_timeout(450)
+        r.check("a confident roll shows no uncertainty warning",
+                pg.evaluate("document.querySelectorAll('#result .prov.warn').length") == 0)
+
+        # ---- P1-2: the eight-job notice must not print eight job ids ----
+        _badges = pg.evaluate("""[...document.querySelectorAll('.ncard .badge.sm')]"""
+                              """.map(b=>b.textContent.trim())""")
+        _long = [b for b in _badges if b.count(",") >= 2]
+        r.check("no notice badge prints a raw multi-job id list", not _long, _long[:2])
+        _collapsed = [b for b in _badges if "+" in b]
+        r.check("the multi-job notice collapses to 'first + N'", len(_collapsed) >= 1, _badges[:4])
+        r.check("the full job list survives in the tooltip",
+                pg.evaluate("""[...document.querySelectorAll('.ncard .badge.sm[title]')]"""
+                            """.some(b=>b.title.split(',').length>=8)"""))
+
+        # ---- 7.3: the map toggle is a disclosure ------------------------
+        pg.fill("#roll", "105432"); pg.wait_for_timeout(450)
+        r.check("the map button declares its collapsed state",
+                pg.evaluate("document.querySelector('[data-map]').getAttribute('aria-expanded')") == "false")
+        r.check("the map button points at the region it controls",
+                pg.evaluate("""(() => {const b=document.querySelector('[data-map]');
+                    return !!document.getElementById(b.getAttribute('aria-controls'));})()"""))
+        pg.click("[data-map]"); pg.wait_for_timeout(250)
+        r.check("the map button updates aria-expanded when opened",
+                pg.evaluate("document.querySelector('[data-map]').getAttribute('aria-expanded')") == "true")
+
+        # ---- 7.1: "/" focuses the search box ----------------------------
+        pg.evaluate("document.activeElement.blur()")
+        pg.keyboard.press("/")
+        pg.wait_for_timeout(120)
+        r.check("pressing / focuses the roll field",
+                pg.evaluate("document.activeElement.id") == "roll")
+        r.check("/ typed inside the field is not swallowed",
+                pg.evaluate("""(() => {const i=document.getElementById('roll');
+                    i.focus(); return document.activeElement === i;})()"""))
 
         # font preload: present over http, absent over file://
         # The expected count is derived from the injector array in

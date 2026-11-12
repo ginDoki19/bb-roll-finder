@@ -18,6 +18,11 @@
 .search input::placeholder{color:var(--md-on-surface-variant)}
 .search svg{position:absolute;left:21px;top:50%;transform:translateY(-50%);color:var(--md-on-surface-variant)}
 .hint{color:var(--text-muted);font-size:13px;margin:8px 16px 0}
+/* 7.6 — this used to be the third grey line of the footer. It is the sentence
+   that stops somebody travelling on a bad match, so it sits with the search. */
+.callout{display:flex;gap:8px;margin:12px 16px 0;padding:10px 14px;border-radius:var(--r-sm);
+  background:var(--md-surface-container);color:var(--md-on-surface-variant);
+  border-left:4px solid var(--md-tertiary);font-size:13px;line-height:1.6}
 
 /* -------------------------------------------------------- disambiguation
    A roll number is only unique inside a job. When one number lands in more
@@ -106,6 +111,14 @@
 .prov{margin-top:12px;padding:12px 14px;border-radius:var(--r-sm);font-size:13px;line-height:1.65;
   background:var(--md-surface-container);color:var(--md-on-surface-variant)}
 .prov b{color:var(--md-on-surface);font-weight:600}
+/* P1-1 — a roll the OCR itself could not read twice the same way. Tertiary
+   container is the same tone .det.warn uses, so "something here needs your
+   attention" looks identical wherever it appears, and it is visibly not the
+   neutral grey of the ordinary provenance note directly beneath it. */
+.prov.warn{background:var(--md-tertiary-container);color:var(--md-on-tertiary-container);
+  border-left:4px solid var(--md-tertiary)}
+.prov.warn b{color:var(--md-on-tertiary-container);display:block;margin-bottom:2px}
+.prov.warn a{color:var(--md-on-tertiary-container)}
 .scanwarn{margin-top:10px;padding:12px 14px;border-radius:var(--r-sm);font-size:13px;line-height:1.6;
   background:var(--md-tertiary-container);color:var(--md-on-tertiary-container)}
 
@@ -147,6 +160,10 @@
 .btn.primary{background:var(--md-primary);color:var(--md-on-primary);border-color:var(--md-primary)}
 .btn.primary:hover{box-shadow:var(--md-shadow, 0 1px 3px rgba(0,0,0,.3))}
 .mapbox{margin-top:14px;border-radius:var(--r-lg);overflow:hidden;display:none}
+/* 7.2 — offline the embed is a blank grey rectangle that reads as a broken
+   build. Same footprint, but it says what is wrong. */
+.mapoffline{padding:22px 18px;text-align:center;font-size:13px;line-height:1.6;
+  background:var(--md-surface-container);color:var(--md-on-surface-variant)}
 .mapbox iframe{width:100%;height:300px;border:0;display:block}
 :root[data-theme="dark"] .mapbox iframe{filter:invert(.9) hue-rotate(180deg) saturate(.75)}
 @media (prefers-color-scheme: dark){
@@ -172,7 +189,11 @@
   max-height:min(50vh,400px);overflow:auto;overscroll-behavior:contain}
 .rollchip{font-variant-numeric:tabular-nums;text-align:center;padding:6px 4px;border-radius:var(--r-xs);
   background:var(--md-surface-high);font-size:13px;color:var(--md-on-surface-variant);white-space:nowrap}
-.rollchip.hit{background:var(--md-primary);color:var(--md-on-primary);font-weight:600}
+/* 7.4 — the searched roll inside a long list. Tertiary rather than primary:
+   primary is the same green as the surrounding chips' accent and the hit was
+   not reliably findable by eye in a 1,037-chip grid. */
+.rollchip.hit{background:var(--md-tertiary-container);color:var(--md-on-tertiary-container);
+  font-weight:700;outline:2px solid var(--md-tertiary);outline-offset:-2px}
 .rollempty{padding:14px;text-align:center;color:var(--text-muted);font-size:14px}
 .grouphead{font-size:14px;font-weight:600;margin:14px 0 8px}
 .grouphead:first-child{margin-top:4px}

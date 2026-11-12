@@ -13,7 +13,37 @@ document.addEventListener("click", e => {
     const open = box.style.display === "block";
     box.style.display = open ? "none" : "block";
     map.textContent = open ? t("showMap") : t("hideMap");
+    map.setAttribute("aria-expanded", open ? "false" : "true");
+    /* The embed is the one part of this page that needs the network. Offline
+       it rendered as a blank grey rectangle that looked like a broken build,
+       so say what is wrong and leave the Google Maps button as the way out. */
+    if (!open && !navigator.onLine && !ifr.src){
+      if (!box.querySelector(".mapoffline")){
+        const msg = document.createElement("div");
+        msg.className = "mapoffline";
+        msg.textContent = t("mapOffline");
+        box.appendChild(msg);
+      }
+      return;
+    }
+    const off = box.querySelector(".mapoffline");
+    if (off) off.remove();
     if (!open && !ifr.src) ifr.src = ifr.dataset.src;
+    return;
+  }
+
+  /* 7.8 — share. Web Share where it exists (Android/iOS), clipboard
+     everywhere else; both paths confirm in the button itself. */
+  const sh = e.target.closest("[data-share]");
+  if (sh){
+    const url = location.origin + location.pathname + "#roll=" + sh.dataset.share;
+    const done = () => {
+      const was = sh.textContent;
+      sh.textContent = t("shared");
+      setTimeout(() => { sh.textContent = was; }, 1600);
+    };
+    if (navigator.share) navigator.share({ title: document.title, url }).catch(() => {});
+    else navigator.clipboard?.writeText(url).then(done).catch(() => {});
     return;
   }
   const th = e.target.closest("[data-theme-set]");
@@ -43,8 +73,15 @@ document.addEventListener("click", e => {
   if (f){ filter = f.dataset.f; renderNotices(); return; }
 });
 
+let filterTimer = 0;
 document.addEventListener("input", e => {
-  if (e.target.classList.contains("rollfilter")) paintRolls(e.target.closest(".rollwrap"));
+  if (!e.target.classList.contains("rollfilter")) return;
+  /* The longest list is 1,037 chips. Rebuilding that grid on every keystroke
+     is visibly janky on a low-end phone; one frame of debounce is below the
+     threshold where typing feels laggy and skips most of the work. */
+  const wrap = e.target.closest(".rollwrap");
+  clearTimeout(filterTimer);
+  filterTimer = setTimeout(() => paintRolls(wrap), 60);
 });
 /* build the chips only when a list is actually opened */
 document.addEventListener("toggle", e => {
@@ -73,14 +110,15 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")){
    every call through BB.* would mean rewriting several hundred call sites for
    no behavioural gain on a page that loads no other scripts. */
 const BB = {
-  dom:         { $, esc, safeHref },
-  numbers:     { BN, AS, NUM, JOB, clock, clockRange },
-  dates:       { TODAY, toISO, dayDiff, statusOf, countdown, dnum },
+  dom:         { $, esc, safeHref, pdfAttrs },
+  numbers:     { BN, AS, NUM, JOB, JOB_LIST, JOB_LABEL, jobAttr, clock, clockRange },
+  dates:       { TODAY, toISO, dayDiff, statusOf, countdown, dnum, fmtDay },
   language:    { get lang(){ return LANG; }, t, STR, kindLabel },
   constants:   { KIND, POST_RE },
   data:        { DATA, notices, searchable, scannedCount, findCentre, minus60 },
   maps:        { mapsUrl },
   results:     { postOf, identBlock, provenance, outcomeOf, nextBlock,
+                 lowConf, lowConfBlock, shareBtn,
                  seatCard, sittingCard, selectedCard },
   rolls:       { rollWrapHtml, paintRolls },
   search:      { collectHits, isPref, renderResult, paintHits, say },
@@ -106,6 +144,22 @@ window.BB = BB;
   $("#roll").addEventListener("keydown", e => {
     if (e.key === "Escape"){ e.target.value = ""; renderResult(); }
   });
+
+  /* "/" jumps to the search box unless the user is already typing somewhere.
+     Deliberately not an autofocus: on a phone an autofocus opens the keyboard
+     over the content before the visitor has seen the page, so the focus is
+     only taken on a device that has a real pointer. */
+  document.addEventListener("keydown", e => {
+    if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
+    const el = document.activeElement, tag = el ? el.tagName : "";
+    if (tag === "INPUT" || tag === "TEXTAREA" || (el && el.isContentEditable)) return;
+    e.preventDefault();
+    $("#roll").focus();
+    $("#roll").select();
+  });
+  try {
+    if (window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches) $("#roll").focus();
+  } catch(e){}
 
   const m = AS(decodeURIComponent(location.hash)).match(/roll=(\d+)/);
   if (m){ $("#roll").value = m[1]; renderResult(); }

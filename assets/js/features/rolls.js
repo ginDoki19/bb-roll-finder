@@ -17,9 +17,14 @@ function rollWrapHtml(rolls, hit){
     <div class="rollgrid"></div>
   </div>`;
 }
+/* The chip for the number you just searched. Every caller passed hit=null, so
+   the .hit style existed but never applied to anything; reading the live
+   search box means opening any list highlights your roll without the archive
+   having to be re-rendered on every keystroke. */
+const currentRoll = () => AS(($("#roll") || {}).value || "").replace(/\D/g, "");
 function paintRolls(wrap){
   const all = (wrap.dataset.rolls || "").split(",").filter(Boolean);
-  const hit = wrap.dataset.hit || "";
+  const hit = wrap.dataset.hit || currentRoll();
   const q   = AS((wrap.querySelector(".rollfilter") || {}).value || "").replace(/\D/g, "");
   const list = q ? all.filter(r => r.includes(q)) : all;
   const grid = wrap.querySelector(".rollgrid");
@@ -28,4 +33,8 @@ function paintRolls(wrap){
     : `<div class="rollempty">${esc(t("noMatchInList"))}</div>`;
   wrap.querySelector(".rollcount").textContent =
     q ? t("showing")(NUM(list.length), NUM(all.length)) : NUM(all.length);
+  /* A 1,037-chip grid scrolls inside itself, so a highlighted chip is usually
+     off-screen when the list opens. */
+  const chip = grid.querySelector(".rollchip.hit");
+  if (chip && chip.scrollIntoView) chip.scrollIntoView({ block:"nearest", inline:"nearest" });
 }

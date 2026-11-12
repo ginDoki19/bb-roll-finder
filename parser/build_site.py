@@ -33,7 +33,9 @@ index.html. The only timestamp in the output is the one build_data.py already
 recorded inside notices.json.
 """
 
+import hashlib
 import json
+import re
 import os
 import sys
 
@@ -206,6 +208,25 @@ def main() -> None:
     html = html.replace("<!DOCTYPE html>", "<!DOCTYPE html>\n" + BANNER, 1)
 
     open(out_path, "w", encoding="utf-8").write(html)
+
+    # ---------------------------------------------------------------- sw.js
+    # The cache name used to be a hand-typed "bb-roll-vN". Forgetting to bump
+    # it shipped a correct index.html that returning visitors never saw,
+    # because the old service worker kept serving the old shell -- the exact
+    # failure mode the network-first HTML strategy exists to avoid. Deriving
+    # it from the bundle means it is impossible to forget and impossible to
+    # bump when nothing actually changed.
+    digest = hashlib.sha1((css + js).encode("utf-8")).hexdigest()[:8]
+    sw_path = os.path.join(ROOT, "sw.js")
+    sw = read(sw_path, "service worker")
+    new_sw, n = re.subn(r'const CACHE = "bb-roll-[^"]*";',
+                        f'const CACHE = "bb-roll-{digest}";', sw, count=1)
+    if n != 1:
+        die('sw.js has no `const CACHE = "bb-roll-...";` line to stamp')
+    if new_sw != sw:
+        open(sw_path, "w", encoding="utf-8").write(new_sw)
+    print(f"  service worker cache: bb-roll-{digest}"
+          f"{'' if new_sw != sw else ' (unchanged)'}")
 
     size = os.path.getsize(out_path)
     print(f"wrote {out_path}")

@@ -59,7 +59,8 @@ function renderResult(){
     dis.innerHTML = "";
     const cover = searchable.map(n => {
       const p = postOf(n);
-      return `<li>${esc(t("job"))} ${esc(JOB(n.jobId))} — ${esc(p || (KIND[n.kind]||{}).en || n.kind)}</li>`;
+      const kind = (KIND[n.kind] || {}).en || n.kind;
+      return `<li>${esc(t("job"))} ${esc(JOB_LABEL(n.jobId))} — ${esc(p ? `${p} · ${kind}` : kind)}</li>`;
     }).join("");
     box.innerHTML = `<div class="card bad">
       <p class="post" style="margin-bottom:8px">${esc(t("notFoundTitle")(NUM(raw)))}</p>
@@ -84,8 +85,8 @@ function paintHits(raw){
     const opts = jobs.map(j => {
       const n = lastHits.find(h => h.job === j).n;
       const p = postOf(n);
-      return `<button type="button" data-job="${esc(j)}" aria-pressed="${prefJob === j}">
-        <b>${esc(t("job"))} ${esc(JOB(j))}</b><span>${esc(p || (KIND[n.kind]||{}).en || n.kind)}</span></button>`;
+      return `<button type="button" data-job="${esc(j)}" aria-pressed="${prefJob === j}"${jobAttr(j)}>
+        <b>${esc(t("job"))} ${esc(JOB_LABEL(j))}</b><span>${esc(p || (KIND[n.kind]||{}).en || n.kind)}</span></button>`;
     }).join("");
     dis.innerHTML = `<div class="disambig">
       <p>${esc(t("disambigQ")(NUM(raw), NUM(jobs.length)))}</p>

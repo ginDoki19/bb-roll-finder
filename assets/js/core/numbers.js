@@ -15,15 +15,21 @@ const AS = s => String(s)
 
 /* Clock times arrive as "10:00 AM" / "1:30 PM". In Bengali that reads like a
    machine export; people say the part of the day first — সকাল ১০:০০,
-   দুপুর ১:৩০, বিকাল ৩:৩০ — and use Bengali digits. English is left alone. */
+   দুপুর ১:৩০, বিকাল ৩:৩০ — and use Bengali digits. English is left alone.
+
+   A time that does not match the expected shape — "10.00 AM", "১০টা",
+   "10:00 - 11:00" — used to fall through completely and print ASCII digits in
+   the middle of a Bengali card. BN() over the result fixes that: it only
+   touches 0-9, so digits the replacer already localised are left alone. */
 const clock = s => {
   if (!s || LANG !== "bn") return s;
-  return String(s).replace(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi, (_, h, m, ap) => {
+  const out = String(s).replace(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi, (_, h, m, ap) => {
     let hh = +h % 12; if (/pm/i.test(ap)) hh += 12;
     const part = hh >= 5 && hh < 12 ? "সকাল" : hh >= 12 && hh < 16 ? "দুপুর"
                : hh >= 16 && hh < 18 ? "বিকাল" : hh >= 18 && hh < 20 ? "সন্ধ্যা" : "রাত";
     return `${part} ${BN(+h)}:${BN(m)}`;
   });
+  return BN(out);
 };
 
 /* "সকাল ১০:০০ – সকাল ১১:০০" -> "সকাল ১০:০০ – ১১:০০": say the part of the day once. */

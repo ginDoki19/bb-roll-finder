@@ -7,12 +7,34 @@ const toISO = s => {
   const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(s ?? "").trim());
   return m ? `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}` : null;
 };
+/* Both sides of the subtraction are UTC midnights. Doing it with local Date
+   objects meant the gap between two calendar days was 23 or 25 hours across a
+   DST change, and Math.round could then land a day out — "exam tomorrow" on
+   the morning of the exam. Bangladesh keeps no DST, so this only ever bit a
+   candidate checking from abroad, but the UTC form is correct everywhere and
+   costs nothing. The epoch-day helper keeps TODAY a Date for anything that
+   still wants one. */
+const EPOCH_DAY = dt => Math.floor(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()) / 86400000);
+const TODAY_DAY = EPOCH_DAY(TODAY);
 function dayDiff(iso){
   if (!iso) return null;
-  const [y,m,d] = iso.split("-").map(Number);
-  const t = new Date(y, m-1, d); t.setHours(0,0,0,0);
-  return Math.round((t - TODAY) / 86400000);
+  const [y,m,d] = String(iso).split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return Math.floor(Date.UTC(y, m-1, d) / 86400000) - TODAY_DAY;
 }
+/* The footer used to print DATA.generated raw, which in Bengali rendered as
+   ২০২৬-১১-১২T০৩:২৪:৫৪Z — a machine stamp with a stray T and Z in the middle
+   of a sentence. Only the day matters to a reader. */
+const MONTHS = {
+  en:["January","February","March","April","May","June","July","August","September","October","November","December"],
+  bn:["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"]
+};
+const fmtDay = iso => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso ?? ""));
+  if (!m) return dnum(iso);
+  const names = MONTHS[LANG] || MONTHS.en;
+  return `${NUM(+m[3])} ${names[+m[2] - 1]} ${NUM(m[1])}`;
+};
 function statusOf(n){
   const e = dayDiff(n.examDateISO), c = dayDiff(n.closingISO);
   if (e === 0)                       return { k:"today", cls:"s-today", lbl:t("examToday") };

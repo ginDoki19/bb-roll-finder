@@ -20,10 +20,33 @@
 <link rel="icon" href="favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="BB Roll">
+<link rel="canonical" href="https://bb-roll-finder.pages.dev/">
 <meta property="og:title" content="BB E-Recruitment — Roll Finder">
 <meta property="og:description" content="Find your exam centre, seat, time and map by roll number.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://bb-roll-finder.pages.dev/">
+<meta property="og:image" content="https://bb-roll-finder.pages.dev/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="bn_BD">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BB E-Recruitment — Roll Finder">
+<meta name="twitter:description" content="Find your exam centre, seat, time and map by roll number.">
+<meta name="twitter:image" content="https://bb-roll-finder.pages.dev/og-card.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite",
+ "name":"BB E-Recruitment — Roll Finder",
+ "alternateName":"BB Roll Finder",
+ "url":"https://bb-roll-finder.pages.dev/",
+ "inLanguage":["en","bn"],
+ "description":"Find your Bangladesh Bank exam centre, seat range, date, time and map location by roll number.",
+ "potentialAction":{"@type":"SearchAction",
+   "target":{"@type":"EntryPoint","urlTemplate":"https://bb-roll-finder.pages.dev/#roll={roll_number}"},
+   "query-input":"required name=roll_number"}}
+</script>
 
 <!-- Runs before any CSS so the stored theme is applied on the very first paint.
      Without this the page renders light, then flips to dark a frame later. -->
@@ -33,10 +56,20 @@
     var t = localStorage.getItem("bb-theme");
     if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
     var l = localStorage.getItem("bb-lang");
-    if (l === "en" || l === "bn"){
-      document.documentElement.setAttribute("data-lang", l);
-      document.documentElement.lang = l;
+    if (l !== "en" && l !== "bn"){
+      /* No saved choice: follow the browser, exactly as core/language.js
+         does. Kept in sync by tools/selftest.py. */
+      var list = (navigator.languages && navigator.languages.length)
+                 ? navigator.languages : [navigator.language];
+      l = "en";
+      for (var i = 0; i < list.length; i++){
+        var tag = String(list[i] || "").toLowerCase();
+        if (tag === "bn" || tag.indexOf("bn-") === 0){ l = "bn"; break; }
+        if (tag === "en" || tag.indexOf("en-") === 0){ l = "en"; break; }
+      }
     }
+    document.documentElement.setAttribute("data-lang", l);
+    document.documentElement.lang = l;
   }catch(e){}
 
   /* Font preloads are injected rather than written as static <link> tags.
@@ -50,6 +83,8 @@
     if (location.protocol === "http:" || location.protocol === "https:"){
       ["fonts/noto-sans-bengali-bengali-400-normal.woff2",
        "fonts/noto-sans-bengali-latin-400-normal.woff2",
+       "fonts/noto-sans-bengali-bengali-600-normal.woff2",
+       "fonts/noto-serif-bengali-bengali-600-normal.woff2",
        "fonts/noto-serif-bengali-latin-600-normal.woff2"].forEach(function(href){
         var el = document.createElement("link");
         el.rel = "preload"; el.as = "font"; el.type = "font/woff2";
@@ -231,6 +266,11 @@ h1{margin:0;font:600 clamp(20px,3.4vw,26px)/1.3 var(--font-display)}
 .search input::placeholder{color:var(--md-on-surface-variant)}
 .search svg{position:absolute;left:21px;top:50%;transform:translateY(-50%);color:var(--md-on-surface-variant)}
 .hint{color:var(--text-muted);font-size:13px;margin:8px 16px 0}
+/* 7.6 — this used to be the third grey line of the footer. It is the sentence
+   that stops somebody travelling on a bad match, so it sits with the search. */
+.callout{display:flex;gap:8px;margin:12px 16px 0;padding:10px 14px;border-radius:var(--r-sm);
+  background:var(--md-surface-container);color:var(--md-on-surface-variant);
+  border-left:4px solid var(--md-tertiary);font-size:13px;line-height:1.6}
 
 /* -------------------------------------------------------- disambiguation
    A roll number is only unique inside a job. When one number lands in more
@@ -319,6 +359,14 @@ h1{margin:0;font:600 clamp(20px,3.4vw,26px)/1.3 var(--font-display)}
 .prov{margin-top:12px;padding:12px 14px;border-radius:var(--r-sm);font-size:13px;line-height:1.65;
   background:var(--md-surface-container);color:var(--md-on-surface-variant)}
 .prov b{color:var(--md-on-surface);font-weight:600}
+/* P1-1 — a roll the OCR itself could not read twice the same way. Tertiary
+   container is the same tone .det.warn uses, so "something here needs your
+   attention" looks identical wherever it appears, and it is visibly not the
+   neutral grey of the ordinary provenance note directly beneath it. */
+.prov.warn{background:var(--md-tertiary-container);color:var(--md-on-tertiary-container);
+  border-left:4px solid var(--md-tertiary)}
+.prov.warn b{color:var(--md-on-tertiary-container);display:block;margin-bottom:2px}
+.prov.warn a{color:var(--md-on-tertiary-container)}
 .scanwarn{margin-top:10px;padding:12px 14px;border-radius:var(--r-sm);font-size:13px;line-height:1.6;
   background:var(--md-tertiary-container);color:var(--md-on-tertiary-container)}
 
@@ -360,6 +408,10 @@ h1{margin:0;font:600 clamp(20px,3.4vw,26px)/1.3 var(--font-display)}
 .btn.primary{background:var(--md-primary);color:var(--md-on-primary);border-color:var(--md-primary)}
 .btn.primary:hover{box-shadow:var(--md-shadow, 0 1px 3px rgba(0,0,0,.3))}
 .mapbox{margin-top:14px;border-radius:var(--r-lg);overflow:hidden;display:none}
+/* 7.2 — offline the embed is a blank grey rectangle that reads as a broken
+   build. Same footprint, but it says what is wrong. */
+.mapoffline{padding:22px 18px;text-align:center;font-size:13px;line-height:1.6;
+  background:var(--md-surface-container);color:var(--md-on-surface-variant)}
 .mapbox iframe{width:100%;height:300px;border:0;display:block}
 :root[data-theme="dark"] .mapbox iframe{filter:invert(.9) hue-rotate(180deg) saturate(.75)}
 @media (prefers-color-scheme: dark){
@@ -385,7 +437,11 @@ h1{margin:0;font:600 clamp(20px,3.4vw,26px)/1.3 var(--font-display)}
   max-height:min(50vh,400px);overflow:auto;overscroll-behavior:contain}
 .rollchip{font-variant-numeric:tabular-nums;text-align:center;padding:6px 4px;border-radius:var(--r-xs);
   background:var(--md-surface-high);font-size:13px;color:var(--md-on-surface-variant);white-space:nowrap}
-.rollchip.hit{background:var(--md-primary);color:var(--md-on-primary);font-weight:600}
+/* 7.4 — the searched roll inside a long list. Tertiary rather than primary:
+   primary is the same green as the surrounding chips' accent and the hit was
+   not reliably findable by eye in a 1,037-chip grid. */
+.rollchip.hit{background:var(--md-tertiary-container);color:var(--md-on-tertiary-container);
+  font-weight:700;outline:2px solid var(--md-tertiary);outline-offset:-2px}
 .rollempty{padding:14px;text-align:center;color:var(--text-muted);font-size:14px}
 .grouphead{font-size:14px;font-weight:600;margin:14px 0 8px}
 .grouphead:first-child{margin-top:4px}
@@ -456,9 +512,38 @@ code{background:var(--md-surface-high);padding:1px 6px;border-radius:var(--r-xs)
 /* ===== print.css ===== */
 @media print{
   body{background:#fff;color:#000;padding:0}
-  .controls,.filters,.search,.hint,.actions,.mapbox,.rolltools,#notices,h2,.disambig{display:none !important}
-  .card,.panel{break-inside:avoid;box-shadow:none;border:1px solid #999}
+  /* The masthead used to eat the whole first sheet on its own and push the
+     card the reader actually wants onto page 2. On paper the branding earns
+     one line, not a page. */
+  header{margin:0 0 8px;padding:0;border:0}
+  .stats,.sub,.logo{display:none !important}
+  h1{font-size:13px !important;margin:0 !important}
+  .topbar{margin:0 !important;padding:0 !important;border:0 !important;display:block !important}
+  footer{font-size:9.5px;margin-top:10px}
+  .controls,.filters,.search,.hint,.callout,.mapbox,.rolltools,#notices,h2,.disambig{display:none !important}
+  /* A result card is nearly a full page, so break-inside:avoid on the card
+     pushed it past the masthead and wasted the whole first sheet. Let the
+     card flow and protect the small units instead — a row or a panel split
+     across a page fold is what actually looks broken. */
+  .card{box-shadow:none;border:1px solid #999;break-inside:auto}
+  .panel,.det,.prov,.cd,.ident,.cell{break-inside:avoid}
   .rollgrid{max-height:none;overflow:visible}
+
+  /* 7.7 — .actions used to be hidden outright, so somebody holding the
+     printout had no way to reach the notice it came from. The buttons are
+     still useless on paper, but the PDF link is not: print it as its URL.
+     Everything in .actions is either that link or a button, so hiding the
+     buttons and unhiding the one anchor keeps it to a single line. */
+  .actions{margin-top:10px;display:block}
+  .actions button{display:none !important}
+  .actions a{display:none}
+  /* strip the on-screen button chrome: on paper this is a line of text, not
+     a control, and the pill border round a URL reads as a form field */
+  .actions a[href$=".pdf"]{display:inline;font-size:10.5px;color:#000;text-decoration:none;
+    border:0;background:none;padding:0;margin:0;font-weight:600}
+  .actions a[href$=".pdf"]::after{content:" — " attr(data-abs);font-weight:400;word-break:break-all}
+  /* P1-1 must survive onto paper — it is the warning that matters most. */
+  .prov.warn{border:1px solid #000;padding:8px 10px}
 }
 
 </style>
@@ -496,6 +581,7 @@ code{background:var(--md-surface-high);padding:1px 6px;border-radius:var(--r-xs)
       <input id="roll" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" aria-describedby="hint">
     </form>
     <div class="hint" id="hint"></div>
+    <p class="callout" id="t-fconfirm"></p>
 
     <!-- The result area is NOT a live region. It can hold several full cards,
          and re-announcing all of them on every keystroke made the page
@@ -514,7 +600,6 @@ code{background:var(--md-surface-high);padding:1px 6px;border-radius:var(--r-xs)
 
   <footer>
     <div><b id="t-fdata"></b> <span id="gen"></span></div>
-    <div id="t-fconfirm"></div>
     <div style="margin-top:6px" id="t-fstatic"></div>
   </footer>
 </div>
@@ -523,11 +608,11 @@ code{background:var(--md-surface-high);padding:1px 6px;border-radius:var(--r-xs)
 /* ===== core/constants.js ===== */
 const KIND = {
   seat:     { key:"seat",     cls:"b-seat",     en:"Centre & seat allocation",     labEn:"SEAT PLAN", labBn:"আসন বিন্যাস" },
-  viva:     { key:"viva",     cls:"b-viva",     en:"Viva / interview schedule",    labEn:"VIVA",      labBn:"মৌখিক" },
+  viva:     { key:"viva",     cls:"b-viva",     en:"Viva / interview schedule",    labEn:"VIVA",      labBn:"ভাইভা" },
   result:   { key:"result",   cls:"b-result",   en:"Written result",               labEn:"RESULT",    labBn:"ফলাফল" },
   selected: { key:"selected", cls:"b-selected", en:"Primarily selected list",      labEn:"SELECTED",  labBn:"নির্বাচিত" },
   circular: { key:"circular", cls:"b-circular", en:"Schedule / circular",          labEn:"CIRCULAR",  labBn:"বিজ্ঞপ্তি" },
-  scanned:  { key:"scanned",  cls:"b-scanned",  en:"Scanned image — not searchable",labEn:"SCANNED",  labBn:"স্ক্যান" }
+  scanned:  { key:"scanned",  cls:"b-scanned",  en:"Scanned image — not searchable",labEn:"SCANNED",  labBn:"স্ক্যান করা" }
 };
 /* ------------------------------------------------------------- identity
    A roll number is only unique inside a job, so the job is what every card
@@ -555,9 +640,28 @@ const safeHref = u => {
   const s = String(u ?? "").trim();
   if (!s) return "";
   if (/[\u0000-\u001f\u007f]/.test(s)) return "";          // smuggled control chars
+  /* "//evil.example/x.pdf" carries no scheme, so the check below waves it
+     through — but a browser reads it as protocol-relative and goes off-origin
+     on the current protocol. Every legitimate link here is either a relative
+     notices/ path or an explicit https:// URL, so this costs nothing. */
+  if (s.indexOf("//") === 0) return "";
   const scheme = /^([a-z][a-z0-9+.\-]*):/i.exec(s);        // relative paths have none
   if (scheme && !/^https?$/i.test(scheme[1])) return "";   // javascript:, data:, vbscript:
   return esc(s);
+};
+
+/* print.css prints the official-PDF link as its URL so a printed card is
+   still traceable back to the notice. CSS attr() can only read what is
+   literally in the attribute, and that is a relative "notices/..." path —
+   useless on paper. Resolving it here rather than in a beforeprint handler
+   keeps it correct when the page is rendered to PDF programmatically, which
+   never fires that event. */
+const pdfAttrs = u => {
+  const h = safeHref(u);
+  if (!h) return "";
+  let abs = h;
+  try { abs = new URL(String(u), location.href).href; } catch(e){}
+  return `href="${h}" data-abs="${esc(abs)}"`;
 };
 
 /* ===== core/numbers.js ===== */
@@ -574,15 +678,21 @@ const AS = s => String(s)
 
 /* Clock times arrive as "10:00 AM" / "1:30 PM". In Bengali that reads like a
    machine export; people say the part of the day first — সকাল ১০:০০,
-   দুপুর ১:৩০, বিকাল ৩:৩০ — and use Bengali digits. English is left alone. */
+   দুপুর ১:৩০, বিকাল ৩:৩০ — and use Bengali digits. English is left alone.
+
+   A time that does not match the expected shape — "10.00 AM", "১০টা",
+   "10:00 - 11:00" — used to fall through completely and print ASCII digits in
+   the middle of a Bengali card. BN() over the result fixes that: it only
+   touches 0-9, so digits the replacer already localised are left alone. */
 const clock = s => {
   if (!s || LANG !== "bn") return s;
-  return String(s).replace(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi, (_, h, m, ap) => {
+  const out = String(s).replace(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi, (_, h, m, ap) => {
     let hh = +h % 12; if (/pm/i.test(ap)) hh += 12;
     const part = hh >= 5 && hh < 12 ? "সকাল" : hh >= 12 && hh < 16 ? "দুপুর"
                : hh >= 16 && hh < 18 ? "বিকাল" : hh >= 18 && hh < 20 ? "সন্ধ্যা" : "রাত";
     return `${part} ${BN(+h)}:${BN(m)}`;
   });
+  return BN(out);
 };
 
 /* "সকাল ১০:০০ – সকাল ১১:০০" -> "সকাল ১০:০০ – ১১:০০": say the part of the day once. */
@@ -599,12 +709,34 @@ const toISO = s => {
   const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(s ?? "").trim());
   return m ? `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}` : null;
 };
+/* Both sides of the subtraction are UTC midnights. Doing it with local Date
+   objects meant the gap between two calendar days was 23 or 25 hours across a
+   DST change, and Math.round could then land a day out — "exam tomorrow" on
+   the morning of the exam. Bangladesh keeps no DST, so this only ever bit a
+   candidate checking from abroad, but the UTC form is correct everywhere and
+   costs nothing. The epoch-day helper keeps TODAY a Date for anything that
+   still wants one. */
+const EPOCH_DAY = dt => Math.floor(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()) / 86400000);
+const TODAY_DAY = EPOCH_DAY(TODAY);
 function dayDiff(iso){
   if (!iso) return null;
-  const [y,m,d] = iso.split("-").map(Number);
-  const t = new Date(y, m-1, d); t.setHours(0,0,0,0);
-  return Math.round((t - TODAY) / 86400000);
+  const [y,m,d] = String(iso).split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return Math.floor(Date.UTC(y, m-1, d) / 86400000) - TODAY_DAY;
 }
+/* The footer used to print DATA.generated raw, which in Bengali rendered as
+   ২০২৬-১১-১২T০৩:২৪:৫৪Z — a machine stamp with a stray T and Z in the middle
+   of a sentence. Only the day matters to a reader. */
+const MONTHS = {
+  en:["January","February","March","April","May","June","July","August","September","October","November","December"],
+  bn:["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"]
+};
+const fmtDay = iso => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso ?? ""));
+  if (!m) return dnum(iso);
+  const names = MONTHS[LANG] || MONTHS.en;
+  return `${NUM(+m[3])} ${names[+m[2] - 1]} ${NUM(m[1])}`;
+};
 function statusOf(n){
   const e = dayDiff(n.examDateISO), c = dayDiff(n.closingISO);
   if (e === 0)                       return { k:"today", cls:"s-today", lbl:t("examToday") };
@@ -632,11 +764,25 @@ const dnum = s => NUM(String(s ?? ""));
 
 /* ===== core/language.js ===== */
 /* ------------------------------------------------------------- language */
-/* English is the default for a first-time visitor. Bengali is used only when
-   the visitor has explicitly chosen it before — an existing saved preference
-   is never silently discarded. */
+/* Resolution order, strongest first:
+     1. an explicit saved choice — never silently discarded;
+     2. the browser's own language list, in the user's priority order, so a
+        bn-BD phone opens in Bengali instead of making every visitor find the
+        toggle. Most candidates reading these notices are Bengali-first;
+     3. English.
+   Only step 2 is new. A visitor who has ever touched the toggle keeps what
+   they picked, in either direction. */
 let LANG = (() => {
   try { const v = localStorage.getItem("bb-lang"); if (v === "en" || v === "bn") return v; } catch(e){}
+  try {
+    const list = (navigator.languages && navigator.languages.length)
+      ? navigator.languages : [navigator.language];
+    for (const raw of list){
+      const tag = String(raw || "").toLowerCase();
+      if (tag === "bn" || tag.indexOf("bn-") === 0) return "bn";
+      if (tag === "en" || tag.indexOf("en-") === 0) return "en";
+    }
+  } catch(e){}
   return "en";
 })();
 /* Digits follow the interface language — Bengali UI gets ০-৯, English gets 0-9 */
@@ -648,6 +794,15 @@ const NUM = v => LANG === "bn" ? BN(v) : String(v);
    deliberately do NOT use this; they follow the interface language, because
    candidates read them off Bengali notices. */
 const JOB = v => String(v ?? "—");
+
+/* One notice can cover several job IDs at once: 20261029_bb_372 carries
+   "280, 282, 289, 294, 295, 296, 299, 300". Printed whole it overflows a badge
+   and buries the one number the candidate is looking for, so the badge shows
+   the first plus a count and the full list moves to the tooltip. */
+const JOB_LIST  = v => String(v ?? "").split(",").map(s => s.trim()).filter(Boolean);
+const JOB_LABEL = v => { const p = JOB_LIST(v); return p.length > 1 ? `${p[0]} + ${p.length - 1}` : JOB(v); };
+const jobAttr   = v => { const p = JOB_LIST(v);
+  return p.length > 1 ? ` title="${esc(t("job"))} ${esc(p.join(", "))}"` : ""; };
 
 /* Missing Bengali copy falls back to English rather than showing a raw key. */
 const t = k => (STR[LANG] && STR[LANG][k]) ?? STR.en[k] ?? k;
@@ -666,7 +821,7 @@ en:{
   srAmbig:(n,r,j) => `${n} result${n>1?"s":""} for roll ${r} across ${j} jobs — choose a job`,
   hintBase:n => `Searching ${n} notices · seat plans, viva schedules and selected-candidate lists`,
   hintScanned:n => ` · ${n} scanned notice${n>1?"s":""} cannot be searched`,
-  statNotices:"notices", statCentres:"centres", statRolls:"rolls",
+  statNotices:"notices", statCentres:"centres", statRolls:"listed rolls",
   allNotices:"All notices", all:"All",
   lang:"Language", theme:"Theme", system:"Auto", light:"Light", dark:"Dark",
   examToday:"Exam today", daysLeft:d => `${d} day${+d===1?"":"s"} left`, upcoming:"Upcoming",
@@ -675,11 +830,15 @@ en:{
   cdDays:d => `Your exam is in ${d} days`, cdPast:d => `This took place ${d} days ago`,
   beThereBy:r => `Be at the centre by ${r}`,
   examDate:"Exam date", time:"Time", beThere:"Be there by", yourRoll:"Your roll",
-  date:"Date", reportingTime:"Reporting time", batch:"Batch", post:"Post",
+  date:"Date", reportingTime:"Reporting time", yourSitting:"Your sitting",
+  batch:"Batch", post:"Post",
   centre:"Centre", rolls:"Rolls", seats:"Seats", seatRange:"Seat range",
+  stop:".",
   job:"Job ID", notice:"Notice", published:"Published", exam:"Exam", pages:n => `${n} page${n>1?"s":""}`,
   openMaps:"Open in Google Maps", showMap:"Show map here", hideMap:"Hide map",
+  mapOffline:"The map needs an internet connection. Use the button above to open it in Google Maps.",
   officialPdf:"Official PDF", openPdf:"Open official PDF", checkPortal:"Check the official portal",
+  share:"Share", shared:"Link copied",
   whatNext:"What happens next",
   yourCentre:"Your centre",
   yoursBadge:"YOUR POST",
@@ -690,6 +849,11 @@ en:{
   congratsPrimary:"Congratulations — you are on the primarily selected list",
   congratsGeneric:"Your roll is on this list",
   selectedRef:"Your roll number",
+  /* Shown only for a roll the OCR itself flagged as uncertain. This is the
+     one place the site can actively mislead somebody into travelling, so it
+     says plainly that the number may not be theirs. */
+  lowConfTitle:"This roll number was hard to read",
+  lowConfBody:"The scan is unclear at this number and repeated reads of it did not agree, so it may actually be a different roll. Before you rely on it, ",
   nextOffer:["Your offer letter has been issued — collect it and read the joining terms carefully.","Meet the joining deadline stated in the notice.","Keep your original certificates ready for verification."],
   nextPrimary:["This is a primary selection. The next step is document verification or the following phase of the process.","Watch the portal for the verification date and the document checklist.","Keep your originals and one set of photocopies ready."],
   nextSeat:["Bring your admit card and a photo ID.","Reach the centre at least one hour early.","Mobile phones, calculators, smart watches and bags are normally not allowed.","Read the official PDF for the full instructions."],
@@ -697,7 +861,7 @@ en:{
   notFoundTitle:r => `Roll ${r} is not in the notices indexed here`,
   notFoundBody:n => `We checked all ${n} searchable notices. This usually means your notice has not been added yet — new notices appear on the official portal first, then here.`,
   notFoundList:"Currently indexed:",
-  tooShort:r => `Keep typing — ${r} is too short to match anything.`,
+  tooShort:r => `${r} is too short to be a roll number — enter the whole number.`,
   nRolls:n => `${n} roll numbers`,
   nRollsIn:(r,p) => `${r} roll numbers across ${p} post${p>1?"s":""}`,
   nCentres:(c,a,b) => `${c} centres · rolls ${a}–${b}`,
@@ -722,55 +886,69 @@ bn:{
   tagline:"বাংলাদেশ ব্যাংকের নোটিশ, আসন বিন্যাস ও ফলাফল — সব এক জায়গায়",
   placeholder:"রোল নম্বর লিখুন, যেমন ১০৫৪৩২",
   rollLabel:"রোল নম্বর",
-  srFound:(n,r) => `রোল ${r}-এর ${n}টি ফলাফল পাওয়া গেছে`,
-  srAmbig:(n,r,j) => `রোল ${r}-এর ${n}টি ফলাফল ${j}টি আলাদা পদে মিলেছে — আপনার পদটি বেছে নিন`,
-  hintBase:n => `${n}টি নোটিশে খোঁজা হচ্ছে — আসন বিন্যাস, মৌখিক পরীক্ষার সূচি ও নির্বাচিত প্রার্থীদের তালিকা`,
+  /* Bengali attaches the count to the thing counted, not to a possessive on
+     the roll: "রোল ২০০৯৮৩ — ২টি ফলাফল", never "রোল ২০০৯৮৩-এর ২টি ফলাফল". */
+  srFound:(n,r) => `রোল ${r} — ${n}টি ফলাফল পাওয়া গেছে`,
+  srAmbig:(n,r,j) => `রোল ${r} — ${j}টি আলাদা পদে ${n}টি ফলাফল পাওয়া গেছে, আপনার পদটি বেছে নিন`,
+  hintBase:n => `${n}টি নোটিশে খোঁজা হচ্ছে — আসন বিন্যাস, ভাইভার সূচি ও নির্বাচিত প্রার্থীদের তালিকা`,
   hintScanned:n => ` · স্ক্যান করা ${n}টি নোটিশে খোঁজা যায় না`,
-  statNotices:"নোটিশ", statCentres:"কেন্দ্র", statRolls:"রোল",
+  statNotices:"নোটিশ", statCentres:"কেন্দ্র", statRolls:"তালিকাভুক্ত রোল",
   allNotices:"সব নোটিশ", all:"সব",
   lang:"ভাষা", theme:"থিম", system:"অটো", light:"লাইট", dark:"ডার্ক",
+  /* Status badges are noun phrases — আসন্ন, চলমান — so the finished state is
+     সম্পন্ন, not the finite verb "শেষ হয়েছে". */
   examToday:"আজ পরীক্ষা", daysLeft:d => `${d} দিন বাকি`, upcoming:"আসন্ন",
-  completed:"শেষ হয়েছে", ongoing:"চলমান",
-  cdToday:"আপনার পরীক্ষা আজ", cdTomorrow:"আপনার পরীক্ষা আগামীকাল",
-  cdDays:d => `আপনার পরীক্ষা ${d} দিন পরে`, cdPast:d => `এই পরীক্ষা ${d} দিন আগে হয়ে গেছে`,
+  completed:"সম্পন্ন", ongoing:"চলমান",
+  /* Bengali puts the time adverb first: আজ আপনার পরীক্ষা, not আপনার পরীক্ষা আজ. */
+  cdToday:"আজ আপনার পরীক্ষা", cdTomorrow:"আগামীকাল আপনার পরীক্ষা",
+  cdDays:d => `আর ${d} দিন পর আপনার পরীক্ষা`, cdPast:d => `${d} দিন আগে এই পরীক্ষা হয়ে গেছে`,
   beThereBy:r => `${r}-এর মধ্যে কেন্দ্রে পৌঁছান`,
   examDate:"পরীক্ষার তারিখ", time:"সময়", beThere:"কেন্দ্রে পৌঁছানোর সময়", yourRoll:"আপনার রোল",
-  date:"তারিখ", reportingTime:"হাজির হওয়ার সময়", batch:"ব্যাচ", post:"পদ",
+  date:"তারিখ", reportingTime:"হাজির হওয়ার সময়", yourSitting:"আপনার সময়সূচি",
+  batch:"ব্যাচ", post:"পদ",
   centre:"কেন্দ্র", rolls:"রোল", seats:"আসন", seatRange:"আসনের পরিসর",
   /* no `job` key on purpose — "Job ID" is a fixed English label in every
      locale and falls through to the English dictionary. */
+  stop:"।",
   notice:"বিজ্ঞপ্তি", published:"প্রকাশিত", exam:"পরীক্ষা", pages:n => `${n} পৃষ্ঠা`,
-  openMaps:"গুগল ম্যাপে দেখুন", showMap:"মানচিত্র দেখুন", hideMap:"মানচিত্র বন্ধ করুন",
+  openMaps:"গুগল ম্যাপে দেখুন", showMap:"মানচিত্র দেখুন", hideMap:"মানচিত্র লুকান",
+  mapOffline:"মানচিত্র দেখতে ইন্টারনেট সংযোগ লাগবে। উপরের বোতাম থেকে গুগল ম্যাপে খুলুন।",
   officialPdf:"অফিসিয়াল পিডিএফ", openPdf:"অফিসিয়াল পিডিএফ খুলুন", checkPortal:"অফিসিয়াল পোর্টালে দেখুন",
+  share:"শেয়ার করুন", shared:"লিংক কপি হয়েছে",
   whatNext:"এরপর কী করবেন",
   yourCentre:"আপনার কেন্দ্র",
   yoursBadge:"আপনার পদ",
   disambigQ:(r,n) => `রোল ${r} ${n}টি আলাদা নোটিশে পাওয়া গেছে।`,
-  disambigWhy:"প্রতিটি নতুন বিজ্ঞপ্তিতে রোল নম্বর নতুন করে শুরু হয়, তাই একই নম্বর আলাদা আলাদা পদে থাকতে পারে। যে পদে আবেদন করেছেন সেটি বেছে নিন — পছন্দটি মনে রাখা হবে।",
+  disambigWhy:"প্রতিটি বিজ্ঞপ্তিতে রোল নম্বর আবার শুরু থেকে দেওয়া হয়, তাই একই নম্বর দুটি আলাদা পদের হতে পারে। আপনি যে পদে আবেদন করেছেন সেটি বেছে নিন — পছন্দটি মনে রাখা হবে।",
   showAll:"সব দেখান",
-  congratsOffer:"অভিনন্দন! আপনার নিয়োগপত্র ইস্যু হয়েছে",
+  congratsOffer:"অভিনন্দন! আপনার নিয়োগপত্র প্রদান করা হয়েছে",
   congratsPrimary:"অভিনন্দন! আপনি প্রাথমিকভাবে নির্বাচিত হয়েছেন",
-  congratsGeneric:"আপনার রোল এই তালিকায় আছে",
+  congratsGeneric:"এই তালিকায় আপনার রোল রয়েছে",
   selectedRef:"আপনার রোল নম্বর",
+  lowConfTitle:"এই রোল নম্বরটি স্পষ্ট পড়া যায়নি",
+  lowConfBody:"স্ক্যান করা ছবিতে এই নম্বরটি ঝাপসা ছিল, কয়েকবার পড়েও একই ফল আসেনি। এটি আসলে অন্য কোনো রোল নম্বরও হতে পারে। নির্ভর করার আগে ",
   nextOffer:["নিয়োগপত্র সংগ্রহ করে যোগদানের শর্তগুলো মন দিয়ে পড়ুন।","নোটিশে দেওয়া যোগদানের শেষ তারিখের মধ্যে যোগ দিন।","যাচাইয়ের জন্য মূল সনদগুলো গুছিয়ে রাখুন।"],
-  nextPrimary:["এটি প্রাথমিক নির্বাচন। এরপর কাগজপত্র যাচাই বা নিয়োগ প্রক্রিয়ার পরের ধাপ থাকতে পারে।","যাচাইয়ের তারিখ ও কাগজপত্রের তালিকার জন্য পোর্টালে নজর রাখুন।","মূল কাগজপত্র আর এক সেট ফটোকপি তৈরি রাখুন।"],
-  nextSeat:["প্রবেশপত্র আর ছবিসহ পরিচয়পত্র সঙ্গে নিন।","কমপক্ষে এক ঘণ্টা আগে কেন্দ্রে পৌঁছান।","মোবাইল ফোন, ক্যালকুলেটর, স্মার্টওয়াচ ও ব্যাগ সাধারণত ভেতরে নেওয়া যায় না।","পুরো নির্দেশনা অফিসিয়াল পিডিএফে দেখুন।"],
-  nextViva:["সব মূল সনদ ও এক সেট ফটোকপি সঙ্গে নিন।","উপরের সময়ে হাজির থাকুন — দেরি করলে সাধারণত ঢুকতে দেওয়া হয় না।","কাগজপত্রের তালিকা অফিসিয়াল পিডিএফে দেখুন।"],
-  notFoundTitle:r => `রোল ${r} এখানকার কোনো নোটিশে পাওয়া যায়নি`,
-  notFoundBody:n => `এখানকার ${n}টি নোটিশেই খোঁজা হয়েছে। সম্ভবত আপনার নোটিশটি এখনো যোগ করা হয়নি — নতুন নোটিশ আগে অফিসিয়াল পোর্টালে আসে, তারপর এখানে।`,
-  notFoundList:"এখানে এখন যেসব নোটিশ আছে:",
-  tooShort:r => `লিখতে থাকুন — ${r} দিয়ে কিছু মিলবে না, আরও সংখ্যা দিন।`,
+  nextPrimary:["এটি প্রাথমিক নির্বাচন। এরপর কাগজপত্র যাচাই বা নিয়োগ প্রক্রিয়ার পরবর্তী ধাপ রয়েছে।","যাচাইয়ের তারিখ ও কাগজপত্রের তালিকার জন্য পোর্টালে নজর রাখুন।","মূল কাগজপত্র আর এক সেট ফটোকপি তৈরি রাখুন।"],
+  nextSeat:["প্রবেশপত্র আর ছবিসহ পরিচয়পত্র সঙ্গে নিন।","কমপক্ষে এক ঘণ্টা আগে কেন্দ্রে পৌঁছান।","মোবাইল ফোন, ক্যালকুলেটর, স্মার্টওয়াচ ও ব্যাগ সাধারণত ভেতরে নেওয়া যায় না।","বিস্তারিত নির্দেশনা অফিসিয়াল পিডিএফে দেখুন।"],
+  nextViva:["সব মূল সনদ ও এক সেট ফটোকপি সঙ্গে নিন।","উপরে দেওয়া সময়ে হাজির থাকুন — দেরি করলে সাধারণত ঢুকতে দেওয়া হয় না।","কাগজপত্রের তালিকা অফিসিয়াল পিডিএফে দেখুন।"],
+  notFoundTitle:r => `এই সাইটের কোনো নোটিশে রোল ${r} পাওয়া যায়নি`,
+  notFoundBody:n => `এই সাইটে থাকা ${n}টি নোটিশেই খোঁজা হয়েছে। সম্ভবত আপনার নোটিশটি এখনো যোগ করা হয়নি — নতুন নোটিশ আগে অফিসিয়াল পোর্টালে আসে, তারপর এখানে।`,
+  notFoundList:"এই সাইটে এখন যেসব নোটিশ আছে:",
+  tooShort:r => `${r} রোল নম্বর হিসেবে খুব ছোট — পুরো নম্বরটি লিখুন।`,
   nRolls:n => `${n}টি রোল নম্বর`,
   nRollsIn:(r,p) => `${p}টি পদে মোট ${r}টি রোল নম্বর`,
   nCentres:(c,a,b) => `${c}টি কেন্দ্র · রোল ${a}–${b}`,
   nSittings:(s,r) => `${s}টি ব্যাচ · ${r}টি রোল`,
   filterList:"এই তালিকায় খুঁজুন…", copyAll:"সব কপি করুন", copied:"কপি হয়েছে", noMatchInList:"এই তালিকায় এমন কোনো রোল নেই।",
   showing:(a,b) => `${b}টির মধ্যে ${a}টি দেখানো হচ্ছে`,
-  pastNotices:n => `${n}টি পুরোনো নোটিশ — শেষ হলেও এখানে খোঁজা যায়`,
-  ocrProv:(tot) => `<b>স্ক্যান করা নোটিশ থেকে কম্পিউটার দিয়ে পড়া।</b> এই পিডিএফটি আসলে একটি ছবি। নম্বরগুলো ওসিআর দিয়ে পড়া হয়েছে, আর নোটিশে ছাপা মোট সংখ্যার${tot?` (${tot})`:""} সঙ্গে মিললে এবং কয়েকবার আলাদাভাবে পড়েও একই ফল এলেই কেবল প্রকাশ করা হয়েছে। তবু ভুল থাকতে পারে — `,
-  manualProv:"<b>স্ক্যান করা নোটিশ থেকে হাতে টাইপ করা।</b> এই পিডিএফটি আসলে একটি ছবি, তাই নম্বরগুলো হাতে টাইপ করে নোটিশে ছাপা মোট সংখ্যার সঙ্গে মিলিয়ে দেখা হয়েছে। তবু সবসময় ",
+  pastNotices:n => `${n}টি পুরোনো নোটিশ — শেষ হয়ে গেছে, তবে এখানে খোঁজা যায়`,
+  /* "কম্পিউটার দিয়ে পড়া" is a calque that reads as a description of a
+     machine rather than of the data; স্বয়ংক্রিয়ভাবে is the word a Bengali
+     notice would use. The run-on is split into three short sentences. */
+  ocrProv:(tot) => `<b>স্ক্যান করা নোটিশ থেকে স্বয়ংক্রিয়ভাবে পড়া।</b> এই পিডিএফটি একটি ছবি, তাই নম্বরগুলো ওসিআর দিয়ে পড়া হয়েছে। নোটিশে ছাপা মোট সংখ্যার${tot?` (${tot})`:""} সঙ্গে মিলেছে এবং কয়েকবার আলাদাভাবে পড়েও একই ফল এসেছে, তাই প্রকাশ করা হয়েছে। তবুও ভুল থাকতে পারে — `,
+  manualProv:"<b>স্ক্যান করা নোটিশ থেকে হাতে টাইপ করা।</b> এই পিডিএফটি একটি ছবি। নম্বরগুলো হাতে টাইপ করে নোটিশে ছাপা মোট সংখ্যার সঙ্গে মিলিয়ে দেখা হয়েছে। তবুও সবসময় ",
   confirmPdf:"অফিসিয়াল পিডিএফে মিলিয়ে নিন",
-  scannedWarn:"<b>এই নোটিশটি স্ক্যান করা ছবি।</b> এর রোল নম্বর কম্পিউটার দিয়ে পড়া যায়নি, তাই এখানে খুঁজে পাওয়া যাবে না। ",
+  scannedWarn:"<b>এই নোটিশটি স্ক্যান করা ছবি।</b> এর রোল নম্বর স্বয়ংক্রিয়ভাবে পড়া যায়নি, তাই এখানে খুঁজে পাওয়া যাবে না। ",
   openPdfCheck:"অফিসিয়াল পিডিএফ খুলে নিজে মিলিয়ে দেখুন।",
   fData:"তথ্য:", fDataRest:"· বাংলাদেশ ব্যাংক ও বিএসসিএসের অফিসিয়াল নোটিশের পিডিএফ থেকে নেওয়া · বাংলাদেশ ব্যাংকের সঙ্গে এই সাইটের কোনো সম্পর্ক নেই।",
   fConfirm:"রওনা দেওয়ার আগে অবশ্যই অফিসিয়াল পিডিএফে মিলিয়ে নিন — এটি শুধু সহায়ক একটি সাইট, অফিসিয়াল উৎস নয়।",
@@ -787,7 +965,7 @@ const kindLabel = k => LANG === "bn" ? (KIND[k]||KIND.circular).labBn : (KIND[k]
 /* data is inlined at build time by parser/build_site.py so the page works
    from file://, from a phone with no signal, and inside sandboxed previews */
 const DATA = {
- "generated": "2026-11-12T03:43:46Z",
+ "generated": "2026-11-12T00:00:00Z",
  "source": "https://erecruitment.bb.org.bd/career/jobopportunity.php",
  "notices": [
   {
@@ -1504,7 +1682,7 @@ const DATA = {
    "headline": "You passed the preliminary test — written exam next",
    "note": "Written exam 20/11/2026, 3:00–5:00 PM at the Academic Building, Faculty of Business Studies, University of Dhaka. Admit card required; be there one hour early — the gate closes at 3:00 PM. No calculator, phone, smartwatch, bag or jewellery.",
    "headlineBn": "অভিনন্দন! আপনি প্রাথমিক পরীক্ষায় উত্তীর্ণ হয়েছেন — এরপর লিখিত পরীক্ষা",
-   "noteBn": "লিখিত পরীক্ষা ২০/১১/২০২৬, বিকাল ৩:০০–৫:০০টা, ঢাকা বিশ্ববিদ্যালয় ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবনে। প্রবেশপত্র আবশ্যক; এক ঘণ্টা আগে পৌঁছান — ৩:০০টায় গেট বন্ধ হয়ে যাবে। ক্যালকুলেটর, মোবাইল, স্মার্টওয়াচ, ব্যাগ বা গয়না আনা যাবে না।",
+   "noteBn": "লিখিত পরীক্ষা ২০/১১/২০২৬, বিকাল ৩:০০ – ৫:০০টা, ঢাকা বিশ্ববিদ্যালয় ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবনে। প্রবেশপত্র আবশ্যক; এক ঘণ্টা আগে পৌঁছান — ৩:০০টায় গেট বন্ধ হয়ে যাবে। ক্যালকুলেটর, মোবাইল, স্মার্টওয়াচ, ব্যাগ বা গয়না আনা যাবে না।",
    "details": [
     {
      "k": "Date",
@@ -5296,7 +5474,7 @@ const DATA = {
    "id": "20261029_bb_372_1793248807",
    "noticeNo": null,
    "kind": "selected",
-   "jobId": "280, 282, 289, 294, 295, 296",
+   "jobId": "280, 282, 289, 294, 295, 296, 299, 300",
    "category": "Selected Candidate",
    "title": "Primarily selected candidates (2nd and 3rd Phase) for 10 category posts of SPCBL (Circular No :45/2024). (Job Id -280, 282, 289, 294, 295, 296, 299 & 300)",
    "pdf": "notices/20261029_bb_372_1793248807.pdf",
@@ -5352,7 +5530,7 @@ const DATA = {
      ]
     },
     {
-     "post": "জুনিয়র টেকনিশিয়ান (অরিজিনেশন)",
+     "post": "জুনিয়র টেকনিশিয়ান (অরিগেশন)",
      "rolls": [
       801
      ]
@@ -6588,7 +6766,7 @@ function identBlock(n, group, opts){
   if (n.noticeNo)  bits.push(`${t("notice")} ${dnum(n.noticeNo)}`);
   if (n.published) bits.push(`${t("published")} ${dnum(n.published)}`);
   return `<div class="ident">
-    <div class="jobtag"><span class="k">${esc(t("job"))}</span><span class="v">${esc(JOB(n.jobId))}</span></div>
+    <div class="jobtag"${jobAttr(n.jobId)}><span class="k">${esc(t("job"))}</span><span class="v">${esc(JOB_LABEL(n.jobId))}</span></div>
     <div class="identtext">
       <p class="post">${esc(post || t("multiPost"))}</p>
       ${bits.length ? `<div class="identmeta">${bits.map(b => `<span>${esc(b)}</span>`).join("")}</div>` : ""}
@@ -6603,12 +6781,33 @@ function identBlock(n, group, opts){
 function provenance(n){
   if (n.rollSource === "ocr"){
     const tot = n.ocrChecks && n.ocrChecks.printedTotal ? dnum(n.ocrChecks.printedTotal) : "";
-    return `<div class="prov">${t("ocrProv")(tot)}<a href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("confirmPdf"))}</a>.</div>`;
+    return `<div class="prov">${t("ocrProv")(tot)}<a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("confirmPdf"))}</a>${esc(t("stop"))}</div>`;
   }
   if (n.rollSource === "manual"){
-    return `<div class="prov">${t("manualProv")}<a href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("confirmPdf"))}</a>.</div>`;
+    return `<div class="prov">${t("manualProv")}<a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("confirmPdf"))}</a>${esc(t("stop"))}</div>`;
   }
   return "";
+}
+
+/* ------------------------------------------------- low-confidence rolls
+   The OCR records the rolls it could not read the same way twice in
+   ocrChecks.lowConfidence. Until now nothing read that field, so a candidate
+   whose number was one of them got the ordinary green "you are on the list"
+   card with no hint that the scan was unclear at exactly their number.
+
+   The list is deliberately kept in rolls[] rather than dropped — a candidate
+   searching a number the notice really does contain must not be told it is
+   absent — so the disclosure has to happen at render time instead. */
+function lowConf(n, roll){
+  const lc = n.ocrChecks && n.ocrChecks.lowConfidence;
+  if (!lc || !lc.length) return false;
+  return lc.map(String).indexOf(String(roll)) !== -1;
+}
+function lowConfBlock(n, roll){
+  if (!lowConf(n, roll)) return "";
+  return `<div class="prov warn" role="note">
+    <b>${esc(t("lowConfTitle"))}</b> ${esc(t("lowConfBody"))}
+    <a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("confirmPdf"))}</a>${esc(t("stop"))}</div>`;
 }
 
 /* --------------------------------------------------------- outcome panel */
@@ -6639,6 +6838,13 @@ function nextBlock(steps, note, details){
     steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol></div>`;
 }
 
+/* 7.8 — share. The page already restores #roll=NNN on load, so the link is
+   just this page plus the roll; no new routing. navigator.share exists on
+   nearly every Android browser, and app.js falls back to the clipboard. */
+function shareBtn(roll){
+  return `<button type="button" class="btn" data-share="${esc(roll)}">${esc(t("share"))}</button>`;
+}
+
 /* ---------------------------------------------------------------- cards */
 function seatCard(n, c, roll, pref){
   const from = n.examWindow?.[0], to = n.examWindow?.[1];
@@ -6666,10 +6872,11 @@ function seatCard(n, c, roll, pref){
     ${nextBlock(t("nextSeat"), null)}
     <div class="actions">
       <a class="btn primary" target="_blank" rel="noopener noreferrer" href="${mapsUrl(q)}">${esc(t("openMaps"))}</a>
-      <button type="button" class="btn" data-map="1">${esc(t("showMap"))}</button>
-      <a class="btn" href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}</a>
+      <button type="button" class="btn" data-map="1" aria-expanded="false" aria-controls="map-${esc(n.id)}">${esc(t("showMap"))}</button>
+      <a class="btn" ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}</a>
+      ${shareBtn(roll)}
     </div>
-    <div class="mapbox"><iframe loading="lazy" title="map"
+    <div class="mapbox" id="map-${esc(n.id)}" role="region" aria-label="${esc(t("yourCentre"))}"><iframe loading="lazy" title="${esc(t("yourCentre"))}"
       data-src="https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=15&output=embed"></iframe></div>
   </div>`;
 }
@@ -6686,19 +6893,20 @@ function sittingCard(n, info, roll, pref){
     ${identBlock(n, null, { preferred: pref })}
     ${countdown(toISO(info.d), clock(info.t), null)}
     <div class="panel info">
-      <div class="eyebrow">${esc(t("reportingTime"))}</div>
+      <div class="eyebrow">${esc(t("yourSitting"))}</div>
       <div class="big">${esc(dnum(info.d) || "—")}${info.t ? ` · ${esc(clock(info.t))}` : ""}</div>
       ${n.venue ? `<div class="refline">${esc(n.venue)}</div>` : ""}
     </div>
     <div class="grid">
       <div class="cell"><div class="k">${esc(t("date"))}</div><div class="v">${esc(dnum(info.d) || "—")}</div></div>
-      <div class="cell"><div class="k">${esc(t("reportingTime"))}</div><div class="v acc">${esc(info.t || "—")}</div></div>
+      <div class="cell"><div class="k">${esc(t("reportingTime"))}</div><div class="v acc">${esc(clock(info.t) || "—")}</div></div>
       <div class="cell"><div class="k">${esc(t("yourRoll"))}</div><div class="v">${esc(NUM(roll))}</div></div>
     </div>
     ${nextBlock(t("nextViva"), null)}
     <div class="actions">
       ${q ? `<a class="btn primary" target="_blank" rel="noopener noreferrer" href="${mapsUrl(q)}">${esc(t("openMaps"))}</a>` : ""}
-      <a class="btn" href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}</a>
+      <a class="btn" ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}</a>
+      ${shareBtn(roll)}
     </div>
   </div>`;
 }
@@ -6721,8 +6929,12 @@ function selectedCard(n, roll, pref){
       <div class="refline">${esc(t("selectedRef"))}<b>${esc(NUM(roll))}</b></div>
     </div>
     ${nextBlock(o.steps, note, details)}
+    ${lowConfBlock(n, roll)}
     ${provenance(n)}
-    <div class="actions"><a class="btn primary" href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("openPdf"))}</a></div>
+    <div class="actions">
+      <a class="btn primary" ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("openPdf"))}</a>
+      ${shareBtn(roll)}
+    </div>
   </div>`;
 }
 
@@ -6740,9 +6952,14 @@ function rollWrapHtml(rolls, hit){
     <div class="rollgrid"></div>
   </div>`;
 }
+/* The chip for the number you just searched. Every caller passed hit=null, so
+   the .hit style existed but never applied to anything; reading the live
+   search box means opening any list highlights your roll without the archive
+   having to be re-rendered on every keystroke. */
+const currentRoll = () => AS(($("#roll") || {}).value || "").replace(/\D/g, "");
 function paintRolls(wrap){
   const all = (wrap.dataset.rolls || "").split(",").filter(Boolean);
-  const hit = wrap.dataset.hit || "";
+  const hit = wrap.dataset.hit || currentRoll();
   const q   = AS((wrap.querySelector(".rollfilter") || {}).value || "").replace(/\D/g, "");
   const list = q ? all.filter(r => r.includes(q)) : all;
   const grid = wrap.querySelector(".rollgrid");
@@ -6751,6 +6968,10 @@ function paintRolls(wrap){
     : `<div class="rollempty">${esc(t("noMatchInList"))}</div>`;
   wrap.querySelector(".rollcount").textContent =
     q ? t("showing")(NUM(list.length), NUM(all.length)) : NUM(all.length);
+  /* A 1,037-chip grid scrolls inside itself, so a highlighted chip is usually
+     off-screen when the list opens. */
+  const chip = grid.querySelector(".rollchip.hit");
+  if (chip && chip.scrollIntoView) chip.scrollIntoView({ block:"nearest", inline:"nearest" });
 }
 
 /* ===== features/search.js ===== */
@@ -6808,7 +7029,8 @@ function renderResult(){
     dis.innerHTML = "";
     const cover = searchable.map(n => {
       const p = postOf(n);
-      return `<li>${esc(t("job"))} ${esc(JOB(n.jobId))} — ${esc(p || (KIND[n.kind]||{}).en || n.kind)}</li>`;
+      const kind = (KIND[n.kind] || {}).en || n.kind;
+      return `<li>${esc(t("job"))} ${esc(JOB_LABEL(n.jobId))} — ${esc(p ? `${p} · ${kind}` : kind)}</li>`;
     }).join("");
     box.innerHTML = `<div class="card bad">
       <p class="post" style="margin-bottom:8px">${esc(t("notFoundTitle")(NUM(raw)))}</p>
@@ -6833,8 +7055,8 @@ function paintHits(raw){
     const opts = jobs.map(j => {
       const n = lastHits.find(h => h.job === j).n;
       const p = postOf(n);
-      return `<button type="button" data-job="${esc(j)}" aria-pressed="${prefJob === j}">
-        <b>${esc(t("job"))} ${esc(JOB(j))}</b><span>${esc(p || (KIND[n.kind]||{}).en || n.kind)}</span></button>`;
+      return `<button type="button" data-job="${esc(j)}" aria-pressed="${prefJob === j}"${jobAttr(j)}>
+        <b>${esc(t("job"))} ${esc(JOB_LABEL(j))}</b><span>${esc(p || (KIND[n.kind]||{}).en || n.kind)}</span></button>`;
     }).join("");
     dis.innerHTML = `<div class="disambig">
       <p>${esc(t("disambigQ")(NUM(raw), NUM(jobs.length)))}</p>
@@ -6879,7 +7101,7 @@ function noticeCard(n){
         <td>${esc(clock(b.time) || "—")}</td><td class="num">${esc(NUM(b.count))}</td></tr>`).join("")}
       </tbody></table></div></details>`;
   } else if (n.kind === "scanned"){
-    detail = `<div class="scanwarn">${t("scannedWarn")}<a href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("openPdfCheck"))}</a></div>`;
+    detail = `<div class="scanwarn">${t("scannedWarn")}<a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("openPdfCheck"))}</a></div>`;
   } else if (n.groups && n.groups.length){
     const multi = n.groups.length > 1;
     detail = `<details><summary>${esc(multi
@@ -6899,7 +7121,7 @@ function noticeCard(n){
     <div class="nhead">
       <span class="badge ${k.cls}">${esc(kindLabel(n.kind))}</span>
       <span class="badge ${st.cls}">${esc(st.lbl)}</span>
-      <span class="badge sm">${esc(t("job"))} ${esc(JOB(n.jobId))}</span>
+      <span class="badge sm"${jobAttr(n.jobId)}>${esc(t("job"))} ${esc(JOB_LABEL(n.jobId))}</span>
     </div>
     <p class="npost">${esc(post || t("multiPost"))}</p>
     <p class="ntitle">${esc(n.title)}</p>
@@ -6910,7 +7132,7 @@ function noticeCard(n){
       ${n.noticeNo ? `<span>${esc(t("notice"))} ${esc(dnum(n.noticeNo))}</span>` : ""}
       ${n.published ? `<span>${esc(t("published"))} ${esc(dnum(n.published))}</span>` : ""}
       ${n.examDate ? `<span>${esc(t("exam"))} ${esc(dnum(n.examDate))}</span>` : ""}
-      <a href="${safeHref(n.pdf)}" target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}${n.sizeKB ? ` · ${esc(NUM(n.sizeKB))} KB` : ""}</a>
+      <a ${pdfAttrs(n.pdf)} target="_blank" rel="noopener noreferrer">${esc(t("officialPdf"))}${n.sizeKB ? ` · ${esc(NUM(n.sizeKB))} KB` : ""}</a>
       ${n.pages ? `<span>${esc(t("pages")(NUM(n.pages)))}</span>` : ""}
     </div>
     ${detail}
@@ -6970,6 +7192,10 @@ function applyLang(code){
   // digits become 200983 in English and 2009৮3 can never survive a switch.
   const box = $("#roll");
   if (box && box.value.trim()) box.value = NUM(AS(box.value));
+  /* P4-3: say() suppresses a repeat of the same sentence, so after a language
+     switch the status line kept the old-language text until the next
+     keystroke. Clearing the memo lets renderResult() re-announce it. */
+  lastSaid = "";
   renderNotices();
   renderResult();
 }
@@ -6994,7 +7220,7 @@ function paintStatic(){
   const age = dayDiff(DATA.generated.slice(0, 10));
   const fresh = age === 0 ? t("updToday") : age === -1 ? t("updYesterday")
               : age < 0 ? t("updDays")(NUM(-age)) : t("upd");
-  $("#gen").textContent = `${fresh} ${t("builtFrom")(dnum(DATA.generated), NUM(notices.length))} ${t("fDataRest")}`;
+  $("#gen").textContent = `${fresh} ${t("builtFrom")(fmtDay(DATA.generated), NUM(notices.length))} ${t("fDataRest")}`;
 }
 
 /* ===== app.js ===== */
@@ -7007,7 +7233,37 @@ document.addEventListener("click", e => {
     const open = box.style.display === "block";
     box.style.display = open ? "none" : "block";
     map.textContent = open ? t("showMap") : t("hideMap");
+    map.setAttribute("aria-expanded", open ? "false" : "true");
+    /* The embed is the one part of this page that needs the network. Offline
+       it rendered as a blank grey rectangle that looked like a broken build,
+       so say what is wrong and leave the Google Maps button as the way out. */
+    if (!open && !navigator.onLine && !ifr.src){
+      if (!box.querySelector(".mapoffline")){
+        const msg = document.createElement("div");
+        msg.className = "mapoffline";
+        msg.textContent = t("mapOffline");
+        box.appendChild(msg);
+      }
+      return;
+    }
+    const off = box.querySelector(".mapoffline");
+    if (off) off.remove();
     if (!open && !ifr.src) ifr.src = ifr.dataset.src;
+    return;
+  }
+
+  /* 7.8 — share. Web Share where it exists (Android/iOS), clipboard
+     everywhere else; both paths confirm in the button itself. */
+  const sh = e.target.closest("[data-share]");
+  if (sh){
+    const url = location.origin + location.pathname + "#roll=" + sh.dataset.share;
+    const done = () => {
+      const was = sh.textContent;
+      sh.textContent = t("shared");
+      setTimeout(() => { sh.textContent = was; }, 1600);
+    };
+    if (navigator.share) navigator.share({ title: document.title, url }).catch(() => {});
+    else navigator.clipboard?.writeText(url).then(done).catch(() => {});
     return;
   }
   const th = e.target.closest("[data-theme-set]");
@@ -7037,8 +7293,15 @@ document.addEventListener("click", e => {
   if (f){ filter = f.dataset.f; renderNotices(); return; }
 });
 
+let filterTimer = 0;
 document.addEventListener("input", e => {
-  if (e.target.classList.contains("rollfilter")) paintRolls(e.target.closest(".rollwrap"));
+  if (!e.target.classList.contains("rollfilter")) return;
+  /* The longest list is 1,037 chips. Rebuilding that grid on every keystroke
+     is visibly janky on a low-end phone; one frame of debounce is below the
+     threshold where typing feels laggy and skips most of the work. */
+  const wrap = e.target.closest(".rollwrap");
+  clearTimeout(filterTimer);
+  filterTimer = setTimeout(() => paintRolls(wrap), 60);
 });
 /* build the chips only when a list is actually opened */
 document.addEventListener("toggle", e => {
@@ -7067,14 +7330,15 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")){
    every call through BB.* would mean rewriting several hundred call sites for
    no behavioural gain on a page that loads no other scripts. */
 const BB = {
-  dom:         { $, esc, safeHref },
-  numbers:     { BN, AS, NUM, JOB, clock, clockRange },
-  dates:       { TODAY, toISO, dayDiff, statusOf, countdown, dnum },
+  dom:         { $, esc, safeHref, pdfAttrs },
+  numbers:     { BN, AS, NUM, JOB, JOB_LIST, JOB_LABEL, jobAttr, clock, clockRange },
+  dates:       { TODAY, toISO, dayDiff, statusOf, countdown, dnum, fmtDay },
   language:    { get lang(){ return LANG; }, t, STR, kindLabel },
   constants:   { KIND, POST_RE },
   data:        { DATA, notices, searchable, scannedCount, findCentre, minus60 },
   maps:        { mapsUrl },
   results:     { postOf, identBlock, provenance, outcomeOf, nextBlock,
+                 lowConf, lowConfBlock, shareBtn,
                  seatCard, sittingCard, selectedCard },
   rolls:       { rollWrapHtml, paintRolls },
   search:      { collectHits, isPref, renderResult, paintHits, say },
@@ -7100,6 +7364,22 @@ window.BB = BB;
   $("#roll").addEventListener("keydown", e => {
     if (e.key === "Escape"){ e.target.value = ""; renderResult(); }
   });
+
+  /* "/" jumps to the search box unless the user is already typing somewhere.
+     Deliberately not an autofocus: on a phone an autofocus opens the keyboard
+     over the content before the visitor has seen the page, so the focus is
+     only taken on a device that has a real pointer. */
+  document.addEventListener("keydown", e => {
+    if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
+    const el = document.activeElement, tag = el ? el.tagName : "";
+    if (tag === "INPUT" || tag === "TEXTAREA" || (el && el.isContentEditable)) return;
+    e.preventDefault();
+    $("#roll").focus();
+    $("#roll").select();
+  });
+  try {
+    if (window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches) $("#roll").focus();
+  } catch(e){}
 
   const m = AS(decodeURIComponent(location.hash)).match(/roll=(\d+)/);
   if (m){ $("#roll").value = m[1]; renderResult(); }

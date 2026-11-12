@@ -32,6 +32,10 @@ function applyLang(code){
   // digits become 200983 in English and 2009৮3 can never survive a switch.
   const box = $("#roll");
   if (box && box.value.trim()) box.value = NUM(AS(box.value));
+  /* P4-3: say() suppresses a repeat of the same sentence, so after a language
+     switch the status line kept the old-language text until the next
+     keystroke. Clearing the memo lets renderResult() re-announce it. */
+  lastSaid = "";
   renderNotices();
   renderResult();
 }
@@ -56,5 +60,5 @@ function paintStatic(){
   const age = dayDiff(DATA.generated.slice(0, 10));
   const fresh = age === 0 ? t("updToday") : age === -1 ? t("updYesterday")
               : age < 0 ? t("updDays")(NUM(-age)) : t("upd");
-  $("#gen").textContent = `${fresh} ${t("builtFrom")(dnum(DATA.generated), NUM(notices.length))} ${t("fDataRest")}`;
+  $("#gen").textContent = `${fresh} ${t("builtFrom")(fmtDay(DATA.generated), NUM(notices.length))} ${t("fDataRest")}`;
 }

@@ -1,5 +1,16 @@
 # Full repo audit — findings and what to build next
 
+> ## ✅ Audit response SHIPPED — 12 Nov 2026
+> External audit of the live site + the zip snapshot. 39 findings actioned,
+> 4 rejected as incorrect, 5 declined with reasons. Highlights: OCR
+> low-confidence rolls are now disclosed on the result card (they were being
+> served as confirmed matches), multi-job Job IDs collapse to `280 + 7`, 19
+> Bengali strings rewritten, the service-worker cache name is derived from a
+> hash of the bundle, the app icon was rebuilt on-brand and full-bleed
+> (262 KB → 6.5 KB), and the JSON-LD below finally exists.
+> Verified: selftest **ALL PASS**, uitest **139/139**, test_fetch **9/9**,
+> 12 fired-then-restored negative tests. Full write-up: `AUDIT-RESPONSE.md`.
+>
 > ## ✅ Items 1–8 SHIPPED — 11 Nov 2026
 > Bengali numerals, network-first service worker, exam countdown, ISO dates +
 > status badges + archive, both scanned notices transcribed (28 rolls), LICENSE,
@@ -318,7 +329,7 @@ the fetch — useful precisely because the fetch is manual.
 | 4 | ✅ ISO dates + status badges + archive | ~40 lines | high, self-updating daily |
 | 5 | ✅ Roll lists for the 2 scanned notices (Tier A) | 15 min typing | makes 28 people findable |
 | 6 | ✅ LICENSE + disclaimer | 5 min | legal hygiene |
-| 7 | ✅ robots/sitemap/JSON-LD | 20 min | discoverability |
+| 7 | ✅ robots/sitemap · ✅ JSON-LD *(robots + sitemap shipped 11 Nov; the JSON-LD half of this row was marked done but never written — caught by the 12 Nov audit and shipped then)* | 20 min | discoverability |
 | 8 | ✅ `/*` security headers | 5 min | hygiene |
 | 9 | `ocr_assist.py` with Gemini (Tier B) | ~1 h | saves time on *future* scans |
 

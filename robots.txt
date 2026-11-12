@@ -2,5 +2,10 @@ User-agent: *
 Allow: /
 Disallow: /parser/
 Disallow: /tools/
+# build inputs, not pages. /notices/ stays crawlable on purpose: the official
+# PDFs are the most useful thing here and should be findable.
+Disallow: /meta/
+Disallow: /data/
+Disallow: /career
 
 Sitemap: https://bb-roll-finder.pages.dev/sitemap.xml

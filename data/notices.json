@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-12T03:43:46Z",
+ "generated": "2026-11-12T00:00:00Z",
  "source": "https://erecruitment.bb.org.bd/career/jobopportunity.php",
  "notices": [
   {
@@ -716,7 +716,7 @@
    "headline": "You passed the preliminary test — written exam next",
    "note": "Written exam 20/11/2026, 3:00–5:00 PM at the Academic Building, Faculty of Business Studies, University of Dhaka. Admit card required; be there one hour early — the gate closes at 3:00 PM. No calculator, phone, smartwatch, bag or jewellery.",
    "headlineBn": "অভিনন্দন! আপনি প্রাথমিক পরীক্ষায় উত্তীর্ণ হয়েছেন — এরপর লিখিত পরীক্ষা",
-   "noteBn": "লিখিত পরীক্ষা ২০/১১/২০২৬, বিকাল ৩:০০–৫:০০টা, ঢাকা বিশ্ববিদ্যালয় ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবনে। প্রবেশপত্র আবশ্যক; এক ঘণ্টা আগে পৌঁছান — ৩:০০টায় গেট বন্ধ হয়ে যাবে। ক্যালকুলেটর, মোবাইল, স্মার্টওয়াচ, ব্যাগ বা গয়না আনা যাবে না।",
+   "noteBn": "লিখিত পরীক্ষা ২০/১১/২০২৬, বিকাল ৩:০০ – ৫:০০টা, ঢাকা বিশ্ববিদ্যালয় ব্যবসায় শিক্ষা অনুষদের একাডেমিক ভবনে। প্রবেশপত্র আবশ্যক; এক ঘণ্টা আগে পৌঁছান — ৩:০০টায় গেট বন্ধ হয়ে যাবে। ক্যালকুলেটর, মোবাইল, স্মার্টওয়াচ, ব্যাগ বা গয়না আনা যাবে না।",
    "details": [
     {
      "k": "Date",
@@ -4508,7 +4508,7 @@
    "id": "20261029_bb_372_1793248807",
    "noticeNo": null,
    "kind": "selected",
-   "jobId": "280, 282, 289, 294, 295, 296",
+   "jobId": "280, 282, 289, 294, 295, 296, 299, 300",
    "category": "Selected Candidate",
    "title": "Primarily selected candidates (2nd and 3rd Phase) for 10 category posts of SPCBL (Circular No :45/2024). (Job Id -280, 282, 289, 294, 295, 296, 299 & 300)",
    "pdf": "notices/20261029_bb_372_1793248807.pdf",
@@ -4564,7 +4564,7 @@
      ]
     },
     {
-     "post": "জুনিয়র টেকনিশিয়ান (অরিজিনেশন)",
+     "post": "জুনিয়র টেকনিশিয়ান (অরিগেশন)",
      "rolls": [
       801
      ]

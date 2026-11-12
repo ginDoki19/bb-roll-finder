@@ -58,8 +58,27 @@ def parse_listing(path: str) -> list[dict]:
         junk = {"Details", "Download PDF", "View Details"}
         title = max((p for p in parts if p not in junk and not re.fullmatch(r"[\d/,()\sKB]+", p)
                      and p not in dates and p != job), key=len, default="")
+
+        # The listing's job column is a narrow cell and silently truncates.
+        # 372/2026 shows "280, 282, 289, 294, 295, 296," -- six ids and a
+        # dangling comma -- while its own title spells out the full set:
+        # "(Job Id -280, 282, 289, 294, 295, 296, 299 & 300)". A candidate
+        # holding one of the dropped ids would never see their job on the
+        # card, and the disambiguation picker keys on exactly this field, so
+        # whichever source names more jobs wins.
+        mt = re.search(r"Job\s*Id\s*[-:\s]*([0-9][0-9,&\s]*?)\s*\)", title, re.I)
+        if mt:
+            ids = re.findall(r"\d{3,6}", mt.group(1))
+            if len(ids) > len(re.findall(r"\d{3,6}", job or "")):
+                job = ", ".join(ids)
+        # Order matters: the first match wins. An outcome word ("Selected
+        # Candidate", "Offer Letter") describes what the notice IS, while an
+        # exam-type word ("MCQ", "Written") is usually only a modifier inside
+        # that same title -- "Selected Candidate List of the MCQ Examination"
+        # is a selected list, not an MCQ notice. Outcomes therefore come
+        # first, exam types after.
         cat = None
-        for c in ("MCQ", "VIVA", "Selected Candidate", "Written", "Offer Letter", "Practical"):
+        for c in ("Selected Candidate", "Offer Letter", "VIVA", "Practical", "Written", "MCQ"):
             if re.search(rf"\b{c}\b", text, re.I):
                 cat = c
                 break
@@ -293,7 +312,12 @@ def build(html_path: str, pdf_dir: str, out_path: str) -> dict:
     notices.sort(key=key, reverse=True)
 
     data = {
-        "generated": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        # Rounded to the day on purpose. The footer only ever renders the
+        # date, and a second-resolution stamp meant two builds of byte-identical
+        # notice data produced two different files -- every rebuild looked like
+        # a content change to git, to the cache and to the diff in review.
+        "generated": __import__("datetime").datetime.now(
+            __import__("datetime").timezone.utc).strftime("%Y-%m-%dT00:00:00Z"),
         "source": "https://erecruitment.bb.org.bd/career/jobopportunity.php",
         "notices": notices,
     }

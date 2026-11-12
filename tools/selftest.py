@@ -10,6 +10,7 @@ so a failure means the parser drifted, not that the test is fussy.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -338,8 +339,10 @@ def main() -> int:
     # 7b. language defaults and the fixed English identifier.
     print("\n— language rules —")
     lang_checks = [
-        ('<html lang="en" data-lang="en">', 'document starts in English'),
-        ('return "en";',                    'first visit falls back to English'),
+        ('<html lang="en" data-lang="en">', 'document markup starts in English'),
+        ('return "en";',                    'language resolution ends at English'),
+        ('localStorage.getItem("bb-lang")',  'a saved choice is read first'),
+        ('navigator.languages',              'the browser language is consulted'),
     ]
     before = fails
     for needle, what in lang_checks:
@@ -348,7 +351,24 @@ def main() -> int:
             print(f"  FAIL {what} — expected {needle!r} somewhere in "
                   f"app.template.html or assets/")
     if fails == before:
-        print("  ok  English is the first-visit default")
+        print("  ok  language resolves saved -> browser -> English")
+
+    # The no-flash bootstrap in app.template.html duplicates the resolver in
+    # core/language.js. If the two disagree the first paint uses one language
+    # and the first render switches to the other, which is exactly the flash
+    # the bootstrap exists to prevent. Both must sniff, and both must end at
+    # English.
+    _boot = open(os.path.join(ROOT, "app.template.html"), encoding="utf-8").read()
+    _boot = _boot[:_boot.find("/*__CSS__*/")]
+    if "navigator.languages" not in _boot:
+        fails += 1
+        print("  FAIL the inline bootstrap does not sniff the browser language, "
+              "so the first paint can disagree with core/language.js")
+    elif 'bn-' not in _boot:
+        fails += 1
+        print("  FAIL the inline bootstrap never tests for a bn-* tag")
+    else:
+        print("  ok  the no-flash bootstrap resolves language the same way")
 
     en_keys, bn_keys = _dict_keys(src, "en"), _dict_keys(src, "bn")
     if not en_keys or not bn_keys:
@@ -378,6 +398,15 @@ def main() -> int:
         else:
             print("  ok  'Job ID' is a fixed English label in both locales")
 
+    # P1-2. "280, 282, 289, 294, 295, 296, 299, 300" rendered as one string
+    # overflowed the badge and buried the number being looked for.
+    if re.search(r'esc\(JOB\(n\.jobId\)\)|esc\(JOB\(j\)\)', src):
+        fails += 1
+        print("  FAIL a raw jobId is being rendered — use JOB_LABEL() so a "
+              "multi-job notice collapses to \"280 + 7\"")
+    else:
+        print("  ok  multi-job notices render a collapsed Job ID badge")
+
     # A Job ID is an identifier, not prose: it must never be run through the
     # Bengali-digit converter, or 307 is shown to the candidate as ৩০৭.
     if re.search(r'dnum\(\s*n\.jobId|dnum\(\s*j\s*\)', src):
@@ -401,6 +430,65 @@ def main() -> int:
               "(this is what caused the horizontal page scroll)")
     else:
         print("  ok  roll lists render as a wrapping grid, not one long string")
+
+    # 6.4. Seat-plan centre ranges partition a roll span. Two centres claiming
+    # the same roll is unambiguously wrong -- the candidate is told to go to
+    # two different buildings -- so that fails. A gap is usually genuine (BB
+    # skips numbers that were never allotted) but a candidate landing in one
+    # is told "not found", so the count is reported rather than hidden.
+    print("\n— seat-plan coverage —")
+    _ovl = []
+    _gapn = 0
+    for n in data["notices"]:
+        cs = sorted(n.get("centres") or [], key=lambda c: c["from"])
+        for a, b in zip(cs, cs[1:]):
+            if b["from"] <= a["to"]:
+                _ovl.append((n.get("noticeNo") or n["id"], a["to"], b["from"]))
+            elif b["from"] > a["to"] + 1:
+                _gapn += 1
+    if _ovl:
+        fails += 1
+        print(f"  FAIL centre ranges overlap (a roll would map to two centres): {_ovl[:3]}")
+    else:
+        print(f"  ok  no centre range overlaps; {_gapn} unallotted gap(s) between ranges")
+
+    # P1-1. OCR records the rolls it could not read the same way twice. Those
+    # rolls stay in rolls[] on purpose -- a candidate searching a number the
+    # notice really contains must not be told it is absent -- so the warning
+    # has to be a render-time disclosure. Two things can rot independently:
+    # the field can drift out of rolls[], or the front-end can stop reading it.
+    print("\n— OCR confidence disclosure —")
+    _lc_total = 0
+    _orphans = []
+    for n in data["notices"]:
+        lc = (n.get("ocrChecks") or {}).get("lowConfidence") or []
+        _lc_total += len(lc)
+        have = {str(r) for r in (n.get("rolls") or [])}
+        for g in n.get("groups") or []:
+            have |= {str(r) for r in g.get("rolls", [])}
+        for r in lc:
+            if str(r) not in have:
+                _orphans.append((n["id"], r))
+    if _orphans:
+        fails += 1
+        print(f"  FAIL lowConfidence rolls missing from rolls[]: {_orphans[:4]}")
+    else:
+        print(f"  ok  all {_lc_total} low-confidence rolls are still searchable")
+
+    # Word-boundary, not substring: renaming the field to lowConfidenceX
+    # must fail this, and "lowConfidence" in "lowConfidenceX" does not.
+    if not re.search(r"\blowConfidence\b", src):
+        fails += 1
+        print("  FAIL nothing in the front-end reads ocrChecks.lowConfidence — "
+              "an uncertain roll would render as a confirmed match")
+    # Must be the CALL, not the definition: "function lowConfBlock(n, roll)"
+    # would otherwise satisfy a guard whose whole job is to prove the block
+    # reaches the card.
+    elif not re.search(r"\$\{\s*lowConfBlock\(", src) or "lowConfTitle" not in src:
+        fails += 1
+        print("  FAIL the low-confidence warning is not wired into the result card")
+    else:
+        print("  ok  uncertain rolls are disclosed on the result card")
 
     # a roll number is only unique within a job, so every result card must be
     # able to state its job
@@ -509,14 +597,26 @@ def main() -> int:
         print("  ok  every interpolated href goes through safeHref()")
 
     # A stale service-worker cache name means returning visitors keep the old
-    # shell after a deploy.
+    # shell after a deploy. The name used to be hand-typed and this guard only
+    # checked that the number had moved; build_site.py now derives it from a
+    # SHA-1 of the inlined CSS+JS, so the guard can assert the much stronger
+    # property: the name on disk matches the bundle actually shipped.
     sw = open(os.path.join(ROOT, "sw.js"), encoding="utf-8").read()
-    m = re.search(r'CACHE\s*=\s*"bb-roll-v(\d+)"', sw)
-    if not m or int(m.group(1)) < 4:
+    m = re.search(r'CACHE\s*=\s*"bb-roll-([0-9a-f]{8})"', sw)
+    if not m:
         fails += 1
-        print(f"  FAIL service-worker cache not bumped for this release ({m.group(0) if m else 'not found'})")
+        print('  FAIL sw.js has no derived cache name '
+              '(expected `const CACHE = "bb-roll-<8 hex>";`)')
     else:
-        print(f"  ok  service worker uses bb-roll-v{m.group(1)}")
+        _css = build_site.bundle("css", build_site.CSS_FILES, ".css", "stylesheet(s)")
+        _js = build_site.bundle("js", build_site.JS_FILES, ".js", "script(s)")
+        want = hashlib.sha1((_css + _js).encode("utf-8")).hexdigest()[:8]
+        if m.group(1) != want:
+            fails += 1
+            print(f"  FAIL service-worker cache is bb-roll-{m.group(1)} but the current "
+                  f"bundle hashes to bb-roll-{want} — re-run parser/build_site.py")
+        else:
+            print(f"  ok  service-worker cache bb-roll-{want} matches the shipped bundle")
 
     # theme_color must be a colour the page actually paints.
     mani = json.load(open(os.path.join(ROOT, "manifest.webmanifest"), encoding="utf-8"))
@@ -526,6 +626,63 @@ def main() -> int:
         print(f"  FAIL manifest theme_color {mani.get('theme_color')} is not in the palette")
     else:
         print(f"  ok  manifest theme_color {mani['theme_color']} matches the palette")
+
+    print("\n— discovery —")
+    _ld = re.search(r'<script type="application/ld\+json">(.*?)</script>', html_src, re.S)
+    _canon = re.search(r'<link rel="canonical" href="([^"]+)"', html_src)
+    if not _ld:
+        fails += 1
+        print("  FAIL no JSON-LD block in app.template.html "
+              "(ROADMAP.md claims a WebSite + SearchAction is published)")
+    elif not _canon:
+        fails += 1
+        print("  FAIL no <link rel=canonical>")
+    else:
+        try:
+            _obj = json.loads(_ld.group(1))
+        except json.JSONDecodeError as exc:
+            _obj = None
+            fails += 1
+            print(f"  FAIL the JSON-LD block is not valid JSON — {exc}")
+        if _obj is not None:
+            _act = (_obj.get("potentialAction") or {})
+            _tgt = (_act.get("target") or {}).get("urlTemplate", "")
+            if _obj.get("url") != _canon.group(1):
+                fails += 1
+                print(f"  FAIL JSON-LD url {_obj.get('url')!r} disagrees with "
+                      f"canonical {_canon.group(1)!r}")
+            elif _act.get("@type") != "SearchAction" or "{roll_number}" not in _tgt:
+                fails += 1
+                print("  FAIL the SearchAction has no {roll_number} entry point")
+            elif "roll_number" not in _act.get("query-input", ""):
+                fails += 1
+                print("  FAIL the SearchAction declares no query-input")
+            else:
+                print("  ok  JSON-LD WebSite + SearchAction agree with the canonical URL")
+
+    # sitemap.xml must list routes that exist. /career was the saved portal
+    # snapshot, not a page, and it sat in the sitemap telling crawlers to index
+    # a copy of somebody else's listing.
+    _sm = open(os.path.join(ROOT, "sitemap.xml"), encoding="utf-8").read()
+    _locs = re.findall(r"<loc>([^<]+)</loc>", _sm)
+    _bad = [u for u in _locs if u.rstrip("/").rsplit("/", 1)[-1]
+            not in ("", "bb-roll-finder.pages.dev")]
+    if _bad:
+        fails += 1
+        print(f"  FAIL sitemap lists non-page routes: {_bad}")
+    else:
+        print(f"  ok  sitemap lists {len(_locs)} real route(s)")
+
+    _rb = open(os.path.join(ROOT, "robots.txt"), encoding="utf-8").read()
+    if "Disallow: /notices/" in _rb:
+        fails += 1
+        print("  FAIL robots.txt blocks /notices/ — the official PDFs are the "
+              "most useful thing here and should stay crawlable")
+    elif "Disallow: /data/" not in _rb or "Disallow: /meta/" not in _rb:
+        fails += 1
+        print("  FAIL robots.txt does not hide the build inputs (/data/, /meta/)")
+    else:
+        print("  ok  robots.txt hides build inputs and keeps the PDFs crawlable")
 
     # Static font preloads reintroduce the file:// CORS errors.
     if re.search(r'<link[^>]+rel="preload"', html_src):

@@ -49,7 +49,9 @@ except ImportError:                                     # converter is optional
         return s
 
 # a Bangla venue name ends at one of these words; everything after is the address
-BN_INSTITUTION = re.compile(r"(কলেজ|বিদ্যালয়|ইনস্টিটিউট|স্কুল|কেন্দ্র|একাডেমি|মহাবিদ্যালয়)")
+BN_INSTITUTION = re.compile(
+    r"(কলেজ|বিদ্যালয়|ইনস্টিটিউট|স্কুল|কেন্দ্র|একাডেমি|মহাবিদ্যালয়"
+    r"|ভবন|হল|ক্যাম্পাস|প্রতিষ্ঠান|মিলনায়তন|অডিটোরিয়াম|বিশ্ববিদ্যালয়|মাদ্রাসা)")
 
 
 # ----------------------------------------------------------------- primitives
@@ -100,6 +102,17 @@ DATE_RE = re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b")
 def dkey(d: str) -> tuple[int, int, int] | None:
     m = DATE_RE.fullmatch(d.strip()) if d else None
     return (int(m.group(3)), int(m.group(2)), int(m.group(1))) if m else None
+
+
+def _tkey(label: str) -> str:
+    """Comparison key for a clock label.
+
+    Sittings are split when a row's time differs from the current one. Doing
+    that on the raw string meant "10:00 AM", "10:00AM" and "10:00  am" read as
+    three different sittings and the batch numbering drifted for the rest of
+    the notice. Only the digits and the meridian letter carry meaning here.
+    """
+    return re.sub(r"[^0-9apAP]", "", (label or "")).lower()
 
 
 def times_in(text: str) -> list[dict]:
@@ -204,7 +217,14 @@ def parse_centres_text(text: str) -> list[dict]:
             else:
                 # the cell wrapped: name sits on the previous line, this is the address
                 name_bn, address_bn = prev_institution, readable.strip(" ,।|")
+                if not name_bn:
+                    # Nothing was carried over, so there is no name to attribute.
+                    # Better to show the row's own text as the centre than to
+                    # render an empty "Your centre:" heading on a seat card.
+                    name_bn, address_bn = readable.strip(" ,।|"), ""
             prev_institution = ""
+            if not name_bn:
+                continue
 
             out.append({
                 "sl": len(out) + 1,
@@ -246,7 +266,7 @@ def parse_batches(tables) -> list[dict]:
             if cur is not None:
                 if d and cur.get("date") and d.group(0) != cur["date"]:
                     new = True
-                elif tl and cur.get("times") and tl[0] != cur["times"][0]:
+                elif tl and cur.get("times") and _tkey(tl[0]) != _tkey(cur["times"][0]):
                     new = True
 
             if new:

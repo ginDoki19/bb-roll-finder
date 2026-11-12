@@ -8,11 +8,11 @@
  */
 const KIND = {
   seat:     { key:"seat",     cls:"b-seat",     en:"Centre & seat allocation",     labEn:"SEAT PLAN", labBn:"আসন বিন্যাস" },
-  viva:     { key:"viva",     cls:"b-viva",     en:"Viva / interview schedule",    labEn:"VIVA",      labBn:"মৌখিক" },
+  viva:     { key:"viva",     cls:"b-viva",     en:"Viva / interview schedule",    labEn:"VIVA",      labBn:"ভাইভা" },
   result:   { key:"result",   cls:"b-result",   en:"Written result",               labEn:"RESULT",    labBn:"ফলাফল" },
   selected: { key:"selected", cls:"b-selected", en:"Primarily selected list",      labEn:"SELECTED",  labBn:"নির্বাচিত" },
   circular: { key:"circular", cls:"b-circular", en:"Schedule / circular",          labEn:"CIRCULAR",  labBn:"বিজ্ঞপ্তি" },
-  scanned:  { key:"scanned",  cls:"b-scanned",  en:"Scanned image — not searchable",labEn:"SCANNED",  labBn:"স্ক্যান" }
+  scanned:  { key:"scanned",  cls:"b-scanned",  en:"Scanned image — not searchable",labEn:"SCANNED",  labBn:"স্ক্যান করা" }
 };
 /* ------------------------------------------------------------- identity
    A roll number is only unique inside a job, so the job is what every card
